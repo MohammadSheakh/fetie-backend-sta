@@ -8,57 +8,26 @@ import { IOrder, IOrderModel } from './order.interface';
 
 const orderSchema = new Schema<IOrder>(
   {
-    userId: { //🔗
-      type: Schema.Types.ObjectId,
-      ref: 'User',
-      required: [true, 'User Id is required'],
+    
+    haveYouEverBeenPregnant : {
+      type : Boolean,
+      required : [true, 'haveYouEverBeenPregnant is required'],
+      default : false
     },
-    totalAmount: {
+    howManyTimes : {
       type : Number,
-      required : [true, 'totalAmount is needed']
+      required : [true, 'howManyTimes is required'],
+      default : 0
     },
-    orderType : {
-      // TODO: orderType niye chinta korte hboe  🔥🔥
-      // like eta ki store er order .. naki training program er order .. 
-      // naki virtual workout class er order .. naki 
-      // subscription er order ... 
-
+    outcomes: {
       type : String,
-      enum : [
-        OrderType.premium,
-        OrderType.premium,
-        OrderType.premium,
-      ],
-      required: [
-        true,
-        `orderType is required it can be ${Object.values(
-          OrderType
-        ).join(', ')}`,
-      ],
-    } ,
-    orderStatus: {
-      type: String,
-      enum: [
-        OrderStatus.pending,
-        OrderStatus.processing,
-        OrderStatus.complete,
-        OrderStatus.failed,
-        OrderStatus.refunded,
-      ],
-      required: [
-        true,
-        `OrderStatus is required it can be ${Object.values(
-          OrderStatus
-        ).join(', ')}`,
-      ],
+      required : [true, 'outcomes is required'],
     },
-    
-    orderNotes: {
-      //> One Subscription can have multiple features ...
-      type: String,
-      required: [false, 'orderNotes is not required'],
+    wasItWithYourCurrentPartner : {
+      type : Boolean,
+      required : [true, 'wasItWithYourCurrentPartner is required'],
+      default : false
     },
-    
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
