@@ -1,0 +1,5 @@
+# conversation ..
+
+addParticipantsToExistingConversation
+showParticipantsOfAConversation
+removeParticipentsFromAConversation

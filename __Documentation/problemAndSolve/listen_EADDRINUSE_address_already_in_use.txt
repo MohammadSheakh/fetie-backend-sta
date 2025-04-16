@@ -1,0 +1,2 @@
+::::::::::::::::::::::::::::::::::::: netstat -ano | findstr :<PORT>
+to kill a process by pid  ::::::::::: taskkill /PID <PORT> /F
