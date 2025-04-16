@@ -1,4 +1,4 @@
-# express-typescript-generic-boilerplate
+# Fertie Backend from express-typescript-generic-boilerplate
 
 -------- Written By :  https://github.com/mohammadsheakh 
 

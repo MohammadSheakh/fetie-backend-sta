@@ -1,7 +1,12 @@
 import { Document, Model, Types } from 'mongoose';
 import { Role } from '../../middlewares/roles';
-import { IMaritalStatus, TGender, TUserStatus } from './user.constant';
+import { IMaritalStatus, TAuthProvider, TGender, TUserStatus } from './user.constant';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
+
+export enum TSubscriptionType{
+  free = 'free',
+  premium = 'premium',
+}
 
 export type TProfileImage = {
   imageUrl: string;
@@ -23,13 +28,7 @@ export type TUser = {
   password: string;
   profileImage?: TProfileImage;
   fcmToken : string;
-  // photoGallery?: TPhotoGallery[];
-  // status: TUserStatus;
-  // location: {
-  //   latitude: number;
-  //   longitude: number;
-  // };
-  // gender: TGender;
+  
   address: {
     streetAddress: string;
     city: string;
@@ -50,6 +49,14 @@ export type TUser = {
   isResetPassword: boolean;
   failedLoginAttempts: number;
   lockUntil: Date | undefined;
+  // -- google  and apple login 
+  googleId: string;
+  appleId: string;
+  authProvider: TAuthProvider.apple | TAuthProvider.google | TAuthProvider.local;
+  googleAccessToken : string;
+  appleAccessToken : string;
+  isGoogleVerified : boolean;
+  isAppleVerified : boolean;
   createdAt: Date;
   updatedAt: Date;
 };

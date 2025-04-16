@@ -4,6 +4,12 @@ export type TUserStatus = 'active' | 'delete' | 'block';
 
 export const UserStatus: TUserStatus[] = ['active', 'block', 'delete'];
 
+export enum TAuthProvider  {
+  google = 'google',
+  apple = 'apple',
+  local = 'local'
+};
+
 export type TGender =
   | 'male'
   | 'female'

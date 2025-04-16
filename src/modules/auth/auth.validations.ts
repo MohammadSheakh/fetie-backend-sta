@@ -1,5 +1,39 @@
 import { z } from 'zod';
 
+const googleLoginValidationSchema = z.object({
+  googleId: z.string({
+    required_error: 'Google ID is required.',
+    invalid_type_error: 'Google ID must be a string.',
+  }),
+  email: z
+    .string({
+      required_error: 'Email is required.',
+      invalid_type_error: 'Email must be a string.',
+    })
+    .email('Invalid email address.'),
+  googleAccessToken: z.string({
+    required_error: 'Google Access Token is required.',
+    invalid_type_error: 'Google Access Token must be a string.',
+  }),
+});
+
+const appleLoginValidationSchema = z.object({
+  appleId: z.string({
+    required_error: 'Apple ID is required.',
+    invalid_type_error: 'Apple ID must be a string.',
+  }),
+  email: z
+    .string({
+      required_error: 'Email is required.',
+      invalid_type_error: 'Email must be a string.',
+    })
+    .email('Invalid email address.'),
+  appleAccessToken: z.string({
+    required_error: 'Apple Access Token is required.',
+    invalid_type_error: 'Apple Access Token must be a string.',
+  }),
+});
+
 const loginValidationSchema = z.object({
   body: z.object({
     email: z
@@ -97,4 +131,6 @@ export const AuthValidation = {
   forgotPasswordValidationSchema,
   resetPasswordValidationSchema,
   changePasswordValidationSchema,
+  googleLoginValidationSchema,
+  appleLoginValidationSchema
 };

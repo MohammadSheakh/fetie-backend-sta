@@ -22,6 +22,20 @@ router.post(
   AuthController.login,
 );
 
+// Route for Google login
+router.post(
+  '/google-login',
+  validateRequest(AuthValidation.googleLoginValidationSchema),
+  AuthController.googleLogin,
+);
+
+// Route for Apple login
+router.post(
+  '/apple-login',
+  validateRequest(AuthValidation.appleLoginValidationSchema),
+  AuthController.appleLogin,
+);
+
 //[🚧][🧑‍💻✅][🧪] // 🆗 
 router.post(
   '/forgot-password',

@@ -2,6 +2,9 @@ import { StatusCodes } from 'http-status-codes';
 import catchAsync from '../../shared/catchAsync';
 import sendResponse from '../../shared/sendResponse';
 import { AuthService } from './auth.service';
+import { User } from '../user/user.model';
+import { TokenService } from '../token/token.service';
+import { TAuthProvider } from '../user/user.constant';
 
 //[🚧][🧑‍💻✅][🧪] // 🆗 
 const register = catchAsync(async (req, res) => {
@@ -32,6 +35,82 @@ const login = catchAsync(async (req, res) => {
     success: true,
   });
 });
+
+
+// Google Login
+const googleLogin = async (req, res) => {
+  const { googleId, email, googleAccessToken } = req.body;
+
+  let user = await User.findOne({ googleId });
+
+  if (!user) {
+    // New user, register them
+    const newUser = await AuthService.createUser({
+      email,
+      googleId,
+      authProvider: TAuthProvider.google,	
+      googleAccessToken,
+    });
+    return sendResponse(res, {
+      code: StatusCodes.CREATED,
+      message: 'User registered via Google successfully',
+      data: newUser,
+      success: true,
+    });
+  }
+
+  // Existing user, update the access token and login
+  user.googleAccessToken = googleAccessToken;
+  await user.save();
+
+  const tokens = await TokenService.accessAndRefreshToken(user);
+  const { password, ...userWithoutPassword } = user.toObject();
+
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'User logged in via Google successfully',
+    data: { userWithoutPassword, tokens },
+    success: true,
+  });
+};
+
+// Apple Login
+const appleLogin = async (req, res) => {
+  const { appleId, email, appleAccessToken } = req.body;
+
+  let user = await User.findOne({ appleId });
+
+  if (!user) {
+    // New user, register them
+    const newUser = await AuthService.createUser({
+      email,
+      appleId,
+      authProvider: TAuthProvider.apple,
+      appleAccessToken,
+    });
+
+    return sendResponse(res, {
+      code: StatusCodes.CREATED,
+      message: 'User registered via Apple successfully',
+      data: newUser,
+      success: true,
+    });
+  }
+
+  // Existing user, update the access token and login
+  user.appleAccessToken = appleAccessToken;
+  await user.save();
+
+  const tokens = await TokenService.accessAndRefreshToken(user);
+  const { password, ...userWithoutPassword } = user.toObject();
+
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    message: 'User logged in via Apple successfully',
+    data: { userWithoutPassword, tokens },
+    success: true,
+  });
+};
 
 //[🚧][🧑‍💻✅][🧪]  // 🆗
 const verifyEmail = catchAsync(async (req, res) => {
@@ -126,4 +205,6 @@ export const AuthController = {
   refreshToken,
   forgotPassword,
   resetPassword,
+  googleLogin,
+  appleLogin
 };

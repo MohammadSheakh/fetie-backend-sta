@@ -18,14 +18,30 @@ const validateUserStatus = (user: TUser) => {
     );
   }
 };
-const createUser = async (userData: TUser) => {
-  if(userData.role == 'projectSupervisor'){
-    if(userData.superVisorsManagerId == null){
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'SuperVisor Manager Id is required');
+const createUser = async (userData: Partial<TUser>) => {
+  // if(userData.role == 'projectSupervisor'){
+  //   if(userData.superVisorsManagerId == null){
+  //     throw new ApiError(StatusCodes.BAD_REQUEST, 'SuperVisor Manager Id is required');
+  //   }
+  // }else{
+  //   userData.superVisorsManagerId = null;
+  // }
+
+   // Check if the user is registering via Google or Apple
+   if (userData.authProvider === 'google') {
+    const existingUser = await User.findOne({ googleId: userData.googleId });
+    if (existingUser) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Google account already linked');
     }
-  }else{
-    userData.superVisorsManagerId = null;
   }
+
+  if (userData.authProvider === 'apple') {
+    const existingUser = await User.findOne({ appleId: userData.appleId });
+    if (existingUser) {
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Apple account already linked');
+    }
+  }
+
   const existingUser = await User.findOne({ email: userData.email });
   if (existingUser) {
     if (existingUser.isEmailVerified) {
@@ -49,6 +65,22 @@ const createUser = async (userData: TUser) => {
   //create verification email otp
   const {otp} = await OtpService.createVerificationEmailOtp(user.email);
   return { user, verificationToken , otp }; // FIXME  : otp remove korte hobe ekhan theke .. 
+};
+
+const handleSocialLogin = async (user, fcmToken) => {
+  const tokens = await TokenService.accessAndRefreshToken(user);
+
+  if (fcmToken) {
+    user.fcmToken = fcmToken;
+    await user.save(); // Save FCM token if provided
+  }
+
+  const { password, ...userWithoutPassword } = user.toObject();
+
+  return {
+    userWithoutPassword,
+    tokens,
+  };
 };
 
 const login = async (email: string, reqpassword: string, fcmToken : string) => {
@@ -91,8 +123,6 @@ const login = async (email: string, reqpassword: string, fcmToken : string) => {
       );
     }
     // user.fcmToken = fcmToken;
-
-
 
     await user.save();
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid credentials');
@@ -232,4 +262,5 @@ export const AuthService = {
   logout,
   changePassword,
   refreshAuth,
+  handleSocialLogin
 };

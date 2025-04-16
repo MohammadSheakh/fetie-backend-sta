@@ -1,9 +1,9 @@
 import { model, Schema, Types } from 'mongoose';
-import { TProfileImage, TUser, UserModal } from './user.interface';
+import { TProfileImage, TSubscriptionType, TUser, UserModal } from './user.interface';
 import paginate from '../../common/plugins/paginate';
 import bcryptjs from 'bcryptjs';
 import { config } from '../../config';
-import { Gender, MaritalStatus, UserStatus } from './user.constant';
+import { Gender, MaritalStatus, TAuthProvider, UserStatus } from './user.constant';
 import { Roles } from '../../middlewares/roles';
 
 // Profile Image Schema
@@ -18,14 +18,19 @@ const profileImageSchema = new Schema<TProfileImage>({
 // User Schema Definition
 const userSchema = new Schema<TUser, UserModal>(
   {
-    fname: {
+    // fname: {
+    //   type: String,
+    //   required: [true, 'First name is required'],
+    //   trim: true,
+    // },
+    // lname: {
+    //   type: String,
+    //   required: [true, 'Last name is required'],
+    //   trim: true,
+    // },
+    name :{
       type: String,
-      required: [true, 'First name is required'],
-      trim: true,
-    },
-    lname: {
-      type: String,
-      required: [true, 'Last name is required'],
+      required: [true, 'Name is required'],
       trim: true,
     },
     email: {
@@ -52,15 +57,7 @@ const userSchema = new Schema<TUser, UserModal>(
 
     fcmToken: { type: String, default: null }, // Store Firebase Token
 
-    // photoGallery: {
-    //   type: [profileImageSchema],
-    //   required: false,
-    // },
-
-    // location: {
-    //   latitude: { type: Number, required: true },
-    //   longitude: { type: Number, required: true },
-    // },
+    
     // gender: {
     //   type: String,
     //   enum: {
@@ -70,44 +67,50 @@ const userSchema = new Schema<TUser, UserModal>(
     //   required: [true, 'Gender is required'],
     // },
 
-    address: {
-      streetAddress : {
-        type: String,
-        required: [false, 'Street Address is not required']
-      },
-      city : {
-        type: String,
-        required: [false, 'City is not required']
-      },
-      zipCode : {
-        type: String,
-        required: [false, 'Address is not required']
-      },
-      country : {
-        type: String,
-        required: [false, 'Address is not required']
-      },
+    // address: {
+    //   streetAddress : {
+    //     type: String,
+    //     required: [false, 'Street Address is not required']
+    //   },
+    //   city : {
+    //     type: String,
+    //     required: [false, 'City is not required']
+    //   },
+    //   zipCode : {
+    //     type: String,
+    //     required: [false, 'Address is not required']
+    //   },
+    //   country : {
+    //     type: String,
+    //     required: [false, 'Address is not required']
+    //   },
+    // },
+
+    accessPinCode : {
+      type: String,
+      required: [false, 'Access Pin Code is not required']
     },
 
     role: {
       type: String,
       enum: {
         values: Roles,
-        message: '{VALUE} is not a valid role',
+        message: '${VALUE} is not a valid role', // 🔥 fix korte hobe .. 
       },
       required: [true, 'Role is required'],
     },
-    isVip  : {
-      type  : Boolean,
-      default : false
-    },
-    isStandard  : {
-      type  : Boolean,
-      default : false
-    },
-    isPremium : {
-      type  : Boolean,
-      default : false
+
+    subscriptionType: {
+      type: String,
+      enum: 
+         [TSubscriptionType.free, TSubscriptionType.premium],
+      required: [
+        false,
+        `SubscriptionType is required it can be ${Object.values(
+          TSubscriptionType
+        ).join(', ')}`,
+      ],
+      default: TSubscriptionType.free,
     },
 
     isEmailVerified: {
@@ -132,6 +135,42 @@ const userSchema = new Schema<TUser, UserModal>(
       default: 0,
     },
     lockUntil: { type: Date }, // 🔴 not sure 
+
+    //------------- New Fields for Google and Apple Login
+    googleId: {
+      type: String,
+      required: false, // Optional if Google login is used
+      unique: true,
+    },
+    appleId: {
+      type: String,
+      required: false, // Optional if Apple login is used
+      unique: true,
+    },
+    authProvider: {
+      type: String,
+      enum: [TAuthProvider.apple, TAuthProvider.google, TAuthProvider.local],
+      default: TAuthProvider.local, // Default to local login if neither Google nor Apple login is used
+    },
+    googleAccessToken: {
+      type: String,
+      required: false,
+    },
+    appleAccessToken: {
+      type: String,
+      required: false,
+    },
+    isGoogleVerified: {
+      type: Boolean,
+      default: false,
+    },
+    isAppleVerified: {
+      type: Boolean,
+      default: false,
+    },
+
+    //------------- For Google and Apple Login End 
+
   },
   {
     timestamps: true,
