@@ -28,6 +28,11 @@ const userSchema = new Schema<TUser, UserModal>(
     //   required: [true, 'Last name is required'],
     //   trim: true,
     // },
+
+    personalizeJourney: {
+      type: Schema.Types.ObjectId,
+      ref: 'PersonalizeJourney', // Reference to the personalizeJourney schema
+    },
     name :{
       type: String,
       required: [true, 'Name is required'],
@@ -57,34 +62,6 @@ const userSchema = new Schema<TUser, UserModal>(
 
     fcmToken: { type: String, default: null }, // Store Firebase Token
 
-    
-    // gender: {
-    //   type: String,
-    //   enum: {
-    //     values: Gender,
-    //     message: '{VALUE} is not a valid gender',
-    //   },
-    //   required: [true, 'Gender is required'],
-    // },
-
-    // address: {
-    //   streetAddress : {
-    //     type: String,
-    //     required: [false, 'Street Address is not required']
-    //   },
-    //   city : {
-    //     type: String,
-    //     required: [false, 'City is not required']
-    //   },
-    //   zipCode : {
-    //     type: String,
-    //     required: [false, 'Address is not required']
-    //   },
-    //   country : {
-    //     type: String,
-    //     required: [false, 'Address is not required']
-    //   },
-    // },
 
     accessPinCode : {
       type: String,
