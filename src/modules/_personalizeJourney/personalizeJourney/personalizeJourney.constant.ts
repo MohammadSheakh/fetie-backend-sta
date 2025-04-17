@@ -19,3 +19,11 @@ export enum TPainType {
   severe = 'severe',
   no = 'no',
 }
+
+export enum TTrackOvulationBy {
+  ovulationTests = 'ovulationTests',
+  basalBodyTemp = 'basalBodyTemp',
+  cervicalMucus = 'cervicalMucus',
+  progesteroneTesting = 'progesteroneTesting',
+  none = 'none'
+}

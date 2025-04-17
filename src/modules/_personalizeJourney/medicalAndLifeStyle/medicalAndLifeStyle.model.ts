@@ -1,18 +1,9 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
-import {
-  OrderStatus,
-  OrderType,
-} from './order.constant';
-import { IOrder, IOrderModel } from './order.interface';
+import { IMedicalAndLifeStyle, IMedicalAndLifeStyleModel } from './medicalAndLifeStyle.interface';
 
-const orderSchema = new Schema<IOrder>(
+const medicalAndLifeStyleSchema = new Schema<IMedicalAndLifeStyle>(
   {
-    // userId: { //🔗
-    //   type: Schema.Types.ObjectId,
-    //   ref: 'User',
-    //   required: [true, 'User Id is required'],
-    // },
     medicalConditionsOrSergeriesDetails : {
       type : String,
       required : [true, 'medicalConditionsOrSergeriesDetails is required'],
@@ -48,9 +39,9 @@ const orderSchema = new Schema<IOrder>(
   { timestamps: true }
 );
 
-orderSchema.plugin(paginate);
+medicalAndLifeStyleSchema.plugin(paginate);
 
-orderSchema.pre('save', function(next) {
+medicalAndLifeStyleSchema.pre('save', function(next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
@@ -61,7 +52,7 @@ orderSchema.pre('save', function(next) {
 
 
 // Use transform to rename _id to _projectId
-orderSchema.set('toJSON', {
+medicalAndLifeStyleSchema.set('toJSON', {
   transform: function (doc, ret, options) {
     ret._orderId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field
@@ -70,7 +61,7 @@ orderSchema.set('toJSON', {
 });
 
 
-export const Order = model<IOrder, IOrderModel>(
-  'Order',
-  orderSchema
+export const Order = model<IMedicalAndLifeStyle, IMedicalAndLifeStyleModel>(
+  'MedicalAndLifeStyle',
+  medicalAndLifeStyleSchema
 );

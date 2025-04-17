@@ -1,11 +1,7 @@
 import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
-import {
-  OrderStatus,
-  OrderType,
-} from './order.constant';
-import { IOrder, IOrderModel } from './order.interface';
-import { TDescribeFlow, THeightUnit, TPainType, TWeightUnit } from './personalizeJourney.constant';
+import { TDescribeFlow, THeightUnit, TPainType, TTrackOvulationBy, TWeightUnit } from './personalizeJourney.constant';
+import { IPersonalizeJourney, IPersonalizeJourneyModel } from './personalizeJourney.interface';
 
 const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
   {
@@ -47,7 +43,7 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
       required : [true, 'tryingToConceive is required'],
       default : false
     },
-    areCycleRegular : {
+    areCyclesRegular : {
       type : Boolean,
       required : [true, 'areCycleRegular is required'],
       default : false
@@ -76,7 +72,7 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
       type: Number,
       required: [true, 'periodLength is required'],
     },
-    periofEndDate : {
+    periodEndDate : {
       type: Date,
       required: [true, 'periodEndDate is required'],
     },
@@ -90,11 +86,18 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
 
     // --------------------------  optional 
 
-    toTrackOvulation : [{
-      type : String,
-      required : [false, 'toTrackOvulation is not required'],
-    }],
-
+    // 🔥 test korte hobe .. 
+    trackOvulationBy : {
+      type: [String],
+      enum: [
+        TTrackOvulationBy.ovulationTests,
+        TTrackOvulationBy.basalBodyTemp,
+        TTrackOvulationBy.cervicalMucus,
+        TTrackOvulationBy.progesteroneTesting,
+        TTrackOvulationBy.none
+      ],
+      required: false
+    },
     doYouHavePain : {
       type : String,
       enum : [
@@ -112,7 +115,7 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
     },
     // --------------------------
 
-    expectedPeriodDate : {
+    expectedPeriodStartDate : { // expectedPeriodDate
       type: Date,
       required: [false, 'expectedPeriodDate is not required'],
     },
@@ -123,11 +126,11 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
 
     // 🔥🔥 ei duitar jonno  Day gula o save kore rakhte hobe kina .. 
 
-    pregnancyHistory: {
+    pregnancy_History_Id: {
       type: Schema.Types.ObjectId,
       ref: 'PregnancyHistory', // Reference to the pregnancyHistory schema
     },
-    medicalAndLifeStyle: {
+    medical_And_LifeStyle_Id: {
       type: Schema.Types.ObjectId,
       ref: 'MedicalAndLifeStyle', // Reference to the medicalAndLifeStyle schema
     },

@@ -1,29 +1,21 @@
 import { Model, Types } from 'mongoose';
-
-
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
-import { OrderStatus, OrderType } from './order.constant';
 
-export interface IOrder {
+export interface IPregnancyHistory {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  userId : Types.ObjectId;
-  totalAmount: Number;
-  orderType : OrderType.premium;
-  orderStatus : OrderStatus.pending | 
-                OrderStatus.processing | 
-                OrderStatus.complete | 
-                OrderStatus.failed | 
-                OrderStatus.refunded;
-  orderNotes : string;
+  haveYouEverBeenPregnant : Boolean;
+  howManyTimes : Number;
+  outcomes : String;
+  wasItWithYourCurrentPartner : Boolean;
   isDeleted : Boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-export interface IOrderModel extends Model<IOrder> {
+export interface IPregnancyHistoryModel extends Model<IPregnancyHistory> {
   paginate: (
     query: Record<string, any>,
     options: PaginateOptions
-  ) => Promise<PaginateResult<IOrder>>;
+  ) => Promise<PaginateResult<IPregnancyHistory>>;
 }
