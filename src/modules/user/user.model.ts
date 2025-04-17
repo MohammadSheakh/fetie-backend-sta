@@ -1,9 +1,9 @@
 import { model, Schema, Types } from 'mongoose';
-import { TProfileImage, TSubscriptionType, TUser, UserModal } from './user.interface';
+import { TProfileImage, TUser, UserModal } from './user.interface';
 import paginate from '../../common/plugins/paginate';
 import bcryptjs from 'bcryptjs';
 import { config } from '../../config';
-import { Gender, MaritalStatus, TAuthProvider, UserStatus } from './user.constant';
+import { Gender, MaritalStatus, TAuthProvider, TSubscriptionType, UserStatus } from './user.constant';
 import { Roles } from '../../middlewares/roles';
 
 // Profile Image Schema
@@ -18,17 +18,6 @@ const profileImageSchema = new Schema<TProfileImage>({
 // User Schema Definition
 const userSchema = new Schema<TUser, UserModal>(
   {
-    // fname: {
-    //   type: String,
-    //   required: [true, 'First name is required'],
-    //   trim: true,
-    // },
-    // lname: {
-    //   type: String,
-    //   required: [true, 'Last name is required'],
-    //   trim: true,
-    // },
-
     personalizeJourney: {
       type: Schema.Types.ObjectId,
       ref: 'PersonalizeJourney', // Reference to the personalizeJourney schema
@@ -101,7 +90,6 @@ const userSchema = new Schema<TUser, UserModal>(
       type: Boolean,
       default: false,
     },
-
     lastPasswordChange: { type: Date },
     isResetPassword: {
       type: Boolean,
@@ -145,9 +133,7 @@ const userSchema = new Schema<TUser, UserModal>(
       type: Boolean,
       default: false,
     },
-
     //------------- For Google and Apple Login End 
-
   },
   {
     timestamps: true,

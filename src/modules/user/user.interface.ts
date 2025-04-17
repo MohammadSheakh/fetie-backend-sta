@@ -1,12 +1,7 @@
-import { Document, Model, Types } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Role } from '../../middlewares/roles';
-import { IMaritalStatus, TAuthProvider, TGender, TUserStatus } from './user.constant';
+import { TAuthProvider, TSubscriptionType } from './user.constant';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
-
-export enum TSubscriptionType{
-  free = 'free',
-  premium = 'premium',
-}
 
 export type TProfileImage = {
   imageUrl: string;
@@ -21,28 +16,17 @@ export type TPhotoGallery = {
 export type TUser = {
   _userId: undefined | Types.ObjectId;
   _id:  undefined; // Types.ObjectId |
-  // fullName: string;
-  fname: string;
-  lname: string;
+  personalizeJourney : Types.ObjectId;
+  subscriptionType : TSubscriptionType.free | TSubscriptionType.premium;
+  accessPinCode: string;
+  name: string;
   email: string;
   password: string;
   profileImage?: TProfileImage;
   fcmToken : string;
-  
-  address: {
-    streetAddress: string;
-    city: string;
-    zipCode: string;
-    country: string;
-  };
-
   role: Role;
 
   isEmailVerified: boolean;
-  isVip  : Boolean,
-  isStandard  : Boolean,
-  isPremium :  Boolean
-
   phoneNumber : string;
   isDeleted: boolean;
   lastPasswordChange: Date;

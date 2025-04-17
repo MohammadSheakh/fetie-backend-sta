@@ -4,6 +4,11 @@ export type TUserStatus = 'active' | 'delete' | 'block';
 
 export const UserStatus: TUserStatus[] = ['active', 'block', 'delete'];
 
+export enum TSubscriptionType{
+  free = 'free',
+  premium = 'premium',
+}
+
 export enum TAuthProvider  {
   google = 'google',
   apple = 'apple',
