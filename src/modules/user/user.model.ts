@@ -18,7 +18,7 @@ const profileImageSchema = new Schema<TProfileImage>({
 // User Schema Definition
 const userSchema = new Schema<TUser, UserModal>(
   {
-    personalizeJourney: {
+    personalize_Journey_Id: {
       type: Schema.Types.ObjectId,
       ref: 'PersonalizeJourney', // Reference to the personalizeJourney schema
     },

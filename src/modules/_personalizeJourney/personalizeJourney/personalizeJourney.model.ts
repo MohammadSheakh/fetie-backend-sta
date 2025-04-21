@@ -74,7 +74,7 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
     },
     periodEndDate : {
       type: Date,
-      required: [true, 'periodEndDate is required'],
+      required: [false, 'periodEndDate is not required'],
     },
 
     // --------------------------
@@ -107,7 +107,7 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
         TPainType.no
       ],
       required: [
-        true,
+        false,
         `doYouHavePain is required it can be ${Object.values(
           TPainType
         ).join(', ')}`,

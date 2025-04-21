@@ -9,6 +9,7 @@ import { config } from '../../config';
 import { TokenService } from '../token/token.service';
 import { TokenType } from '../token/token.interface';
 import { OtpType } from '../otp/otp.interface';
+import { TAuthProvider } from '../user/user.constant';
 
 const validateUserStatus = (user: TUser) => {
   if (user.isDeleted) {
@@ -47,6 +48,9 @@ const createUser = async (userData: Partial<TUser>) => {
     if (existingUser.isEmailVerified) {
       throw new ApiError(StatusCodes.BAD_REQUEST, 'Email already taken');
     } else {
+      
+      userData.authProvider = TAuthProvider.local;
+      
       await User.findOneAndUpdate({ email: userData.email }, userData);
 
       //create verification email token
@@ -54,9 +58,14 @@ const createUser = async (userData: Partial<TUser>) => {
         await TokenService.createVerifyEmailToken(existingUser);
       //create verification email otp
       await OtpService.createVerificationEmailOtp(existingUser.email);
+
+
+
       return { verificationToken };
     }
   }
+
+  userData.authProvider = TAuthProvider.local;
 
   const user = await User.create(userData);
   // cantunderstand :  
@@ -64,7 +73,7 @@ const createUser = async (userData: Partial<TUser>) => {
   const verificationToken = await TokenService.createVerifyEmailToken(user);
   //create verification email otp
   const {otp} = await OtpService.createVerificationEmailOtp(user.email);
-  return { user, verificationToken , otp }; // FIXME  : otp remove korte hobe ekhan theke .. 
+  return { user, verificationToken }; // FIXME  : otp remove korte hobe ekhan theke .. 
 };
 
 const handleSocialLogin = async (user, fcmToken) => {
@@ -84,9 +93,19 @@ const handleSocialLogin = async (user, fcmToken) => {
 };
 
 const login = async (email: string, reqpassword: string, fcmToken : string) => {
+
+
   const user = await User.findOne({ email }).select('+password');
+
+
+
   if (!user) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'Invalid credentials');
+  }
+
+
+  if (user.authProvider != TAuthProvider.local) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Authorization failed .... ');
   }
 
   validateUserStatus(user);

@@ -16,7 +16,7 @@ export type TPhotoGallery = {
 export type TUser = {
   _userId: undefined | Types.ObjectId;
   _id:  undefined; // Types.ObjectId |
-  personalizeJourney : Types.ObjectId;
+  personalize_Journey_Id : Types.ObjectId;
   subscriptionType : TSubscriptionType.free | TSubscriptionType.premium;
   accessPinCode: string;
   name: string;

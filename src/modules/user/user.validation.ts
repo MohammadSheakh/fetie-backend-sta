@@ -3,18 +3,12 @@ import { Role, Roles } from '../../middlewares/roles';
 
 const createUserValidationSchema = z.object({
   body: z.object({
-    fname: z
+    name: z
       .string({
-        required_error: 'First  name is required.',
-        invalid_type_error: 'First name must be a string.',
+        required_error: 'name is required.',
+        invalid_type_error: 'name must be a string.',
       })
-      .min(1, 'First name cannot be empty.'),
-    lname: z
-      .string({
-        required_error: 'Last name is required.',
-        invalid_type_error: 'Last name must be a string.',
-      })
-      .min(1, 'Last name cannot be empty.'),
+      .min(1, 'name cannot be empty.'),
     email: z
       .string({
         required_error: 'Email is required.',
