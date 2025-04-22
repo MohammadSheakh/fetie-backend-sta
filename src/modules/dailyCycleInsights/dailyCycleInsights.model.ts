@@ -1,6 +1,7 @@
 import { model, Schema } from 'mongoose';
 import {
   TActivity,
+  TCervicalMucus,
   TFertilityLevel,
   TMenstrualFlow,
   TMood,
@@ -62,6 +63,8 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TSymptoms.backache,
         TSymptoms.breastTenderness,
         TSymptoms.cervicalMucous,
+        TSymptoms.pain,
+        TSymptoms.bloating,
         TSymptoms.others,
       ],
       required: [true, `Menstrual flow is required it can be ${Object.values(
@@ -95,6 +98,16 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
     cycleDay : {
       type : Number,
       required : [true, 'cycleDay is required'],
+    },
+    cervicalMucus : {
+      type : String,
+      enum : [
+        TCervicalMucus.eggWhite,
+        TCervicalMucus.creamy
+      ],
+      required: [true, `Menstrual flow is required it can be ${Object.values(
+        TCervicalMucus
+      ).join(', ')}`],
     },
     date : {
       type : Date,

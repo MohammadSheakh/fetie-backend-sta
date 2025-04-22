@@ -14,6 +14,8 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
       type : Date,
       required : [true, 'dateOfBirth is required']
     },
+
+    // 🔥 dateOfBirth er upor base kore age calculate korte hobe .. 
     age : {
       type : Number,
       required : [true, 'age is required']
@@ -72,7 +74,7 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
       type: Number,
       required: [true, 'periodLength is required'],
     },
-    periodEndDate : {
+    periodEndDate : { // 🔥 this needs to be calculated 
       type: Date,
       required: [false, 'periodEndDate is not required'],
     },
@@ -86,7 +88,6 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
 
     // --------------------------  optional 
 
-    // 🔥 test korte hobe .. 
     trackOvulationBy : {
       type: [String],
       enum: [
@@ -119,7 +120,7 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
       type: Date,
       required: [false, 'expectedPeriodDate is not required'],
     },
-    predictedOvulationDate: { 
+    predictedOvulationDate: {  // 🔥 this needs to be calculated 
       type : Date,
       required: [false, 'predictedOvulationDate is not required'],
     },

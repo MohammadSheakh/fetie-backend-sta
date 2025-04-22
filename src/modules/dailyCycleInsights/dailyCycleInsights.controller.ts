@@ -14,12 +14,21 @@ export class DailyCycleInsightsController extends GenericController<
   IDailyCycleInsights
 > {
   // private stripe: Stripe;
+  dailyCycleInsightsService = new DailyCycleInsightsService();
 
   constructor() {
     super(new DailyCycleInsightsService(), 'Daily Cycle Insights');
     // Initialize Stripe with secret key (from your Stripe Dashboard)
     // this.stripe = new Stripe('your_stripe_secret_key');
   }
+
+  createByDate = catchAsync(
+    async (req: Request, res: Response) => {
+      const { date } = req.params;
+      const userId = req.user.userId;
+      
+      // const result = await this.dailyCycleInsightsService.
+  })
 
 
   // add more methods here if needed or override the existing ones

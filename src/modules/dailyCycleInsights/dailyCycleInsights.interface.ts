@@ -1,6 +1,6 @@
 import { Model, Types } from 'mongoose';
 
-import { TActivity, TFertilityLevel, TMenstrualFlow, TMood, TPhase, TSymptoms } from './dailyCycleInsights.constant';
+import { TActivity, TCervicalMucus, TFertilityLevel, TMenstrualFlow, TMood, TPhase, TSymptoms } from './dailyCycleInsights.constant';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 
 export interface IDailyCycleInsights {
@@ -37,6 +37,11 @@ export interface IDailyCycleInsights {
           TFertilityLevel.low |
           TFertilityLevel.veryLow;
   cycleDay : Number;
+
+  cervicalMucus :
+          TCervicalMucus.eggWhite |
+          TCervicalMucus.creamy;
+          
   date : Date;
   
   isDeleted : Boolean;

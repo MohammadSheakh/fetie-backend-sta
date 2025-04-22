@@ -12,6 +12,34 @@ import { User } from '../../user/user.model';
 // let conversationParticipantsService = new ConversationParticipentsService();
 // let messageService = new MessagerService();
 
+function calculatePeriodEndDate(periodStartDate : Date, periodLength : number) {
+  // Convert periodStartDate to a Date object
+  const startDate = new Date(periodStartDate); 
+
+  // Add the periodLength (number of days) to the start date
+  startDate.setDate(startDate.getDate() + periodLength);
+
+  // Return the final date (periodEndDate)
+  return startDate;
+}
+
+function calculateExpectedPeriodStartDate(periodStartDate : Date, avgMenstrualCycleLength : number) {
+ 
+  const startDate = new Date(periodStartDate); 
+
+  startDate.setDate(startDate.getDate() + avgMenstrualCycleLength);
+
+  return startDate;
+}
+
+function calculateOvulationDate(expectedPeriodStartDate : Date) {
+  const startDate = new Date(expectedPeriodStartDate); 
+
+  startDate.setDate(startDate.getDate() - 14);
+
+  return startDate;
+}
+
 export class PersonalizedJourneyController extends GenericController<typeof PersonalizeJourney, IPersonalizeJourney> {
   personalizedJourneyService = new PersonalizedJourneyService();
 
@@ -21,7 +49,7 @@ export class PersonalizedJourneyController extends GenericController<typeof Pers
 
   // Create
   create = catchAsync(async (req: Request, res: Response) => {
-    const data = req.body;
+    const data : IPersonalizeJourney= req.body;
     const user = await User.findById(req.user.userId)
 
     if(!user){
@@ -32,11 +60,15 @@ export class PersonalizedJourneyController extends GenericController<typeof Pers
       // update the personalize journey id 
       const existingJourney = await PersonalizeJourney.findById(user?.personalize_Journey_Id);
       if(existingJourney){
-        await PersonalizeJourney.findByIdAndUpdate(existingJourney._id, data, { new: true });
+        data.periodEndDate = calculatePeriodEndDate(data.periodStartDate, parseInt(data?.periodLength));
+        data.expectedPeriodStartDate = calculateExpectedPeriodStartDate(data.periodStartDate, parseInt(data?.avgMenstrualCycleLength))
+        data.predictedOvulationDate = calculateOvulationDate(data.expectedPeriodStartDate); // 14 days before expected period start date
+
+        const updatedPersonalJourney = await PersonalizeJourney.findByIdAndUpdate(existingJourney._id, data, { new: true });
 
         sendResponse(res, {
           code: StatusCodes.OK,
-          data: existingJourney,
+          data: updatedPersonalJourney,
           message: `${this.modelName} updated successfully`,
           success: true,
         });

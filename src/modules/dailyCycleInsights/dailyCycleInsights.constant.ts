@@ -22,6 +22,8 @@ export enum TSymptoms {
     backache = 'backache',
     breastTenderness = 'breastTenderness',
     cervicalMucous = 'cervicalMucous',
+    pain = 'pain',
+    bloating = 'bloating',
     others = 'others',
 }
 export enum TPhase {
@@ -35,4 +37,9 @@ export enum TFertilityLevel {
     medium = 'medium',
     low = 'low',
     veryLow = 'veryLow',
+}
+
+export enum TCervicalMucus {
+    eggWhite = 'eggWhite',
+    creamy = 'creamy',
 }

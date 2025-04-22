@@ -6,5 +6,10 @@ export class DailyCycleInsightsService extends GenericService<typeof DailyCycleI
     constructor(){
         super(DailyCycleInsights)
     }
-    // Add more service here .. 
+
+    createByDateAndUserId = async (date: string, userId: string) => {
+        
+    }
+
+    // Add more service here ..
 }
