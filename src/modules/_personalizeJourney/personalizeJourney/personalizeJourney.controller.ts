@@ -7,6 +7,7 @@ import ApiError from '../../../errors/ApiError';
 import { PersonalizedJourneyService } from './personalizeJourney.service';
 import { PersonalizeJourney } from './personalizeJourney.model';
 import { IPersonalizeJourney } from './personalizeJourney.interface';
+import { User } from '../../user/user.model';
 
 // let conversationParticipantsService = new ConversationParticipentsService();
 // let messageService = new MessagerService();
@@ -18,6 +19,49 @@ export class PersonalizedJourneyController extends GenericController<typeof Pers
     super(new PersonalizedJourneyService(), 'Personalize Journey');
   }
 
+  // Create
+  create = catchAsync(async (req: Request, res: Response) => {
+    const data = req.body;
+    const user = await User.findById(req.user.userId)
+
+    if(!user){
+      throw new ApiError(StatusCodes.UNAUTHORIZED, 'User not found');
+    }
+
+    if(user.personalize_Journey_Id){
+      // update the personalize journey id 
+      const existingJourney = await PersonalizeJourney.findById(user?.personalize_Journey_Id);
+      if(existingJourney){
+        await PersonalizeJourney.findByIdAndUpdate(existingJourney._id, data, { new: true });
+
+        sendResponse(res, {
+          code: StatusCodes.OK,
+          data: existingJourney,
+          message: `${this.modelName} updated successfully`,
+          success: true,
+        });
+      } 
+    }else{
+      const result = await this.service.create(data);
+
+      if (!result) {
+        throw new ApiError(StatusCodes.BAD_REQUEST, 'Can not create personalize journey');
+      }
+      
+      if (user) {
+        user.personalize_Journey_Id = result._id;
+        await user?.save();  
+      }
+      sendResponse(res, {
+        code: StatusCodes.OK,
+        data: result,
+        message: `${this.modelName} created successfully`,
+        success: true,
+      });
+    }
+
+  });
+
   saveOptionalInformation = catchAsync(async (req: Request, res: Response) => {
     const data = req.body;
 
@@ -27,10 +71,7 @@ export class PersonalizedJourneyController extends GenericController<typeof Pers
 
     const userId = req.user.userId;
 
-
-    
-
-     await this.personalizedJourneyService.saveOptionalInformation(data, userId);
+    const result = await this.personalizedJourneyService.saveOptionalInformation(data, userId);
     //  const result =
     //  if (!result) {
     //   throw new ApiError(StatusCodes.BAD_REQUEST, 'Can not save optional information');
@@ -38,7 +79,7 @@ export class PersonalizedJourneyController extends GenericController<typeof Pers
 
     sendResponse(res, {
       code: StatusCodes.OK,
-      data: null, // result
+      data: result, // result
       message: 'Optional information saved successfully',
       success: true,
     });

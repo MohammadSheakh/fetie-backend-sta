@@ -158,7 +158,7 @@ personalizeJourneySchema.pre('save', function(next) {
 // Use transform to rename _id to _projectId
 personalizeJourneySchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._orderId = ret._id;  // Rename _id to _subscriptionId
+    ret._personalizeJourneyId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field
     return ret;
   }

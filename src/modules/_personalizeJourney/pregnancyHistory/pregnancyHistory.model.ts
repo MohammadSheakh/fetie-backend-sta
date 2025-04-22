@@ -47,13 +47,13 @@ pregnancyHistorySchema.pre('save', function(next) {
 // Use transform to rename _id to _projectId
 pregnancyHistorySchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._orderId = ret._id;  // Rename _id to _subscriptionId
+    ret._pregnancyHistoryId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field
     return ret;
   }
 });
 
-export const Order = model<IPregnancyHistory, IPregnancyHistoryModel>(
+export const PregnancyHistory = model<IPregnancyHistory, IPregnancyHistoryModel>(
   'PregnancyHistory',
   pregnancyHistorySchema
 );

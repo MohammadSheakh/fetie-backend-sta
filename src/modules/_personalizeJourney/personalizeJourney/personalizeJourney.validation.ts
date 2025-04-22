@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { TDescribeFlow, THeightUnit, TWeightUnit } from './personalizeJourney.constant';
+import { TDescribeFlow, THeightUnit, TTrackOvulationBy, TWeightUnit } from './personalizeJourney.constant';
 
 
 export const createPersonalizeJourneyValidationSchema = z.object({
@@ -94,5 +94,80 @@ export const createPersonalizeJourneyValidationSchema = z.object({
     }).min(0, 'avgMenstrualCycleLength must be greater than 0.'),
     }),
 });
+
+
+export const saveOptionalInformationValidationSchema = z.object({
+  body: z.object({
+    trackOvulationBy: z.array(z.string({
+      required_error: 'trackOvulationBy is required.',
+      invalid_type_error: 'trackOvulationBy must be a string.',
+    }).refine(trackOvulationBy => Object.keys(TTrackOvulationBy).includes(trackOvulationBy as keyof typeof TTrackOvulationBy), {
+      message: `trackOvulationBy must be one of the following: ${Object.keys(TTrackOvulationBy).join(', ')}`,
+    }))
+  }).optional(),
+    doYouHavePain: z.string({
+      required_error: 'doYouHavePain is required.',
+      invalid_type_error: 'doYouHavePain must be a string.',
+    }).optional(),
+    expectedPeriodStartDate: z.string({
+      required_error: 'expectedPeriodStartDate is required.',
+      invalid_type_error: 'expectedPeriodStartDate must be a date.',
+    })
+    .transform((str) => new Date(str)) // Transform the string into a Date object
+    .refine((date) => !isNaN(date.getTime()), {
+      message: 'Invalid date format.',
+    }).optional(),
+    predictedOvulationDate: z.string({
+      required_error: 'predictedOvulationDate is required.',
+      invalid_type_error: 'predictedOvulationDate must be a date.',
+    })
+    .transform((str) => new Date(str)) // Transform the string into a Date object
+    .refine((date) => !isNaN(date.getTime()), {
+      message: 'Invalid date format.',
+    }).optional(),
+    haveYouEverBeenPregnant: z.string({
+      required_error: 'haveYouEverBeenPregnant is required.',
+      invalid_type_error: 'haveYouEverBeenPregnant must be a string.',
+    }).optional(),
+    howManyTimes: z.string({
+      required_error: 'howManyTimes is required.',
+      invalid_type_error: 'howManyTimes must be a string.',
+    }).optional(),
+    outcomes: z.string({
+      required_error: 'outcomes is required.',
+      invalid_type_error: 'outcomes must be a string.',
+    }).optional(),
+    wasItWithYourCurrentPartner: z.string({
+      required_error: 'wasItWithYourCurrentPartner is required.',
+      invalid_type_error: 'wasItWithYourCurrentPartner must be a string.',
+    }).optional(),
+    medicalConditionsOrSergeriesDetails: z.string({
+      required_error: 'medicalConditionsOrSergeriesDetails is required.',
+      invalid_type_error: 'medicalConditionsOrSergeriesDetails must be a string.',
+    }).optional(),
+    medicationAndSuplimentsDetails: z.string({
+      required_error: 'medicationAndSuplimentsDetails is required.',
+      invalid_type_error: 'medicationAndSuplimentsDetails must be a string.',
+    }).optional(),
+    anyHistoryOfStdOrPelvicInfection: z.boolean({
+      required_error: 'anyHistoryOfStdOrPelvicInfection is required.',
+      invalid_type_error: 'anyHistoryOfStdOrPelvicInfection must be a boolean.',
+    }).optional(),
+    doYouSmokeDrink: z.boolean({
+      required_error: 'doYouSmokeDrink is required.',
+      invalid_type_error: 'doYouSmokeDrink must be a boolean.',
+    }).optional(),
+    anyFamilyHealthConditionLegacy: z.string({
+      required_error: 'anyFamilyHealthConditionLegacy is required.',
+      invalid_type_error: 'anyFamilyHealthConditionLegacy must be a string.',
+    }).optional(),
+    wantToSharePartnersHeathInfo: z.string({
+      required_error: 'wantToSharePartnersHeathInfo is required.',
+      invalid_type_error: 'wantToSharePartnersHeathInfo must be a string.',
+    }).optional(),
+  })
+  
+
+
 
 

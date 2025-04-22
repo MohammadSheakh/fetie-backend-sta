@@ -7,6 +7,8 @@ import { IPersonalizeJourney } from "./personalizeJourney.interface";
 import { IPregnancyHistory } from "../pregnancyHistory/pregnancyHistory.interface";
 import { IMedicalAndLifeStyle, IMedicalAndLifeStyleModel } from "../medicalAndLifeStyle/medicalAndLifeStyle.interface";
 import { User } from "../../user/user.model";
+import { PregnancyHistory } from "../pregnancyHistory/pregnancyHistory.model";
+import { MedicalAndLifeStyle } from "../medicalAndLifeStyle/medicalAndLifeStyle.model";
 
 export class PersonalizedJourneyService extends GenericService<typeof PersonalizeJourney , IPersonalizeJourney>{
     constructor(){
@@ -20,58 +22,113 @@ export class PersonalizedJourneyService extends GenericService<typeof Personaliz
          * 
          */
 
-        const {trackOvulationBy, doYouHavePain, expectedPeriodStartDate, predictedOvulationDate}: IPersonalizeJourney = data ;
+        const  {trackOvulationBy, doYouHavePain, expectedPeriodStartDate, predictedOvulationDate}: IPersonalizeJourney = data ;
         const {haveYouEverBeenPregnant, howManyTimes, outcomes, wasItWithYourCurrentPartner} : IPregnancyHistory = data;
         const {medicalConditionsOrSergeriesDetails , medicationAndSuplimentsDetails, anyHistoryOfStdOrPelvicInfection , doYouSmokeDrink, anyFamilyHealthConditionLegacy, wantToSharePartnersHeathInfo } : IMedicalAndLifeStyle = data;
 
-        // check if ther users personalize journey is already created or not
+        const personalizedJourneyData = {
+            trackOvulationBy,
+            doYouHavePain,
+            expectedPeriodStartDate,
+            predictedOvulationDate
+        }
+        const pregnancyHistoryData = {
+            haveYouEverBeenPregnant,
+            howManyTimes,
+            outcomes,
+            wasItWithYourCurrentPartner
+        }
+        const medicalAndLifeStyleData = {
+            medicalConditionsOrSergeriesDetails,
+            medicationAndSuplimentsDetails,
+            anyHistoryOfStdOrPelvicInfection,
+            doYouSmokeDrink,
+            anyFamilyHealthConditionLegacy,
+            wantToSharePartnersHeathInfo
+        }
+        
         const user = await User.findById(userId);
+        if (!user) {
+            throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
+        }
 
-       // Check if the required fields for primary collection are present
+        let existingJourney;
+        if(user?.personalize_Journey_Id){
+            existingJourney = await PersonalizeJourney.findById(user?.personalize_Journey_Id);
+
+        }
+
+        // Check if the required fields for primary collection are present
         if (
-            trackOvulationBy &&
-            doYouHavePain.trim() !== "" &&
-            expectedPeriodStartDate  &&
+            trackOvulationBy ||
+            doYouHavePain.trim() !== "" ||
+            expectedPeriodStartDate  ||
             predictedOvulationDate 
         ) {
-            // Save to primary collection
-
-            const result = await PersonalizeJourney.findByIdAndUpdate(userId, payload, { new: true });
+            // check if ther users personalize journey is already created or not
+            // if yes then update the data
             
-            console.log("Data saved to primary collection.");
+            if (existingJourney) {
+                // Update the existing optional information
+                await PersonalizeJourney.findByIdAndUpdate(existingJourney._id, personalizedJourneyData, { new: true });
+                console.log("Data updated in primary collection.");
+            }else{
+                // Create a new personalized journey
+                const personalizedJourney = new PersonalizeJourney(personalizedJourneyData);
+                await personalizedJourney.save();
+                user.personalize_Journey_Id = personalizedJourney._id;
+                await user.save();
+            }
         }
 
         // Check if the required fields for pregnancy history collection are present
         if (
-            haveYouEverBeenPregnant &&
-            howManyTimes &&
-            outcomes &&
+            haveYouEverBeenPregnant ||
+            howManyTimes ||
+            outcomes ||
             wasItWithYourCurrentPartner ) {
             // Save to pregnancy history collection
             
-            console.log("Data saved to pregnancy history collection.");
+
+            if(existingJourney?.pregnancy_History_Id){
+                // update the existing pregnancy history 
+                await PregnancyHistory.findByIdAndUpdate(existingJourney.pregnancy_History_Id, pregnancyHistoryData, { new: true });
+            
+            }else{
+                // create pregnancy history
+                const pregHistory = await PregnancyHistory.create(pregnancyHistoryData);
+                if(pregHistory){
+                    console.log("personalizedJourneyData 🧪test🧪", personalizedJourneyData);
+                    await PersonalizeJourney.findByIdAndUpdate(existingJourney?._id, { pregnancy_History_Id: pregHistory._id }, { new: true });
+                }
+            }
         }
 
         if(
-            medicalConditionsOrSergeriesDetails &&
-            medicationAndSuplimentsDetails && 
-            anyHistoryOfStdOrPelvicInfection && doYouSmokeDrink &&
-            anyFamilyHealthConditionLegacy && wantToSharePartnersHeathInfo
+            medicalConditionsOrSergeriesDetails ||
+            medicationAndSuplimentsDetails || 
+            anyHistoryOfStdOrPelvicInfection ||
+            doYouSmokeDrink ||
+            anyFamilyHealthConditionLegacy ||
+            wantToSharePartnersHeathInfo
         ){
             // data save to medical and life style collection
+            if(existingJourney?.medical_And_LifeStyle_Id){
+                // update the existing medical and life style 
+                await MedicalAndLifeStyle.findByIdAndUpdate(existingJourney.medical_And_LifeStyle_Id, medicalAndLifeStyleData, { new: true });
+            }else{
+                // create medical and life style
+                const medicalAndLifeStyle = await MedicalAndLifeStyle.create(medicalAndLifeStyleData);
+                if(medicalAndLifeStyle){
+                    await PersonalizeJourney.findByIdAndUpdate(existingJourney?._id, { medical_And_LifeStyle_Id: medicalAndLifeStyle._id }, { new: true });
+                }
+            }
         }
-      
 
-
-        // const { userId, ...optionalData } = data;
-
-        // // Check if the user already has optional information
-        // const existingJourney = await this.model.findOne({ userId });
-
-        // if (existingJourney) {
-        //     // Update the existing optional information
-        //     return await this.model.findByIdAndUpdate(existingJourney._id, optional)
-        // }
-
+        return {
+            personalizedJourneyData,
+            pregnancyHistoryData,
+            medicalAndLifeStyleData
+        }
     }
 }

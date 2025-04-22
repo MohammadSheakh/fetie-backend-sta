@@ -69,9 +69,10 @@ router.route('/softDelete/:id').put(
 ////////////
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/save-optional-information').post(
-  // auth('common'),
+  auth('common'),
+  // TODO : validation must add kora lagbe 
+  validateRequest(validation.saveOptionalInformationValidationSchema),
   controller.saveOptionalInformation
 )
-
 
 export const PersonalizedJourneyRoute = router;
