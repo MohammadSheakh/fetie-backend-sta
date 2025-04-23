@@ -10,7 +10,8 @@ export interface IDailyCycleInsights {
   menstrualFlow : TMenstrualFlow.light |
           TMenstrualFlow.medium |
           TMenstrualFlow.heavy |
-          TMenstrualFlow.spotting;
+          TMenstrualFlow.spotting|
+          TMenstrualFlow.no;
   mood : TMood.great |
           TMood.good |
           TMood.relaxed |
@@ -56,8 +57,9 @@ export type TDailyCycleInsights = {
         userId : Types.ObjectId; // 🔗
         menstrualFlow : TMenstrualFlow.light |
                 TMenstrualFlow.medium |
-                TMenstrualFlow.heavy |
-                TMenstrualFlow.spotting;
+                TMenstrualFlow.heavy  |
+                TMenstrualFlow.spotting | 
+                TMenstrualFlow.no;
         mood : TMood.great |
                 TMood.good |
                 TMood.relaxed |

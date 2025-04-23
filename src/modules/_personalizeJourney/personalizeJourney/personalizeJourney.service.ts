@@ -131,4 +131,22 @@ export class PersonalizedJourneyService extends GenericService<typeof Personaliz
             medicalAndLifeStyleData
         }
     }
+
+    async getByDateAndUserId(date: string, userId: string) {
+        
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new ApiError(StatusCodes.NOT_FOUND, "Database error while searching user");
+        }
+
+        const personalizedJourney = await PersonalizeJourney.findById(
+            user?.personalize_Journey_Id,
+        ).select('periodStartDate periodLength periodEndDate avgMenstrualCycleLength expectedPeriodStartDate predictedOvulationDate')
+
+        if (!personalizedJourney) {
+            throw new ApiError(StatusCodes.NOT_FOUND, "Personalized Journey not found");
+        }
+
+        return personalizedJourney;
+    }
 }

@@ -5,7 +5,13 @@ import { IFertie, IFertieModel } from './fertie.interface';
 
 const fertieSchema = new Schema<IFertie>(
   {
-    
+    default : {
+      type: String,
+      required: false,
+      trim: true,
+      default: 'default',
+
+    },
   },
   { timestamps: true }
 );

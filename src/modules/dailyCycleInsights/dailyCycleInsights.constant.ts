@@ -3,6 +3,7 @@ export enum TMenstrualFlow {
     medium = 'medium', 
     heavy = 'heavy',
     spotting = 'spotting',
+    no = 'no',
 }
 export enum TMood {
     great = 'great',

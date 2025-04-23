@@ -26,6 +26,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TMenstrualFlow.medium,
         TMenstrualFlow.heavy,
         TMenstrualFlow.spotting,
+        TMenstrualFlow.no,
       ],
       required: [false, `Menstrual flow is not required it can be ${Object.values(
         TMenstrualFlow

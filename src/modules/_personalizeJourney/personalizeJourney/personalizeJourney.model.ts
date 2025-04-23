@@ -135,6 +135,7 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
       type: Schema.Types.ObjectId,
       ref: 'MedicalAndLifeStyle', // Reference to the medicalAndLifeStyle schema
     },
+    
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
