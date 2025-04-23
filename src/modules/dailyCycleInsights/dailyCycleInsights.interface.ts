@@ -20,12 +20,13 @@ export interface IDailyCycleInsights {
   activity : TActivity.intercourse |
           TActivity.insemination;
   
-  symptoms : TSymptoms.cramps |
-          TSymptoms.headache |
-          TSymptoms.backache |
-          TSymptoms.breastTenderness |
-          TSymptoms.cervicalMucous |
-          TSymptoms.others;
+  symptoms : TSymptoms[];
+        //   TSymptoms.cramps |
+        //   TSymptoms.headache |
+        //   TSymptoms.backache |
+        //   TSymptoms.breastTenderness |
+        //   TSymptoms.cervicalMucous |
+        //   TSymptoms.others;
 
   phase : TPhase.menstrual |
           TPhase.follicular |
@@ -49,9 +50,57 @@ export interface IDailyCycleInsights {
   updatedAt?: Date;
 }
 
+export type TDailyCycleInsights = {
+        // _taskId: undefined | Types.ObjectId;
+        _id?: Types.ObjectId; // undefined |  Types.ObjectId |
+        userId : Types.ObjectId; // 🔗
+        menstrualFlow : TMenstrualFlow.light |
+                TMenstrualFlow.medium |
+                TMenstrualFlow.heavy |
+                TMenstrualFlow.spotting;
+        mood : TMood.great |
+                TMood.good |
+                TMood.relaxed |
+                TMood.happy |
+                TMood.irritable |
+                TMood.indifferent
+        activity : TActivity.intercourse |
+                TActivity.insemination;
+        
+        symptoms : TSymptoms[];
+        //  TSymptoms.cramps |
+        //         TSymptoms.headache |
+        //         TSymptoms.backache |
+        //         TSymptoms.breastTenderness |
+        //         TSymptoms.cervicalMucous |
+        //         TSymptoms.others;
+      
+        phase : TPhase.menstrual |
+                TPhase.follicular |
+                TPhase.ovulatory |
+                TPhase.luteal;
+      
+        fertilityLevel : TFertilityLevel.veryHigh |
+                TFertilityLevel.medium |
+                TFertilityLevel.low |
+                TFertilityLevel.veryLow;
+        cycleDay : Number;
+      
+        cervicalMucus :
+                TCervicalMucus.eggWhite |
+                TCervicalMucus.creamy;
+                
+        date : Date;
+        
+        isDeleted : Boolean;
+        createdAt?: Date;
+        updatedAt?: Date;
+      };
+
 export interface IDailyCycleInsightsModel extends Model<IDailyCycleInsights> {
   paginate: (
     query: Record<string, any>,
     options: PaginateOptions
   ) => Promise<PaginateResult<IDailyCycleInsights>>;
 }
+

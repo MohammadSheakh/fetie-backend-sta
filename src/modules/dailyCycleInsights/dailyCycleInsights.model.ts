@@ -27,7 +27,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TMenstrualFlow.heavy,
         TMenstrualFlow.spotting,
       ],
-      required: [true, `Menstrual flow is required it can be ${Object.values(
+      required: [false, `Menstrual flow is not required it can be ${Object.values(
         TMenstrualFlow
       ).join(', ')}`],
     },
@@ -41,7 +41,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TMood.irritable,
         TMood.indifferent
       ],
-      required: [true, `Menstrual flow is required it can be ${Object.values(
+      required: [false, `mood is not required it can be ${Object.values(
         TMood
       ).join(', ')}`],
     },
@@ -51,12 +51,12 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TActivity.intercourse,
         TActivity.insemination,
       ],
-      required: [true, `Menstrual flow is required it can be ${Object.values(
+      required: [false, `activity is not required it can be ${Object.values(
         TActivity
       ).join(', ')}`],
     },
     symptoms : {
-      type : String,
+      type : [String],
       enum : [
         TSymptoms.cramps,
         TSymptoms.headache,
@@ -67,7 +67,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TSymptoms.bloating,
         TSymptoms.others,
       ],
-      required: [true, `Menstrual flow is required it can be ${Object.values(
+      required: [false, `symptoms is not required it can be ${Object.values(
         TSymptoms
       ).join(', ')}`],
     },
@@ -79,7 +79,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TPhase.ovulatory,
         TPhase.luteal,
       ],
-      required: [true, `Menstrual flow is required it can be ${Object.values(
+      required: [false, `phase is not required it can be ${Object.values(
         TPhase
       ).join(', ')}`],
     },
@@ -91,13 +91,13 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TFertilityLevel.low,
         TFertilityLevel.veryLow,
       ],
-      required: [true, `Menstrual flow is required it can be ${Object.values(
+      required: [false, `fertilityLevel is not required it can be ${Object.values(
         TFertilityLevel
       ).join(', ')}`],
     },
     cycleDay : {
       type : Number,
-      required : [true, 'cycleDay is required'],
+      required : [false, 'cycleDay is not required'],
     },
     cervicalMucus : {
       type : String,
@@ -105,7 +105,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TCervicalMucus.eggWhite,
         TCervicalMucus.creamy
       ],
-      required: [true, `Menstrual flow is required it can be ${Object.values(
+      required: [false, `cervicalMucus is not required it can be ${Object.values(
         TCervicalMucus
       ).join(', ')}`],
     },
@@ -132,7 +132,7 @@ dailyCycleInsightsSchema.pre('save', function(next) {
 // Use transform to rename _id to _projectId
 dailyCycleInsightsSchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._subscriptionId = ret._id;  // Rename _id to _subscriptionId
+    ret._dailyCycleInsightsId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field
     return ret;
   }

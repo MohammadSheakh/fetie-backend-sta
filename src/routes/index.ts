@@ -9,6 +9,7 @@ import { SubscriptionRoute } from '../modules/_subscription/subscription/subscri
 import { ConversationRoute } from '../modules/_chatting/conversation/conversation.route';
 import { MessageRoute } from '../modules/_chatting/message/message.route';
 import { PersonalizedJourneyRoute } from '../modules/_personalizeJourney/personalizeJourney/personalizeJourney.route';
+import { DailyCycleInsightsRoute } from '../modules/dailyCycleInsights/dailyCycleInsights.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -31,12 +32,12 @@ const apiRoutes = [
   ////////////////////// Created By Mohammad Sheakh
 
   { // 🌀
-    path: '/personalizedJourney',
+    path: '/personalized-journey',
     route: PersonalizedJourneyRoute,
   },
   {
-    path: '/subscription',
-    route: SubscriptionRoute,
+    path: '/daily-cycle-insights',
+    route: DailyCycleInsightsRoute,
   },
   {
     path: '/conversation',

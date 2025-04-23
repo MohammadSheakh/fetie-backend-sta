@@ -2,6 +2,9 @@ import express from 'express';
 import { DailyCycleInsightsController } from './dailyCycleInsights.controller';
 import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import { IDailyCycleInsights } from './dailyCycleInsights.interface';
+import auth from '../../middlewares/auth';
+import * as dailyCycleInsightsValidation from './dailyCycleInsights.validation';
+import validateRequest from '../../shared/validateRequest';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -44,8 +47,8 @@ router.route('/create').post(
   //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
   //   ]),
   // ],
-  //auth('common'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  auth('common'),
+  
   controller.create
 );
 
@@ -63,4 +66,10 @@ router
 
 ////////////
 
-export const SubscriptionRoute = router;
+router.route("/update-by-date").patch(
+  auth('common'),
+  validateRequest(dailyCycleInsightsValidation.createDailyCycleInsightsValidationSchema),
+  controller.updateByDate
+)
+
+export const DailyCycleInsightsRoute = router;
