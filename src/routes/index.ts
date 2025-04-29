@@ -6,6 +6,7 @@ import { AdminRoutes } from '../modules/admin/admin.routes';
 import { PersonalizedJourneyRoute } from '../modules/_personalizeJourney/personalizeJourney/personalizeJourney.route';
 import { DailyCycleInsightsRoute } from '../modules/_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.route';
 import { FertieRoute } from '../modules/fertie/fertie.route';
+import { ChatBotRoute } from '../modules/chatbot/chatbot.routes';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -41,6 +42,11 @@ const apiRoutes = [
     // 🌀
     path: '/fertie',
     route: FertieRoute,
+  },
+  {
+    // 🌀
+    path: '/chat',
+    route: ChatBotRoute,
   },
 ];
 
