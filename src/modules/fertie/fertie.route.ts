@@ -10,7 +10,9 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IFertie>(filters: T[]) => {
+export const optionValidationChecking = <T extends keyof IFertie>(
+  filters: T[]
+) => {
   return filters;
 };
 
@@ -21,12 +23,12 @@ const controller = new FertieController();
 router.route('/paginate').get(
   //auth('common'),
   validateFiltersForQuery(optionValidationChecking(['_id'])),
-  controller.getAllWithPagination 
+  controller.getAllWithPagination
 );
 
 // router.route('/:id').get(
 //   // auth('common'),
-//   controller.getById 
+//   controller.getById
 // );
 
 router.route('/update/:id').put(
@@ -36,8 +38,8 @@ router.route('/update/:id').put(
 );
 
 router.route('/').get(
-  //auth('common'), // FIXME: maybe authentication lagbe na .. 
-  controller.getAll 
+  //auth('common'), // FIXME: maybe authentication lagbe na ..
+  controller.getAll
 );
 
 router.route('/create').post(
@@ -47,28 +49,33 @@ router.route('/create').post(
   //   ]),
   // ],
   auth('common'),
-  
+
   controller.create
 );
 
-router
-  .route('/delete/:id')
-  .delete(
-    //auth('common'),
-    controller.deleteById); // FIXME : change to admin
-
-router
-.route('/softDelete/:id')
-.put(
+router.route('/delete/:id').delete(
   //auth('common'),
-  controller.softDeleteById);
+  controller.deleteById
+); // FIXME : change to admin
+
+router.route('/softDelete/:id').put(
+  //auth('common'),
+  controller.softDeleteById
+);
 
 ////////////
-router.route('/get-home-page-data').get( // -home-page-data
+router.route('/get-home-page-data').get(
+  // -home-page-data
   auth('common'),
   controller.getHomePageDataByDate
-)
+);
 
+router
+  .route('/predictions')
+  .get(auth('common'), controller.getPredictionsByMonth_Latest_V3); // ?month=YYYY-MM
 
+router
+  .route('/daily-insights')
+  .get(auth('common'), controller.getMonthlyDailyCycleInsightsV2); // ?month=YYYY-MM
 
 export const FertieRoute = router;
