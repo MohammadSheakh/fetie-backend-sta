@@ -218,7 +218,7 @@ const updateUserProfile = catchAsync(async (req, res) => {
   });
 });
 
-//get my profile
+//get my profile //[🚧][🧑‍💻✅][🧪🆗]
 const getMyProfile = catchAsync(async (req, res) => {
   const userId = req.user.userId;
   if (!userId) {

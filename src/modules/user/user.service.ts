@@ -147,6 +147,7 @@ const updateProfileImage = async (
   return result;
 };
 
+//[🚧][🧑‍💻✅][🧪🆗]
 const getMyProfile = async (userId: string): Promise<TUser | null> => {
   const result = await User.findById(userId);
   if (!result) {

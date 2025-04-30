@@ -20,10 +20,6 @@ router.route('/paginate').get(
 
 
 //[🚧][🧑‍💻✅][🧪🆗] //  
-// get all Projects by User Id  // :userId
-router.route('/projects').get(auth('common'),
-UserController.getAllProjectsByUserId
-);
 
 router
   .route('/profile-image')
@@ -33,10 +29,12 @@ router
     convertHeicToPngMiddleware(UPLOADS_FOLDER),
     UserController.updateProfileImage
   );
+
 // sub routes must be added after the main routes
+//[🚧][🧑‍💻✅][🧪🆗]
 router
   .route('/profile')
-  .get(auth('common'), UserController.getMyProfile)
+  .get(auth('common'), UserController.getMyProfile) // 🟢
   .patch(
     auth('common'),
     validateRequest(UserValidation.updateUserValidationSchema),
