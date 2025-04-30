@@ -59,8 +59,9 @@ export class FertieController extends GenericController<
      * By date and userId
      */
 
-    const personalizedJourney =
-      await personalizedJourneyService.getByDateAndUserId(date, userId);
+    const personalizedJourney = await personalizedJourneyService.getByUserId(
+      userId
+    );
     const dailyCycleInsights =
       await dailyCycleInsightsService.getByDateAndUserId(date, userId);
 

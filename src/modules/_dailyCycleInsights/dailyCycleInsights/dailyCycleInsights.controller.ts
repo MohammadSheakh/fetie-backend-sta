@@ -183,5 +183,28 @@ export class DailyCycleInsightsController extends GenericController<
     });
   });
 
+  getByDateAndUserId = catchAsync(async (req: Request, res: Response) => {
+    const { date } = req.body;
+    const userId = req.user.userId;
+
+    const result = await this.dailyCycleInsightsService.getByDateAndUserId(
+      date,
+      userId
+    );
+
+    if (!result) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'Failed to get Daily Cycle Insights'
+      );
+    }
+    res.status(StatusCodes.OK).json({
+      success: true,
+      code: StatusCodes.OK,
+      data: result,
+      message: 'Daily Cycle Insights fetched successfully',
+    });
+  });
+
   // add more methods here if needed or override the existing ones
 }

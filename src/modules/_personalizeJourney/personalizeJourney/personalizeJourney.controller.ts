@@ -12,9 +12,9 @@ import { User } from '../../user/user.model';
 // let conversationParticipantsService = new ConversationParticipentsService();
 // let messageService = new MessagerService();
 
-function calculatePeriodEndDate(periodStartDate : Date, periodLength : number) {
+function calculatePeriodEndDate(periodStartDate: Date, periodLength: number) {
   // Convert periodStartDate to a Date object
-  const startDate = new Date(periodStartDate); 
+  const startDate = new Date(periodStartDate);
 
   // Add the periodLength (number of days) to the start date
   startDate.setDate(startDate.getDate() + periodLength);
@@ -23,24 +23,29 @@ function calculatePeriodEndDate(periodStartDate : Date, periodLength : number) {
   return startDate;
 }
 
-function calculateExpectedPeriodStartDate(periodStartDate : Date, avgMenstrualCycleLength : number) {
- 
-  const startDate = new Date(periodStartDate); 
+function calculateExpectedPeriodStartDate(
+  periodStartDate: Date,
+  avgMenstrualCycleLength: number
+) {
+  const startDate = new Date(periodStartDate);
 
   startDate.setDate(startDate.getDate() + avgMenstrualCycleLength);
 
   return startDate;
 }
 
-function calculateOvulationDate(expectedPeriodStartDate : Date) {
-  const startDate = new Date(expectedPeriodStartDate); 
+function calculateOvulationDate(expectedPeriodStartDate: Date) {
+  const startDate = new Date(expectedPeriodStartDate);
 
   startDate.setDate(startDate.getDate() - 14);
 
   return startDate;
 }
 
-export class PersonalizedJourneyController extends GenericController<typeof PersonalizeJourney, IPersonalizeJourney> {
+export class PersonalizedJourneyController extends GenericController<
+  typeof PersonalizeJourney,
+  IPersonalizeJourney
+> {
   personalizedJourneyService = new PersonalizedJourneyService();
 
   constructor() {
@@ -49,22 +54,37 @@ export class PersonalizedJourneyController extends GenericController<typeof Pers
 
   // Create
   create = catchAsync(async (req: Request, res: Response) => {
-    const data : IPersonalizeJourney= req.body;
-    const user = await User.findById(req.user.userId)
+    const data: IPersonalizeJourney = req.body;
+    const user = await User.findById(req.user.userId);
 
-    if(!user){
+    if (!user) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, 'User not found');
     }
 
-    if(user.personalize_Journey_Id){
-      // update the personalize journey id 
-      const existingJourney = await PersonalizeJourney.findById(user?.personalize_Journey_Id);
-      if(existingJourney){
-        data.periodEndDate = calculatePeriodEndDate(data.periodStartDate, parseInt(data?.periodLength));
-        data.expectedPeriodStartDate = calculateExpectedPeriodStartDate(data.periodStartDate, parseInt(data?.avgMenstrualCycleLength))
-        data.predictedOvulationDate = calculateOvulationDate(data.expectedPeriodStartDate); // 14 days before expected period start date
+    if (user.personalize_Journey_Id) {
+      // update the personalize journey id
+      const existingJourney = await PersonalizeJourney.findById(
+        user?.personalize_Journey_Id
+      );
+      if (existingJourney) {
+        data.periodEndDate = calculatePeriodEndDate(
+          data.periodStartDate,
+          parseInt(data?.periodLength)
+        );
+        data.expectedPeriodStartDate = calculateExpectedPeriodStartDate(
+          data.periodStartDate,
+          parseInt(data?.avgMenstrualCycleLength)
+        );
+        data.predictedOvulationDate = calculateOvulationDate(
+          data.expectedPeriodStartDate
+        ); // 14 days before expected period start date
 
-        const updatedPersonalJourney = await PersonalizeJourney.findByIdAndUpdate(existingJourney._id, data, { new: true });
+        const updatedPersonalJourney =
+          await PersonalizeJourney.findByIdAndUpdate(
+            existingJourney._id,
+            data,
+            { new: true }
+          );
 
         sendResponse(res, {
           code: StatusCodes.OK,
@@ -72,17 +92,20 @@ export class PersonalizedJourneyController extends GenericController<typeof Pers
           message: `${this.modelName} updated successfully`,
           success: true,
         });
-      } 
-    }else{
+      }
+    } else {
       const result = await this.service.create(data);
 
       if (!result) {
-        throw new ApiError(StatusCodes.BAD_REQUEST, 'Can not create personalize journey');
+        throw new ApiError(
+          StatusCodes.BAD_REQUEST,
+          'Can not create personalize journey'
+        );
       }
-      
+
       if (user) {
         user.personalize_Journey_Id = result._id;
-        await user?.save();  
+        await user?.save();
       }
       sendResponse(res, {
         code: StatusCodes.OK,
@@ -91,19 +114,22 @@ export class PersonalizedJourneyController extends GenericController<typeof Pers
         success: true,
       });
     }
-
   });
 
   saveOptionalInformation = catchAsync(async (req: Request, res: Response) => {
     const data = req.body;
 
-    if(!req.user){
+    if (!req.user) {
       throw new ApiError(StatusCodes.UNAUTHORIZED, 'User not found');
     }
 
     const userId = req.user.userId;
 
-    const result = await this.personalizedJourneyService.saveOptionalInformation(data, userId);
+    const result =
+      await this.personalizedJourneyService.saveOptionalInformation(
+        data,
+        userId
+      );
     //  const result =
     //  if (!result) {
     //   throw new ApiError(StatusCodes.BAD_REQUEST, 'Can not save optional information');
@@ -115,7 +141,26 @@ export class PersonalizedJourneyController extends GenericController<typeof Pers
       message: 'Optional information saved successfully',
       success: true,
     });
-  })
+  });
+
+  getByUserId = catchAsync(async (req: Request, res: Response) => {
+    const userId = req.user.userId;
+    const result = await this.personalizedJourneyService.getByUserId(userId);
+
+    if (!result) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Personalized Journey not found'
+      );
+    }
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: 'Personalized Journey fetched successfully',
+      success: true,
+    });
+  });
 
   // add more methods here if needed or override the existing ones
 }

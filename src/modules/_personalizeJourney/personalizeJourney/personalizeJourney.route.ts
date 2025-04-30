@@ -3,7 +3,7 @@ import { validateFiltersForQuery } from '../../../middlewares/queryValidation/pa
 
 import auth from '../../../middlewares/auth';
 import validateRequest from '../../../shared/validateRequest';
-import * as validation   from './personalizeJourney.validation';
+import * as validation from './personalizeJourney.validation';
 import { PersonalizedJourneyController } from './personalizeJourney.controller';
 import { IPersonalizeJourney } from './personalizeJourney.interface';
 const multer = require('multer');
@@ -70,9 +70,11 @@ router.route('/softDelete/:id').put(
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/save-optional-information').post(
   auth('common'),
-  // TODO : validation must add kora lagbe 
+  // TODO : validation must add kora lagbe
   validateRequest(validation.saveOptionalInformationValidationSchema),
   controller.saveOptionalInformation
-)
+);
+
+router.route('/get-by-userId').get(auth('common'), controller.getByUserId);
 
 export const PersonalizedJourneyRoute = router;
