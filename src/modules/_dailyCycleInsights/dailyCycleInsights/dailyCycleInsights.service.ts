@@ -40,7 +40,7 @@ export class DailyCycleInsightsService extends GenericService<
   // get by date and userId 🔥`eta develop korte hobe ..
 
   getByDateAndUserId = async (date: Date, userId: string) => {
-    const res = await this.model.findOne({ date, userId });
+    const res = await this.model.findOne({ date, userId }).populate('labTestLogId');
     // if (!res) {
     //     throw new Error('Database error while getting Daily Cycle Insights By date And userId');
     // }

@@ -4,6 +4,8 @@ import { RunnableSequence } from '@langchain/core/runnables';
 import { DailyCycleInsightsService } from '../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.service';
 import { PersonalizedJourneyService } from '../_personalizeJourney/personalizeJourney/personalizeJourney.service';
 import { UserService } from '../user/user.service';
+import sendResponse from '../../shared/sendResponse';
+import { StatusCodes } from 'http-status-codes';
 
 // const model = new ChatOpenAI({ temperature: 0.6, modelName: 'gpt-4' });
 
@@ -87,18 +89,9 @@ Data available:
 - phoneNumber : ${userProfileData?.phoneNumber || 'N/A'}
 - lastPasswordChangeDate : ${userProfileData?.lastPasswordChange || 'N/A'}
 
+- labTestLog : ${JSON.stringify(insights?.labTestLogId)}  || 'N/A'}
 `;
-
-// - User Data : ${JSON.stringify(userProfileData)}
-
-    // - Next Ovulation: ${ovulationDate || 'Not available'}
-    // - LH: ${labs?.LH || 'N/A'}
-    // - Progesterone: ${labs?.progesterone || 'N/A'}
-    // - Mood: ${insights?.mood || 'N/A'}
-    // - Menstrual Flow: ${insights?.menstrualFlow || 'N/A'}
-    // - Phase: ${insights?.phase || 'N/A'}
-    // - Symptoms: ${insights?.symptoms?.join(', ') || 'None'}
-
+    
     const messages = [
       new SystemMessage(systemPrompt),
       new HumanMessage(userMessage),
@@ -106,7 +99,14 @@ Data available:
 
     const response = await model.invoke(messages);
 
-    res.status(200).json({ message: response.content });
+  
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: response.content,
+      message: `chat bot response successfully`,
+      success: true,
+    });
+
   } catch (error) {
     console.error('Chatbot error:', error);
     res.status(500).json({ error: 'Something went wrong.' });
