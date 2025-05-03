@@ -9,8 +9,6 @@ import { StatusCodes } from 'http-status-codes';
 import { isValid, parse } from 'date-fns';
 import ApiError from '../../errors/ApiError';
 import { Request, Response } from 'express';
-import { fromZonedTime, toZonedTime  } from 'date-fns-tz';
-import { date } from 'zod';
 
 let dailyCycleInsightService = new DailyCycleInsightsService();
 let personalizeJourneyService = new PersonalizedJourneyService();
@@ -75,21 +73,6 @@ const chatbotResponseV2 = async (req: Request, res: Response) => {
         console.log('dateString 📅:', dateString);
         dateObj =  new Date(dateString).toISOString(); // toUTCString(). 
 
-        /*
-        // Parse the date in the format yyyy-MM-dd
-
-        const parsedDate = parse(dateString, 'yyyy-MM-dd', new Date());
-
-        console.log('parsedDate 📅:', parsedDate);
-
-        // Check if the parsed date is valid
-        if (parsedDate && isValid(parsedDate)) {
-          dateObj = parsedDate; // .toLocaleString()
-          console.log('✅ Parsed Date (yyyy-MM-dd):', dateObj);
-        } else {
-          console.warn('❌ Invalid numeric date after parsing');
-        }
-          */
       }
 
       // Handle natural language dates like "5 March 2025"
@@ -112,25 +95,10 @@ const chatbotResponseV2 = async (req: Request, res: Response) => {
       console.log('📅 No date detected, using current date');
       dateObj = new Date();
     }
-
-
+    
     console.log('dateObj 📢📢📢📢📢📢', dateObj);
 
-    /*
-    // Convert the date to UTC in the format you want (2025-05-06T00:00:00.000Z)
-    const utcDateString = dateObj?.toISOString(); // This will give us the UTC date in ISO format
-    console.log('UTC Date String 📅:', utcDateString);
-
-    // If you want to ensure the date is always parsed as midnight (00:00) UTC, you can manually adjust
-    // the time component like this:
-    const adjustedDate = new Date(utcDateString);
-    adjustedDate.setUTCHours(0, 0, 0, 0);  // Set time to 00:00:00 UTC (midnight)
-
-    */
-
    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        
 
     const [insights, allInsights, personalizedJourney, userProfileData] = await Promise.all([
       dailyCycleInsightService.getByDateAndUserId(dateObj, userId),
@@ -192,35 +160,6 @@ const chatbotResponseV2 = async (req: Request, res: Response) => {
 
     const response  = await model.invoke(messages); // const response = 
 
-    // console.log('Chatbot response:', response);
-    // Stream the response back to the client
-    /*
-    stream.on('data', (chunk) => {
-      if (chunk && chunk.text) {
-        // Send chunked response as each part of the response is available
-        res.write(chunk.text);
-      }
-    });
-
-    stream.on('end', () => {
-      // End the response once the stream is finished
-      res.end();
-    });
-
-    stream.on('error', (error) => {
-      console.error('Stream error:', error);
-      res.status(500).json({ error: `Something went wrong during streaming. ${error.message}` });
-    });
-    */
-
-    /*
-    for await (const chunk of stream) {
-      res.write(chunk.content);
-    }
-
-    res.end();
-    */
-
   sendResponse(res, {
     code: StatusCodes.OK,
     data: response.content  , /* response.content  */ 
@@ -235,6 +174,5 @@ const chatbotResponseV2 = async (req: Request, res: Response) => {
 }
 
 export const ChatBotV0Controller = {
-  chatbotResponseV1,
   chatbotResponseV2
 };
