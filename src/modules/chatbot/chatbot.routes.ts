@@ -1,6 +1,4 @@
 import express from 'express';
-
-import { ChatBotController } from './chatbot.controller';
 import auth from '../../middlewares/auth';
 import { ChatBotV0Controller } from './chatbotV0.controller';
 
