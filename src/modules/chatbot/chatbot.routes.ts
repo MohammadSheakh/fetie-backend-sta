@@ -16,6 +16,6 @@ const router = express.Router();
 //   return filters;
 // };
 
-router.route('/bot').post(auth('common'), ChatBotV0Controller.chatbotResponse);
+router.route('/bot').post(auth('common'), ChatBotV0Controller.chatbotResponseV1);
 
 export const ChatBotRoute = router;

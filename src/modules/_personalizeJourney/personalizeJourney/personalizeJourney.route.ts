@@ -52,7 +52,7 @@ router.route('/create').post(
   //   ]),
   // ],
   auth('common'),
-  validateRequest(validation.createPersonalizeJourneyValidationSchema),
+  // validateRequest(validation.createPersonalizeJourneyValidationSchema),
   controller.create
 );
 

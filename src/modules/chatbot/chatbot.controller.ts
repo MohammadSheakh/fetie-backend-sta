@@ -24,7 +24,6 @@ let dailyCycleInsightService = new DailyCycleInsightsService();
 let personalizeJourneyService = new PersonalizedJourneyService();
 
 
-
 // https://openrouter.ai/qwen/qwen3-30b-a3b:free/activity
 
 const chatbotResponse = async (req: Request, res: Response) => {
@@ -41,7 +40,6 @@ const chatbotResponse = async (req: Request, res: Response) => {
     const userId = req?.user.userId;
     const userMessage = req?.body?.message;
 
-    
     if (!userMessage) {
       console.error("No message provided in the request body.");
       return res.status(400).json({ error: "Message is required" });

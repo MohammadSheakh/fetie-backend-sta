@@ -11,6 +11,8 @@ import {
 import { DailyCycleInsightsService } from './dailyCycleInsights.service';
 import { LabTestLog } from '../labTestLog/labTestLog.model';
 
+import { fromZonedTime } from 'date-fns-tz';
+
 const dailyCycleInsightsService = new DailyCycleInsightsService();
 
 export class DailyCycleInsightsController extends GenericController<
@@ -50,6 +52,20 @@ export class DailyCycleInsightsController extends GenericController<
         req.body.date,
         userId
       );
+
+    // Specify the user's timezone. For example, 'America/New_York', but this can be dynamic depending on the user.
+    const userTimezone = 'America/New_York'; // You can replace this with the actual user's timezone.
+    
+    // Convert the local time to UTC
+    const dateInUserTimezone = new Date(req.body.date); // Create a Date object from the input string
+    console.log("dateInUserTimezone 🧪", dateInUserTimezone);
+    const dateInUtc = fromZonedTime(dateInUserTimezone, userTimezone);
+    
+    console.log("dateInUtc 🧪", dateInUtc);
+
+    // Now you can save this UTC date to your database
+    req.body.date = dateInUtc;
+
     if (dailyCycleInsightFound) {
       let labTestLog = null;
       if (labTestName && labTestValue) {
@@ -102,7 +118,7 @@ export class DailyCycleInsightsController extends GenericController<
         req.body,
         'labTestLogId' // populateAnySpecificField
       );
-      res.status(StatusCodes.CREATED).json({
+      res.status(StatusCodes.OK).json({
         success: true,
         code: StatusCodes.OK,
         data: result,
