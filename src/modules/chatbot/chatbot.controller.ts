@@ -194,7 +194,6 @@ Data available:
 
     const response = await model.invoke(messages);
 
-
     console.log('Model Response: 🧪🧪🧪🧪🧪', response.content); // confirm output
 
   
