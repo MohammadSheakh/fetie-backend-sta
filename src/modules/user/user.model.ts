@@ -3,7 +3,7 @@ import { TProfileImage, TUser, UserModal } from './user.interface';
 import paginate from '../../common/plugins/paginate';
 import bcryptjs from 'bcryptjs';
 import { config } from '../../config';
-import { Gender, MaritalStatus, TAuthProvider, TSubscriptionType, UserStatus } from './user.constant';
+import { Gender, MaritalStatus, TAuthProvider, TStatusType, TSubscriptionType, UserStatus } from './user.constant';
 import { Roles } from '../../middlewares/roles';
 
 // Profile Image Schema
@@ -78,6 +78,17 @@ const userSchema = new Schema<TUser, UserModal>(
       ],
       default: TSubscriptionType.free,
     },
+    status : {
+      type: String,
+      enum:  [TStatusType.active, TStatusType.inactive],
+      required: [
+        false,
+        `Status is required it can be ${Object.values(
+          TStatusType
+        ).join(', ')}`,
+      ],
+      default: TStatusType.active,
+    },
 
     isEmailVerified: {
       type: Boolean,
@@ -105,12 +116,12 @@ const userSchema = new Schema<TUser, UserModal>(
     googleId: {
       type: String,
       required: false, // Optional if Google login is used
-      unique: true,
+      
     },
     appleId: {
       type: String,
       required: false, // Optional if Apple login is used
-      unique: true,
+      
     },
     authProvider: {
       type: String,

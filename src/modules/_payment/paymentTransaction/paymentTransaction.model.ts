@@ -4,7 +4,7 @@ import paginate from '../../../common/plugins/paginate';
 
 
 import { ISubscription, ISubscriptionModel } from './subscription.interface';
-import { CurrencyType } from '../../_subscription/subscription/subscription.constant';
+import { CurrencyType } from '../../_subscription/subscriptionPlan/subscriptionPlan.constant';
 
 const paymentMethodSchema = new Schema<ISubscription>(
   {

@@ -76,6 +76,7 @@ router
     controller.updateByDate
   );
 
+// 🔴🔴 not working ..  
 router.route('/get-by-date').get(auth('common'), controller.getByDateAndUserId);
 
 export const DailyCycleInsightsRoute = router;

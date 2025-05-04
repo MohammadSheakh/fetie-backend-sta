@@ -10,7 +10,7 @@ export class GenericService< ModelType, InterfaceType> {
     this.model = model;
   }
 
-  async create(data:InterfaceType) {
+  async create(data:InterfaceType) : Promise<InterfaceType | null> {
     // console.log('req.body from generic create 🧪🧪', data);
     return await this.model.create(data);
   }
@@ -30,7 +30,7 @@ export class GenericService< ModelType, InterfaceType> {
     return result;
   }
 
-  async getById(id: string) {
+  async getById(id: string) : Promise<InterfaceType | null> {
     const object = await this.model.findById(id);
     if (!object) {
       // throw new ApiError(StatusCodes.BAD_REQUEST, 'No file uploaded');

@@ -6,8 +6,13 @@ import ApiError from '../../errors/ApiError';
 import { UserCustomService, UserService } from './user.service';
 import { User } from './user.model';
 import { Types } from 'mongoose';
+import { TokenService } from '../token/token.service';
+import { sendAdminOrSuperAdminCreationEmail } from '../../helpers/emailService';
+import { AuthService } from '../auth/auth.service';
 
 const userCustomService = new UserCustomService();
+
+
 
 const createAdminOrSuperAdmin = catchAsync(async (req, res) => {
   const payload = req.body;
@@ -21,127 +26,8 @@ const createAdminOrSuperAdmin = catchAsync(async (req, res) => {
   });
 });
 
-//get all users from database
-const getAllUsers = catchAsync(async (req, res) => {
-  const currentUserId = req.user.userId;
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 10;
-  const skip = (page - 1) * limit;
 
-  console.log(currentUserId);
-  // Aggregation pipeline to fetch users with connection status
-  const aggregationPipeline = [
-    {
-      $match: {
-        isDeleted: false,
-      },
-    },
-    {
-      $lookup: {
-        from: 'connections',
-        let: { targetUserId: '$_id' },
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $or: [
-                  {
-                    $and: [
-                      { $eq: ['$senderId', currentUserId] },
-                      { $eq: ['$receiverId', '$$targetUserId'] },
-                    ],
-                  },
-                  {
-                    $and: [
-                      { $eq: ['$senderId', '$$targetUserId'] },
-                      { $eq: ['$receiverId', currentUserId] },
-                    ],
-                  },
-                ],
-              },
-            },
-          },
-        ],
-        as: 'connection',
-      },
-    },
-    {
-      $addFields: {
-        connectionStatus: {
-          $cond: {
-            if: { $gt: [{ $size: '$connection' }, 0] },
-            then: {
-              $let: {
-                vars: { conn: { $arrayElemAt: ['$connection', 0] } },
-                in: {
-                  $switch: {
-                    branches: [
-                      {
-                        case: { $eq: ['$$conn.status', 'accepted'] },
-                        then: 'connected',
-                      },
-                      {
-                        case: { $eq: ['$$conn.status', 'pending'] },
-                        then: 'pending',
-                      },
-                      {
-                        case: { $eq: ['$$conn.status', 'rejected'] },
-                        then: 'rejected',
-                      },
-                    ],
-                    default: 'not-connected',
-                  },
-                },
-              },
-            },
-            else: 'not-connected',
-          },
-        },
-      },
-    },
-    {
-      $project: {
-        password: 0,
-        isDeleted: 0,
-        failedLoginAttempts: 0,
-        lockUntil: 0,
-      },
-    },
-    { $skip: skip },
-    { $limit: limit },
-  ];
 
-  // Execute aggregation
-  const users = await User.aggregate(aggregationPipeline).exec();
-
-  // Get total count for pagination
-  const total = await User.countDocuments({
-    _id: { $ne: currentUserId },
-    role: 'mentor',
-    isDeleted: false,
-  });
-
-  res.json({
-    data: users,
-    meta: {
-      total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
-    },
-  });
-});
-// const getAllUsers = catchAsync(async (req, res) => {
-//   const {userId} = req.user?.userId;
-//   const filters = pick(req.query, ['userName', 'email', 'role']);
-//   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
-//   const result = await UserService.getFilteredUsersWithConnectionStatus(userId,filters, options);
-//   sendResponse(res, {
-//     code: StatusCodes.OK,
-//     data: result,
-//     message: 'Users fetched successfully',
-//   });
-// });
 
 //get single user from database
 const getSingleUser = catchAsync(async (req, res) => {
@@ -248,50 +134,109 @@ const deleteMyProfile = catchAsync(async (req, res) => {
 
 //////////////////////////////////////////////////////////
 
-
-//get all Projects by User Id
-const getAllProjectsByUserId = catchAsync(async (req, res) => {
-
-  if (!req.user ) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'User ID not found in request');
-  }
-
-  console.log("🧪🧪🧪🧪",req.user)
-  // const { id } = req.user;
- 
-  const result = await UserService.getAllProjectsByUserId(req.user.userId);
-
-  if (!result) {
-    throw new ApiError(StatusCodes.NOT_FOUND, 'No Projects found');
-  }
+//[🚧][🧑‍💻][🧪] // ✅ 🆗
+const getAllUserForAdminDashboard = catchAsync(async (req, res) => {
+  const filters = req.query;
+  const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+  const result = await userCustomService.getAllWithPagination(filters, options);
 
   sendResponse(res, {
     code: StatusCodes.OK,
-    data: result,
-    message: 'All Project By User Id ',
+    data: result, 
+
+    message: 'All users fetched successfully',
   });
-});
+}
+);
 
+//[🚧][🧑‍💻][🧪] // ✅ 🆗
+const getAllAdminForAdminDashboard = catchAsync(async (req, res) => {
+  // const filters = req.query;
 
-const getAllUserWithPagination = catchAsync(async (req, res) => {
-  const filters = pick(req.query, [ '_id' , 'role', 'fname', 'lname']); // 'projectName',
+  const filters = { ...req.query };
+  
+  // If role is not specified in query, set default to show both admin and superAdmin
+  if (!filters.role) {
+    filters.role = { $in: ['admin', 'superAdmin'] };
+  }
+
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
   const result = await userCustomService.getAllWithPagination(filters, options);
 
   sendResponse(res, {
     code: StatusCodes.OK,
-    data: result,
-    message: 'All tasks with Pagination',
+    data: result, 
+    message: 'All admin fetched successfully',
   });
+}
+);
+
+
+//[🚧][🧑‍💻][🧪] // ✅ 🆗 // 🧪🧪🧪🧪🧪🧪🧪🧪🧪 need test 
+// send Invitation Link for a admin
+const sendInvitationLinkToAdminEmail = catchAsync(async (req, res) => {
+  const user = await UserService.getUserByEmail(req.body.email);
+
+  /**
+   * 
+   * req.body.email er email jodi already taken 
+   * if ----
+   * then we check isEmailVerified .. if false .. we make that true 
+   * 
+   * if isDeleted true then we make it false 
+   * 
+   * else ---
+   *  we create new admin and send email
+   * 
+   */
+
+  if(user && user.isEmailVerified === true){
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Email already taken');
+  }
+  else if(user && user.isDeleted === true){
+    user.isDeleted = false;
+    await user.save();
+  }
+  else if(user && user.isEmailVerified === false){
+    user.isEmailVerified = true;
+    await user.save();
+    const token = await TokenService.createVerifyEmailToken(user);
+    await sendAdminOrSuperAdminCreationEmail(
+      req?.body?.email,
+      req.body.role,
+      req?.body?.password,
+      req.body.message ?? "welcome to the team"
+    );
+
+    return sendResponse(res, {
+      code: StatusCodes.OK,
+      data: null,
+      message: 'User already found and Invitation link sent successfully for admin',
+    });
+  }else{
+    // create new user 
+    if(req.body.role == "admin")
+      {
+        const newUser = await AuthService.createUser({
+          email: req.body.email,
+          password: req.body.password,
+          role: req.body.role,
+          isEmailVerified: true,
+        });
+
+        return sendResponse(res, {
+          code: StatusCodes.OK,
+          data: null,
+          message: 'New admin created and invitation link sent successfully',
+        });
+      } 
+  }
+
 });
-
-
-
 
 export const UserController = {
   createAdminOrSuperAdmin,
-  getAllUsers,
   getSingleUser,
   updateMyProfile,
   updateProfileImage,
@@ -300,6 +245,7 @@ export const UserController = {
   updateUserProfile,
   deleteMyProfile,
   //////////////////////////
-  getAllProjectsByUserId, 
-  getAllUserWithPagination
+  getAllUserForAdminDashboard,
+  getAllAdminForAdminDashboard,
+  sendInvitationLinkToAdminEmail
 };

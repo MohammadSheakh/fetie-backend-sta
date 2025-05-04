@@ -63,7 +63,7 @@ export class DailyCycleInsightsController extends GenericController<
     
     console.log("dateInUtc 🧪", dateInUtc);
 
-    // Now you can save this UTC date to your database
+    // Now you can save this UTC date to your database // 🔥🔥 UTC format bad diye may be ISO format use korte hobe ... 
     req.body.date = dateInUtc;
 
     if (dailyCycleInsightFound) {
@@ -153,6 +153,27 @@ export class DailyCycleInsightsController extends GenericController<
         req.body.labTestLogId = labTestLog._id;
       }
 
+      /**
+       * 
+       * based on provided information, we have to calculate Fertility Score
+       * 
+       * we have information like :
+       *  menstrualFlow, mood, activity, symptoms, cervicalMucus
+       *  all lab tests.. specially LH test between cycle day 2-5
+       * 
+       * we need information like : 
+       * phase, fertilityLevel, cycleDay 
+       * 
+       * we need information like : 
+       * 
+       * period start Date,  average cycle length, 
+       * luteal phase length
+       * 
+       * // from our information we have to know .. 
+       * date of intercourse, timing relative to ovulation
+       * 
+       */
+
       const result = await this.dailyCycleInsightsService.createByDateAndUserId(
         req.body
       );
@@ -199,10 +220,12 @@ export class DailyCycleInsightsController extends GenericController<
     });
   });
 
+  //[🚧][🧑‍💻][🧪] // ✅ 🆗  // 🔴🔴 not working ..  
   getByDateAndUserId = catchAsync(async (req: Request, res: Response) => {
-    const { date } = req.body;
+    const { date } = req.query;
     const userId = req.user.userId;
-
+    console.log("hit ")
+/*
     const result = await this.dailyCycleInsightsService.getByDateAndUserId(
       date,
       userId
@@ -214,10 +237,11 @@ export class DailyCycleInsightsController extends GenericController<
         'Failed to get Daily Cycle Insights'
       );
     }
+*/
     res.status(StatusCodes.OK).json({
       success: true,
       code: StatusCodes.OK,
-      data: result,
+      data: null,
       message: 'Daily Cycle Insights fetched successfully',
     });
   });

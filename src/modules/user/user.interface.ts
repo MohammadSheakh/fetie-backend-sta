@@ -1,6 +1,6 @@
 import { Model, Types } from 'mongoose';
 import { Role } from '../../middlewares/roles';
-import { TAuthProvider, TSubscriptionType } from './user.constant';
+import { TAuthProvider, TStatusType, TSubscriptionType } from './user.constant';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 
 export type TProfileImage = {
@@ -18,6 +18,40 @@ export type TUser = {
   _id:  undefined; // Types.ObjectId |
   personalize_Journey_Id : Types.ObjectId;
   subscriptionType : TSubscriptionType.free | TSubscriptionType.premium;
+  status : TStatusType.active | TStatusType.inactive;
+  accessPinCode: string;
+  name: string;
+  email: string;
+  password: string;
+  profileImage?: TProfileImage;
+  fcmToken : string;
+  role: Role;
+
+  isEmailVerified: boolean;
+  phoneNumber : string;
+  isDeleted: boolean;
+  lastPasswordChange: Date;
+  isResetPassword: boolean;
+  failedLoginAttempts: number;
+  lockUntil: Date | undefined;
+  // -- google  and apple login 
+  googleId: string;
+  appleId: string;
+  authProvider: TAuthProvider.apple | TAuthProvider.google | TAuthProvider.local;
+  googleAccessToken : string;
+  appleAccessToken : string;
+  isGoogleVerified : boolean;
+  isAppleVerified : boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export interface IUser  {
+  _userId: undefined | Types.ObjectId;
+  _id:  undefined; // Types.ObjectId |
+  personalize_Journey_Id : Types.ObjectId;
+  subscriptionType : TSubscriptionType.free | TSubscriptionType.premium;
+  status : TStatusType.active | TStatusType.inactive;
   accessPinCode: string;
   name: string;
   email: string;

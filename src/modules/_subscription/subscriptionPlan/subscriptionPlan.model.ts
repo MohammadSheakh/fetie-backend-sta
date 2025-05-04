@@ -6,11 +6,11 @@ import {
   InitialDurationType,
   RenewalFrequncyType,
   SubscriptionType,
-} from './subscription.constant';
+} from './subscriptionPlan.constant';
 
-import { ISubscription, ISubscriptionModel } from './subscription.interface';
+import { ISubscriptionPlan, ISubscriptionPlanModel } from './subscriptionPlan.interface';
 
-const subscriptionSchema = new Schema<ISubscription>(
+const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
   {
     subscriptionName: {
       type: String,
@@ -23,9 +23,7 @@ const subscriptionSchema = new Schema<ISubscription>(
     subscriptionType: {
       type: String,
       enum: [
-        SubscriptionType.standard,
         SubscriptionType.premium,
-        SubscriptionType.vip,
       ],
       required: [
         true,
@@ -37,8 +35,6 @@ const subscriptionSchema = new Schema<ISubscription>(
     initialDuration: {
       type: String,
       enum: [
-        // InitialDurationType.day,
-        // InitialDurationType.week,
         InitialDurationType.month,
         InitialDurationType.year,
       ],
@@ -53,8 +49,6 @@ const subscriptionSchema = new Schema<ISubscription>(
     renewalFrequncy: {
       type: String,
       enum: [
-        // RenewalFrequncyType.daily,
-        // RenewalFrequncyType.weekly,
         RenewalFrequncyType.monthly,
         RenewalFrequncyType.yearly,
       ],
@@ -66,19 +60,19 @@ const subscriptionSchema = new Schema<ISubscription>(
         ).join(', ')}`,
       ],
     },
-    initialFee: {
+    amount: {
       type: Number,
       required: [false, 'Initial Fee is required'],
       min: [0, 'Initial Fee must be greater than zero'],
     },
-    renewalFee: {
-      type: Number,
-      required: [false, 'Renewal Fee is required'],
-      min: [0, 'Renewal Fee must be greater than zero'],
-    },
+    // renewalFee: {
+    //   type: Number,
+    //   required: [false, 'Renewal Fee is required'],
+    //   min: [0, 'Renewal Fee must be greater than zero'],
+    // },
     currency: {
       type: String,
-      enum: [CurrencyType.USD, CurrencyType.EUR],
+      enum: [CurrencyType.USD], // , CurrencyType.EUR
       required: [
         true,
         `Currency is required .. it can be  ${Object.values(CurrencyType).join(
@@ -92,39 +86,61 @@ const subscriptionSchema = new Schema<ISubscription>(
       type: [String],
       required: [true, 'Features is required'],
     },
-    freeTrialDuration: {
-      type: Number, // Duration in days
-      default: 0, // Default to no free trial
-      min: [0, 'Free trial duration must be non-negative'],
-    },
-    freeTrialEnabled: {
-      type: Boolean,
-      default: false, // Indicates if the subscription supports a free trial
-    },
+    // freeTrialDuration: {
+    //   type: Number, // Duration in days
+    //   default: 0, // Default to no free trial
+    //   min: [0, 'Free trial duration must be non-negative'],
+    // },
+    // freeTrialEnabled: {
+    //   type: Boolean,
+    //   default: false, // Indicates if the subscription supports a free trial
+    // },
   
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],
       default: false,
     },
+
+    ///////////////////
+
+    stripe_product_id : {
+      type: String,
+      required: [true, 'stripe_product_id is required'],
+      default: null,
+    },
+    stripe_price_id : {
+      type: String,
+      required: [true, 'stripe_price_id is required'],
+      default: null,
+    },
+
+    // as we can not update existing stripe product id and price id
+    // we need to keep them in the database
+    
+    isActive : {
+      type: Boolean,
+      required: [false, 'isActive is not required'],
+      default: true,
+    }
   },
   { timestamps: true }
 );
 
-subscriptionSchema.plugin(paginate);
+subscriptionPlanSchema.plugin(paginate);
 
-subscriptionSchema.pre('save', function(next) {
+subscriptionPlanSchema.pre('save', function(next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
-  this.renewalFee = this.initialFee
+  // this.renewalFee = this.initialFee
   
   next();
 });
 
 
 // Use transform to rename _id to _projectId
-subscriptionSchema.set('toJSON', {
+subscriptionPlanSchema.set('toJSON', {
   transform: function (doc, ret, options) {
     ret._subscriptionId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field
@@ -133,7 +149,7 @@ subscriptionSchema.set('toJSON', {
 });
 
 
-export const Subscription = model<ISubscription, ISubscriptionModel>(
-  'Subscription',
-  subscriptionSchema
+export const SubscriptionPlan = model<ISubscriptionPlan, ISubscriptionPlanModel>(
+  'SubscriptionPlan',
+  subscriptionPlanSchema
 );

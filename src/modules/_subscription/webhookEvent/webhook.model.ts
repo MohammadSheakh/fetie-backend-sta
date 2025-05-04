@@ -2,7 +2,7 @@ import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { UserSubscriptionStatusType } from './userSubscription.constant';
 import { IUserSubscription, IUserSubscriptionModel } from './userSubscription.interface';
-import { RenewalFrequncyType } from '../subscription/subscription.constant';
+import { RenewalFrequncyType } from '../subscriptionPlan/subscriptionPlan.constant';
 
 const webhookEventSchema = new Schema<IUserSubscription>(
   {

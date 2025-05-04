@@ -74,8 +74,16 @@ router
   .route('/predictions')
   .get(auth('common'), controller.getPredictionsByMonth_Latest_V3); // ?month=YYYY-MM
 
+  // 🔥 jhamela ase .. logged in user er jonno develop korte hobe .. may be lagbeo na ei endpoint
 router
   .route('/daily-insights')
-  .get(auth('common'), controller.getMonthlyDailyCycleInsightsV2); // ?month=YYYY-MM
+  .get(auth('common'), controller.getMonthlyDailyCycleInsightsByMonth); // ?month=YYYY-MM
 
+  // 🔥 jhamela ase .. logged in user er jonno develop korte hobe .. may be lagbeo na ei endpoint
+  router
+  .route('/daily-insights-daily')
+  .get(auth('common'), controller.getDailyDailyCycleInsightsByDate); // ?date=YYYY-MM-DD
+
+
+  
 export const FertieRoute = router;

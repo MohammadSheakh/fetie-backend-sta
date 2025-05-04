@@ -5,17 +5,47 @@ import validateRequest from '../../shared/validateRequest';
 import { UserValidation } from './user.validation';
 import fileUploadHandler from '../../shared/fileUploadHandler';
 import convertHeicToPngMiddleware from '../../shared/convertHeicToPngMiddleware';
+import { IUser } from './user.interface';
+import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 const UPLOADS_FOLDER = 'uploads/users';
 const upload = fileUploadHandler(UPLOADS_FOLDER);
 
 const router = express.Router();
 
+export const optionValidationChecking = <T extends keyof IUser>(
+  filters: T[]
+) => {
+  return filters;
+};
+
 
 //info : pagination route must be before the route with params
+//[🚧][🧑‍💻][🧪] // ✅ 🆗
+//💹📈 need scalability .. like mongo db indexing .. 
+/*
+ 🚧 // TODO: name and email er jonno regex add korte hobe ..  
+*/
 router.route('/paginate').get(
-  auth('projectManager'),
-  UserController.getAllUserWithPagination
+  auth('commonAdmin'),
+ validateFiltersForQuery(optionValidationChecking(['_id', 'name', 'email', 'subscriptionType', 'status', 'role'])),
+  UserController.getAllUserForAdminDashboard
 );
+
+//[🚧][🧑‍💻][🧪] // ✅ 🆗
+router.route('/paginate/admin').get(
+  auth('commonAdmin'),
+ validateFiltersForQuery(optionValidationChecking(['_id', 'name', 'email', 'role', 'status', 'createdAt'])),
+  UserController.getAllAdminForAdminDashboard
+);
+
+router.post(
+  "/send-invitation-link-to-admin-email",
+  auth('superAdmin'),
+  // validate(authValidation.register),
+  UserController.sendInvitationLinkToAdminEmail
+);
+
+////////////////////////////////////////////////
 
 
 
@@ -44,9 +74,6 @@ router
   )
   .delete(auth('common'), UserController.deleteMyProfile);
 
-//main routes
-router.route('/').get(auth('common'), UserController.getAllUsers);
-
 router
   .route('/:userId')
   .get(auth('common'), UserController.getSingleUser)
@@ -62,8 +89,6 @@ router
   );
 
   ///////////////////////////////////////////////
-
-  router.get
   
 
 export const UserRoutes = router;

@@ -1,7 +1,7 @@
 import express from 'express';
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
-import { ISubscription } from './subscription.interface';
-import { SubscriptionController } from './subscription.controller';
+import { ISubscriptionPlan } from './subscriptionPlan.interface';
+import { SubscriptionController } from './subscriptionPlan.controller';
 import auth from '../../../middlewares/auth';
 
 const multer = require('multer');
@@ -10,7 +10,7 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof ISubscription>(filters: T[]) => {
+export const optionValidationChecking = <T extends keyof ISubscriptionPlan>(filters: T[]) => {
   return filters;
 };
 
@@ -82,4 +82,4 @@ router.route('/webhook').post(
   controller.webhook
 );
 
-export const SubscriptionRoute = router;
+export const SubscriptionPlanRoute = router;

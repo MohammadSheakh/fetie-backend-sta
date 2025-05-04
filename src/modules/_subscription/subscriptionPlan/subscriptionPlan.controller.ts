@@ -1,27 +1,30 @@
 import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import { GenericController } from '../../__Generic/generic.controller';
-import { ISubscription } from './subscription.interface';
-import { Subscription } from './subscription.model';
-import { SubscriptionService } from './subscription.service';
+import { ISubscriptionPlan, TSubscriptionPlan } from './subscriptionPlan.interface';
+import { Subscription, SubscriptionPlan } from './subscriptionPlan.model';
+import { SubscriptionPlanService } from './subscriptionPlan.service';
 import sendResponse from '../../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 import Stripe from 'stripe';
 import ApiError from '../../../errors/ApiError';
-import { SubscriptionType } from './subscription.constant';
+import { CurrencyType, InitialDurationType, RenewalFrequncyType, SubscriptionType } from './subscriptionPlan.constant';
+import { User } from '../../user/user.model';
+import { UserCustomService } from '../../user/user.service';
 
-const subscriptionService = new SubscriptionService();
+const subscriptionPlanService = new SubscriptionPlanService();
+const userCustomService = new UserCustomService();
 
 export class SubscriptionController extends GenericController<
   typeof Subscription,
-  ISubscription
+  ISubscriptionPlan
 > {
   private stripe: Stripe;
 
   constructor() {
-    super(new SubscriptionService(), 'Subscription');
-    // Initialize Stripe with secret key (from your Stripe Dashboard)
-    this.stripe = new Stripe('your_stripe_secret_key');
+    super(new SubscriptionPlanService(), 'Subscription Plan');
+    // Initialize Stripe with secret key (from your Stripe Dashboard) // https://dashboard.stripe.com/test/dashboard
+    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string );
   }
 
   subscribe = catchAsync(async (req: Request, res: Response) => {
@@ -47,7 +50,7 @@ export class SubscriptionController extends GenericController<
     }
 
     // check if plan is valid
-    const validPLan = await subscriptionService.getBySubscriptionType(
+    const validPLan = await subscriptionPlanService.getBySubscriptionType(
       plan as string
     );
 
@@ -63,16 +66,10 @@ export class SubscriptionController extends GenericController<
     let priceId;
 
     switch (plan.toString().toLowerCase()) {
-      case SubscriptionType.standard:
-        // standard plan price id inside a variable `
-        priceId = process.env.STRIPE_STANDARD_PLAN_PRICE_ID; // 🔥 add korte hobe process.env file e ..
-        break;
       case SubscriptionType.premium:
         priceId = process.env.STRIPE_PREMIUM_PLAN_PRICE_ID; // 🔥 add korte hobe process.env file e .
         break;
-      case SubscriptionType.vip:
-        priceId = process.env.STRIPE_VIP_PLAN_PRICE_ID; // 🔥 add korte hobe process.env file e .
-        break;
+      
       default:
         throw new ApiError(
           StatusCodes.BAD_REQUEST,
@@ -211,6 +208,172 @@ export class SubscriptionController extends GenericController<
       message: `Customer portal session created successfully`,
       success: true,
     });
+  });
+
+  // ⚡⚡ For Fertie Project 
+  /*
+    As Admin can create subscription plan ...
+
+  */  
+  create = catchAsync(async (req: Request, res: Response) => {
+    const data : ISubscriptionPlan = req.body;
+    
+    data.subscriptionName = req.body.subscriptionName;
+    data.amount = req.body.amount;
+    data.subscriptionType = SubscriptionType.premium;
+    data.initialDuration = InitialDurationType.month;
+    data.renewalFrequncy = RenewalFrequncyType.monthly;
+    data.currency = CurrencyType.USD;
+    data.features = req.body.features;
+    if(!data.amount){
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `amount is required`
+      );
+    }
+
+    // now we have to create stripe product and price 
+    // and then we have to save the productId and priceId in our database
+    const product = await this.stripe.products.create({
+      name: data.subscriptionType,
+      description: `Subscription plan for ${data.subscriptionType}`,
+    });
+
+    const price = await this.stripe.prices.create({
+      unit_amount: data?.amount * 100, // Amount in cents
+      currency: data.currency,
+      recurring: {
+        interval: 'month', // or 'year' for yearly subscriptions
+        interval_count: 1, // Number of intervals (e.g., 1 month)
+      },
+      product: product.id,
+    });
+    data.stripe_product_id = product.id;
+    data.stripe_price_id = price.id;
+    data.isActive = true;
+
+    const result = await this.service.create(data);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} created successfully`,
+      success: true,
+    });
+  }
+  );  
+
+  /*
+    if admin wants to update a subscription plan , 
+    then we have to create new stripe product and price and update the productId and priceId in our database
+
+    lets see how it goes .. we can modify it later if needed
+  */  
+
+  updateById = catchAsync(async (req: Request, res: Response) => {
+    const data : ISubscriptionPlan = req.body;
+    
+    data.subscriptionName = req.body.subscriptionName;
+    data.amount = req.body.amount;
+    data.subscriptionType = SubscriptionType.premium;
+    data.initialDuration = InitialDurationType.month;
+    data.renewalFrequncy = RenewalFrequncyType.monthly;
+    data.currency = CurrencyType.USD;
+    data.features = req.body.features;
+
+    if(!data.amount){
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `amount is required`
+      );
+    }
+
+    // now we have to create stripe product and price 
+    // and then we have to save the productId and priceId in our database
+    const product = await this.stripe.products.create({
+      name: data.subscriptionType,
+      description: `Subscription plan for ${data.subscriptionType}`,
+    });
+
+    const price = await this.stripe.prices.create({
+      unit_amount: data?.amount * 100, // Amount in cents
+      currency: data.currency,
+      recurring: {
+        interval: 'month', // or 'year' for yearly subscriptions
+        interval_count: 1, // Number of intervals (e.g., 1 month)
+      },
+      product: product.id,
+    });
+    
+    data.stripe_product_id = product.id;
+    data.stripe_price_id = price.id;
+
+    const result = await this.service.updateById(req.params.id, data);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `${this.modelName} updated successfully`,
+      success: true,
+    });
+  });
+
+
+  createCheckoutSession = catchAsync(async (req, res) => {
+    
+      const { planId } = req.body;
+      const userId = req.user._id;
+      
+      const plan = await SubscriptionPlan.findById(planId);
+      if (!plan) {
+        throw new ApiError(
+          StatusCodes.NOT_FOUND,
+          `Plan not found`
+        );
+      }
+      
+      // Get or create Stripe customer
+      let user = await userCustomService.getById(userId);
+      if(!user){
+        throw new ApiError(
+          StatusCodes.NOT_FOUND,
+          `User not found`
+        );
+      }
+      if (!user?.stripeCustomerId) {
+        const customer = await this.stripe.customers.create({
+          email: user.email,
+          name: user.name || user.email,
+          metadata: {
+            userId: user._id.toString()
+          }
+        });
+        
+        user.stripeCustomerId = customer.id;
+        await user.save();
+      }
+      
+      // Create checkout session
+      const session = await stripe.checkout.sessions.create({
+        payment_method_types: ['card'],
+        customer: user.stripeCustomerId,
+        line_items: [
+          {
+            price: plan.stripePriceId,
+            quantity: 1
+          }
+        ],
+        mode: 'subscription',
+        success_url: `${process.env.FRONTEND_URL}/subscription/success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `${process.env.FRONTEND_URL}/subscription/cancel`,
+        metadata: {
+          userId: user._id.toString(),
+          planId: plan._id.toString()
+        }
+      });
+      
+      res.status(200).json({ success: true, sessionId: session.id, url: session.url });
+   
   });
 
   // add more methods here if needed or override the existing ones

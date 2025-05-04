@@ -5,7 +5,7 @@ import {
   IUserSubscription,
   IUserSubscriptionModel,
 } from './userSubscription.interface';
-import { RenewalFrequncyType } from '../subscription/subscription.constant';
+import { RenewalFrequncyType } from '../subscriptionPlan/subscriptionPlan.constant';
 
 const userSubscriptionSchema = new Schema<IUserSubscription>(
   {
@@ -15,11 +15,11 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       ref: 'User',
       required: [false, 'User Id is required'],
     },
-    subscriptionId: {
+    subscriptionPlanId: {
       //🔗
       type: Schema.Types.ObjectId,
-      ref: 'Subscription',
-      required: [false, 'Subscription Id is required'],
+      ref: 'SubscriptionPlan',
+      required: [false, 'Subscription Plan Id is required'],
     },
     subscriptionStartDate: {
       type: Date,
@@ -29,15 +29,10 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
         message: 'Subscription Start Date must be in the past',
       },
     },
-    subscriptionEndDate: {
+    currentPeriodStartDate: {
+      // renewal period end date
       type: Date,
-      required: false,
-      validate: {
-        validator: function (value) {
-          return value > this.subscriptionStartDate;
-        },
-        message: 'Subscription end date must be after subscription start date',
-      },
+      required: true,
     },
     renewalDate: {
       type: Date,
@@ -50,11 +45,8 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
           'initial Period End Date must be after subscription start date ',
       },
     },
-    currentPeriodStartDate: {
-      // renewal period end date
-      type: Date,
-      required: true,
-    },
+    
+  
     billingCycle: {
       type: Number,
       required: [true, 'billingCycle is required'],
@@ -70,40 +62,52 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       required: [false, 'cancelledAt is not required'],
       default: null,
     },
+    cancelledAtPeriodEnd: {
+      type: Boolean,
+      required: [false, 'cancelledAtPeriodEnd is not required'],
+      default: false,
+    },
     status: {
       type: String,
       enum: [
-        UserSubscriptionStatusType.freeTrial,
         UserSubscriptionStatusType.active,
-        UserSubscriptionStatusType.expired,
+        UserSubscriptionStatusType.past_due,
         UserSubscriptionStatusType.cancelled,
+        UserSubscriptionStatusType.unpaid,
+        UserSubscriptionStatusType.incomplete,
+        UserSubscriptionStatusType.incomplete_expired,
+        UserSubscriptionStatusType.trialing,
       ],
-      required: [true, 'status is required'],
+      required: [
+        true,
+        `status is required .. It can be  ${Object.values(
+          UserSubscriptionStatusType
+        ).join(', ')}`,
+      ],
     },
-
-    isFreeTrial: {
-      type: Boolean,
-      default: false, // Indicates if the subscription is currently in the free trial phase
-    },
-    freeTrialStartDate: {
-      type: Date,
-      required: false, // Only required if `isFreeTrial` is true
-    },
-    freeTrialEndDate: {
-      type: Date,
-      required: false, // Only required if `isFreeTrial` is true
-    },
-    trialConvertedToPaid: {
-      type: Boolean,
-      default: false, // Indicates if the free trial has been converted to a paid subscription
-    },
+    // isFreeTrial: {
+    //   type: Boolean,
+    //   default: false, // Indicates if the subscription is currently in the free trial phase
+    // },
+    // freeTrialStartDate: {
+    //   type: Date,
+    //   required: false, // Only required if `isFreeTrial` is true
+    // },
+    // freeTrialEndDate: {
+    //   type: Date,
+    //   required: false, // Only required if `isFreeTrial` is true
+    // },
+    // trialConvertedToPaid: {
+    //   type: Boolean,
+    //   default: false, // Indicates if the free trial has been converted to a paid subscription
+    // },
 
     stripe_subscription_id: {
       type: String,
       required: [true, 'stripe_subscription_id is required'],
       default: null,
     },
-    external_customer_id: {
+    stripe_customer_id: {
       // > stripe er customer id ...
       type: String,
       required: [

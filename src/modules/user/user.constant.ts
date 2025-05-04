@@ -14,6 +14,10 @@ export enum TAuthProvider  {
   apple = 'apple',
   local = 'local'
 };
+export enum TStatusType {
+  active = 'active',
+  inactive = 'inactive',
+}
 
 export type TGender =
   | 'male'

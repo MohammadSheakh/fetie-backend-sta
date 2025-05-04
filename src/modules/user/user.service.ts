@@ -1,11 +1,10 @@
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../errors/ApiError';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
-import { TUser } from './user.interface';
+import { IUser, TUser } from './user.interface';
 import { User } from './user.model';
 import { sendAdminOrSuperAdminCreationEmail } from '../../helpers/emailService';
 
-import { CreatorRole } from '../contract/contract.constant';
 import { GenericService } from '../__Generic/generic.services';
 
 interface IAdminOrSuperAdminPayload {
@@ -15,11 +14,16 @@ interface IAdminOrSuperAdminPayload {
   message?: string;
 }
 
-export class UserCustomService extends GenericService<typeof User> {
+export class UserCustomService extends GenericService<typeof User, IUser> {
   constructor() {
     super(User);
   }
 }
+
+//[🚧][🧑‍💻][🧪] // ✅ 🆗
+const getUserByEmail = async (email: string) : Promise<TUser | null>  => {
+  return User.findOne({ email });
+};
 
 const createAdminOrSuperAdmin = async (
   payload: IAdminOrSuperAdminPayload
@@ -48,6 +52,7 @@ const createAdminOrSuperAdmin = async (
 
   return result;
 };
+
 const getAllUsers = async (
   filters: Record<string, any>,
   options: PaginateOptions
@@ -65,36 +70,7 @@ const getAllUsers = async (
   return await User.paginate(query, options);
 };
 
-const getFilteredUsersWithConnectionStatus = async (
-  userId: string,
-  filters: Record<string, any>,
-  options: PaginateOptions
-) => {
-  const query: Record<string, any> = {
-    role: { $in: ['mentor', 'mentee'] },
-  };
 
-  if (filters.userName) {
-    query['first_name'] = { $regex: filters.userName, $options: 'i' };
-  }
-  if (filters.email) {
-    query['email'] = { $regex: filters.email, $options: 'i' };
-  }
-  if (filters.role) {
-    query['role'] = filters.role;
-  }
-
-  options.populate = [
-    {
-      path: 'connections',
-      match: { senderId: userId },
-    },
-  ];
-  // Fetch users with pagination
-  const usersResult = await User.paginate(query, options);
-
-  return usersResult;
-};
 
 const getSingleUser = async (userId: string): Promise<TUser | null> => {
   const result = await User.findById(userId);
@@ -174,8 +150,8 @@ export const UserService = {
   updateMyProfile,
   updateUserStatus,
   updateUserProfile,
-  getFilteredUsersWithConnectionStatus,
   getMyProfile,
   updateProfileImage,
   deleteMyProfile,
+  getUserByEmail
 };

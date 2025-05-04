@@ -418,7 +418,7 @@ export class FertieController extends GenericController<
     }
   );
 
-  getMonthlyDailyCycleInsightsV2 = catchAsync(
+  getMonthlyDailyCycleInsightsByMonth = catchAsync(
     async (req: Request, res: Response) => {
       const userId = req.user.userId;
       const { month } = req.query; // e.g., "2025-06"
@@ -434,7 +434,7 @@ export class FertieController extends GenericController<
       const insights = await DailyCycleInsights.find({
         userId,
         date: { $gte: startDate, $lt: endDate },
-      }).lean();
+      }).lean().populate('labTestLogId');
 
       console.log('insights', insights);
 
@@ -449,12 +449,31 @@ export class FertieController extends GenericController<
           .join('-'); // DD-MM-YYYY
 
         // Pick only non-null/undefined fields you care to show
-        const { menstrualFlow, phase } = entry;
+        const { menstrualFlow,
+          mood,
+          activity,
+          symptoms,
+           phase,
+           fertilityLevel,
+           cycleDay,
+           cervicalMucus,
+           date,
+           labTestLogId
+           } = entry;
 
         formattedData[dateKey] = {};
 
         if (menstrualFlow) formattedData[dateKey].menstrualFlow = menstrualFlow;
         if (phase) formattedData[dateKey].phase = phase;
+
+        if (mood) formattedData[dateKey].mood = mood;
+        if (activity) formattedData[dateKey].activity = activity;
+        if (symptoms) formattedData[dateKey].symptoms = symptoms;
+        if (fertilityLevel) formattedData[dateKey].fertilityLevel = fertilityLevel;
+        if (cycleDay) formattedData[dateKey].cycleDay = cycleDay;
+        if (cervicalMucus) formattedData[dateKey].cervicalMucus = cervicalMucus;
+        if (date) formattedData[dateKey].date = date;
+        if (labTestLogId) formattedData[dateKey].labTestLogId = labTestLogId;
       });
 
       res.status(StatusCodes.OK).json({
@@ -466,23 +485,29 @@ export class FertieController extends GenericController<
     }
   );
 
-  getMonthlyDailyCycleInsights = catchAsync(
+  getDailyDailyCycleInsightsByDate = catchAsync(
     async (req: Request, res: Response) => {
       const userId = req.user.userId;
-      const { month } = req.query; // e.g., "2025-06"
-      if (!month) {
-        return res.status(400).json({ error: 'Month is required' });
+      const { date } = req.query; // e.g., "2025-05-04"
+      if (!date) {
+        return res.status(400).json({ error: 'date is required' });
       }
 
-      const [year, mon] = month.split('-').map(Number);
+      let dateObj = new Date(date); // .toISOString()
 
-      const startDate = new Date(year, mon - 1, 1);
-      const endDate = new Date(year, mon, 1); // first day of next month
+      console.log("dateObj 📅📅", dateObj);
+
+      // Set start of the day (00:00:00.000)
+    const startOfDay = new Date(dateObj.setHours(0, 0, 0, 0));
+
+    // Set end of the day (23:59:59.999)
+    const endOfDay = new Date(dateObj.setHours(23, 59, 59, 999));
+      
 
       const insights = await DailyCycleInsights.find({
         userId,
-        date: { $gte: startDate, $lt: endDate },
-      }).lean();
+        date: { $gte: startOfDay, $lt: endOfDay },
+      }).lean().populate('labTestLogId');
 
       console.log('insights', insights);
 
@@ -497,29 +522,31 @@ export class FertieController extends GenericController<
           .join('-'); // DD-MM-YYYY
 
         // Pick only non-null/undefined fields you care to show
-        const {
-          menstrualFlow,
-          // mood,
-          // activity,
-          // symptoms,
-          // fertilityLevel,
-          // cycleDay,
-          // cervicalMucus,
-          phase,
-        } = entry;
+        const { menstrualFlow,
+          mood,
+          activity,
+          symptoms,
+           phase,
+           fertilityLevel,
+           cycleDay,
+           cervicalMucus,
+           date,
+           labTestLogId
+           } = entry;
 
         formattedData[dateKey] = {};
 
         if (menstrualFlow) formattedData[dateKey].menstrualFlow = menstrualFlow;
-        // if (mood) formattedData[dateKey].mood = mood;
-        // if (activity) formattedData[dateKey].activity = activity;
-        // if (symptoms?.length) formattedData[dateKey].symptoms = symptoms;
-        // if (fertilityLevel)
-        //   formattedData[dateKey].fertilityLevel = fertilityLevel;
-        // if (typeof cycleDay === 'number')
-        //   formattedData[dateKey].cycleDay = cycleDay;
-        // if (cervicalMucus) formattedData[dateKey].cervicalMucus = cervicalMucus;
         if (phase) formattedData[dateKey].phase = phase;
+
+        if (mood) formattedData[dateKey].mood = mood;
+        if (activity) formattedData[dateKey].activity = activity;
+        if (symptoms) formattedData[dateKey].symptoms = symptoms;
+        if (fertilityLevel) formattedData[dateKey].fertilityLevel = fertilityLevel;
+        if (cycleDay) formattedData[dateKey].cycleDay = cycleDay;
+        if (cervicalMucus) formattedData[dateKey].cervicalMucus = cervicalMucus;
+        if (date) formattedData[dateKey].date = date;
+        if (labTestLogId) formattedData[dateKey].labTestLogId = labTestLogId;
       });
 
       res.status(StatusCodes.OK).json({

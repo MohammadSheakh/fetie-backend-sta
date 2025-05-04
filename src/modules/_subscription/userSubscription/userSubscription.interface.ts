@@ -3,36 +3,43 @@ import { Model, Types } from 'mongoose';
 
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { UserSubscriptionStatusType } from './userSubscription.constant';
-import { RenewalFrequncyType } from '../subscription/subscription.constant';
+import { RenewalFrequncyType } from '../subscriptionPlan/subscriptionPlan.constant';
 
 export interface IUserSubscription {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   userId :  Types.ObjectId; //🔗
-  subscriptionId: Types.ObjectId; //🔗
+  subscriptionPlanId: Types.ObjectId; //🔗
+
+
   subscriptionStartDate : Date;
-  renewalDate : Date;
   currentPeriodStartDate : Date;
-  renewalFrequncy : RenewalFrequncyType.daily | RenewalFrequncyType.monthly | RenewalFrequncyType.weekly | RenewalFrequncyType.yearly;
-  trxId : String; // 📢 sure na 
-  isActive : Boolean
-  isAutoRenewed : Boolean;
-  status : UserSubscriptionStatusType.active | UserSubscriptionStatusType.cancelled | UserSubscriptionStatusType.expired;
+  renewalDate : Date;
   billingCycle: Number;
-
-  currentBillingAmount : Number; // 🚧 Dorkar ase kina sure na .. 
-
+  isAutoRenewed : Boolean;
   cancelledAt :  Date ;
-
-  isFreeTrial : Boolean;
-  freeTrialStartDate : Date;
-  freeTrialEndDate : Date;
-  trialConvertedToPaid : Boolean;
+  cancelledAtPeriodEnd : Boolean;
+  status :
+  UserSubscriptionStatusType.active | 
+          UserSubscriptionStatusType.past_due | 
+          UserSubscriptionStatusType.cancelled | 
+          UserSubscriptionStatusType.unpaid | 
+          UserSubscriptionStatusType.incomplete | 
+          UserSubscriptionStatusType.incomplete_expired | 
+          UserSubscriptionStatusType.trialing;
   
   stripe_subscription_id : String;
+  stripe_customer_id : String;
+  
 
-  external_customer_id : String;
+  // isFreeTrial : Boolean;
+  // freeTrialStartDate : Date;
+  // freeTrialEndDate : Date;
+  // trialConvertedToPaid : Boolean;
 
+  trxId : String; // 📢 sure na 
+  isActive : Boolean
+  
   isDeleted : boolean;
   createdAt?: Date;
   updatedAt?: Date;

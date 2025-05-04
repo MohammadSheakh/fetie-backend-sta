@@ -1,7 +1,5 @@
 export enum SubscriptionType {
-    standard = 'standard',
     premium = 'premium', 
-    vip = 'vip',
 }
 
 export enum InitialDurationType {
