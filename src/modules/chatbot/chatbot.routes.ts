@@ -18,4 +18,11 @@ router
   .route('/bot')
   .post(auth('common'), ChatBotV0Controller.chatbotResponseV3ClaudeStreaming);
 
+router
+  .route('/bot/socket')
+  .post(
+    auth('common'),
+    ChatBotV0Controller.chatbotResponseV4ClaudeStreaming_socket
+  );
+
 export const ChatBotRoute = router;
