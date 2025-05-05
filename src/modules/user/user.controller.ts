@@ -235,6 +235,51 @@ const sendInvitationLinkToAdminEmail = catchAsync(async (req, res) => {
 
 });
 
+const setNewAccessPin = catchAsync(async (req, res) => {
+  const userId = req.user.userId;
+  if (!userId) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
+  }
+  const { accessPinCode } = req.body;
+  if (!accessPinCode) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin Code is required');
+  }
+
+  // TODO :  We need to hash the access pin code before saving it to the database .. 
+
+  const result = await UserService.setNewAccessPin(userId, accessPinCode);
+
+  if (!result) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
+  }
+
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    data: result,
+    message: 'Access Pin Code updated successfully',
+  });
+});
+
+const removeAccessPin = catchAsync(async (req, res) => {
+  const userId = req.user.userId;
+  if (!userId) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
+  }
+
+  const result = await UserService.removeAccessPin(userId, req.body.accessPinCode);
+  if (!result) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Access Pin can not be removed');
+  }
+
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    data: result,
+    message: 'Access Pin Code removed successfully',
+  });
+});
+
+
+
 export const UserController = {
   createAdminOrSuperAdmin,
   getSingleUser,
@@ -247,5 +292,10 @@ export const UserController = {
   //////////////////////////
   getAllUserForAdminDashboard,
   getAllAdminForAdminDashboard,
-  sendInvitationLinkToAdminEmail
+  sendInvitationLinkToAdminEmail,
+
+  ////////////// Access Pin Related Controller ////////
+  setNewAccessPin,
+  removeAccessPin
+  ///////////////////////////////////////////////////
 };

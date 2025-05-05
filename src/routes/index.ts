@@ -7,6 +7,7 @@ import { PersonalizedJourneyRoute } from '../modules/_personalizeJourney/persona
 import { DailyCycleInsightsRoute } from '../modules/_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.route';
 import { FertieRoute } from '../modules/fertie/fertie.route';
 import { ChatBotRoute } from '../modules/chatbot/chatbot.routes';
+import { HelpMessageRoute } from '../modules/helpMessage/helpMessage.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -47,6 +48,11 @@ const apiRoutes = [
     // 🌀
     path: '/chat',
     route: ChatBotRoute,
+  },
+  {
+    // 🌀
+    path: '/help-message',
+    route: HelpMessageRoute,
   },
 ];
 

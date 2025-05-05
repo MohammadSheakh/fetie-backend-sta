@@ -4,10 +4,11 @@ import { PaginateOptions, PaginateResult } from '../../types/paginate';
 export interface IHelpMessage {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
-  dateOfBirth : Date;
-  
+  userId: Types.ObjectId;
+  message : String;
+  seenStatus : Boolean;
 
-  isDeleted : Boolean;
+  isDeleted : Boolean;  
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -141,11 +141,53 @@ const deleteMyProfile = async (userId: string): Promise<TUser | null> => {
   return result;
 };
 
+const setNewAccessPin = async (userId: string, accessPinCode : string) => {
+  const result = await User.findByIdAndUpdate(
+    userId,
+    { accessPinCode },
+    { new: true }
+  );
+  if (!result) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Database error which updating accessPinCode');
+  }
+  return result;
+}
+
+const removeAccessPin = async (userId: string, accessPinCode : string) => {
+
+  const result = await User.findById(userId);
+  if (!result) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Database error while remove access pin code because user is not found ');
+  }
+
+
+  if(!result.accessPinCode){
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Access pin code not found');
+  }
+
+  console.log("result.accessPinCode", result.accessPinCode, "type of ", typeof result.accessPinCode);
+  console.log("accessPinCode", accessPinCode , "type of ", typeof accessPinCode);
+  
+  if(result.accessPinCode !== accessPinCode){
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Access pin is not matched, You can not remove access pin code ');
+  }
+
+  if(result.accessPinCode){
+    result.accessPinCode = "";
+    await result.save();
+  }
+  
+  return result;
+}
+
 ///////////////////////////////////////////////////////
 
 export const UserService = {
+  ///////////// Admin Related Service ///////////
   createAdminOrSuperAdmin,
   getAllUsers,
+
+  /////////////////////////////////////////////////
   getSingleUser,
   updateMyProfile,
   updateUserStatus,
@@ -153,5 +195,8 @@ export const UserService = {
   getMyProfile,
   updateProfileImage,
   deleteMyProfile,
-  getUserByEmail
+  getUserByEmail,
+  ///////////////  Access pin Related Service ///////////
+  setNewAccessPin,
+  removeAccessPin
 };

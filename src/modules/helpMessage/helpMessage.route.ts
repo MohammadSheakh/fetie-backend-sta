@@ -34,13 +34,14 @@ router.route('/:id').get(
 );
 
 router.route('/update/:id').put(
-  //auth('common'), // FIXME: Change to admin
+  //auth('common'),
   // validateRequest(UserValidation.createUserValidationSchema),
   controller.updateById
 );
 
+//[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(
-  //auth('common'), // FIXME: maybe authentication lagbe na ..
+  auth('commonAdmin'),
   controller.getAll
 );
 
@@ -52,7 +53,7 @@ router.route('/create').post(
   //   ]),
   // ],
   auth('common'),
-  // validateRequest(validation.createPersonalizeJourneyValidationSchema),
+  validateRequest(validation.createHelpMessageValidationSchema),
   controller.create
 );
 
@@ -70,4 +71,4 @@ router.route('/softDelete/:id').put(
 //[🚧][🧑‍💻✅][🧪] // 🆗
 
 
-export const PersonalizedJourneyRoute = router;
+export const HelpMessageRoute = router;

@@ -164,5 +164,56 @@ export class PersonalizedJourneyController extends GenericController<
     });
   });
 
+  // 🔥🔥 periodEndDate tao nite hobe kina 
+  addOrUpdatePeriodLength = catchAsync(
+    async (req: Request, res: Response) => {
+      const { periodStartDate, periodLength } = req.body;
+      if (!periodStartDate || !periodLength) {
+        throw new ApiError(
+          StatusCodes.BAD_REQUEST,
+          'periodStartDate and periodLength are required'
+        );
+      }
+      const userId = req.user.userId
+      const result = await this.personalizedJourneyService.addOrUpdatePeriodLengthService(
+        userId,
+        periodStartDate,
+        periodLength
+      );
+      if (!result) {
+        throw new ApiError(
+          StatusCodes.NOT_FOUND,
+          'Personalized Journey not found'
+        );
+      }
+      sendResponse(res, {
+        code: StatusCodes.OK,
+        data: result,
+        message: 'Personalized Journey updated successfully',
+        success: true,
+      });
+    }
+  );
+
+  addOrUpdateAvgMenstrualCycleLength = catchAsync(
+    async (req: Request, res: Response) => {
+      const { avgMenstrualCycleLength } = req.body;
+      const userId = req.user.userId
+      const result = await this.personalizedJourneyService.addOrUpdateAvgMenstrualCycleLengthService(userId, avgMenstrualCycleLength) ;
+
+      if(!result) {
+        throw new ApiError(
+          StatusCodes.NOT_FOUND,
+          'Personalized Journey not found'
+        );
+      }
+      sendResponse(res, {
+        code: StatusCodes.OK,
+        data: result,
+        message: 'Personalized Journey updated successfully',
+        success: true,
+      });
+    }
+  );
   // add more methods here if needed or override the existing ones
 }

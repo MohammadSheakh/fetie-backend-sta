@@ -77,4 +77,12 @@ router.route('/save-optional-information').post(
 
 router.route('/get-by-userId').get(auth('common'), controller.getByUserId);
 
+// 🔥🔥 periodEndDate tao nite hobe kina 
+router.route('/add-or-update-period-length').patch(auth('common'), 
+controller.addOrUpdatePeriodLength);
+
+
+router.route('/add-or-update-avgMenstrualCycleLength').patch(auth('common'),
+controller.addOrUpdateAvgMenstrualCycleLength);
+
 export const PersonalizedJourneyRoute = router;

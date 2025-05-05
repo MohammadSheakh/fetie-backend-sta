@@ -205,4 +205,89 @@ export class PersonalizedJourneyService extends GenericService<
 
     return personalizedJourney;
   }
+
+  // 🔥 logic ta check dite hobe .. 
+  async addOrUpdatePeriodLengthService(userId : string, periodStartDate : Date, periodLength : number){
+    const user = await User.findById(userId);
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
+    }
+
+    let existingJourney;
+    if (user?.personalize_Journey_Id) {
+      existingJourney = await PersonalizeJourney.findById(
+        user?.personalize_Journey_Id
+      );
+    }
+    if (!existingJourney) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Personalized Journey not found'
+      );
+    }
+
+    let data; 
+
+
+    // If both periodLength and periodStartDate are missing, update them
+    if (!existingJourney?.periodLength || !existingJourney?.periodStartDate) {
+      data = await PersonalizeJourney.findByIdAndUpdate(
+          existingJourney._id,
+          { periodLength, periodStartDate },
+          { new: true }
+      );
+  } else if (existingJourney?.periodLength !== periodLength || existingJourney?.periodStartDate !== periodStartDate) {
+      // If period length or start date is different, update
+      data = await PersonalizeJourney.findByIdAndUpdate(
+          existingJourney._id,
+          { periodLength, periodStartDate },
+          { new: true }
+      );
+  } else {
+      // Optional: If the values are the same, no need to update
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Period length and/or start date already match the existing values');
+  }
+  return data;
+  }
+
+  async addOrUpdateAvgMenstrualCycleLengthService(userId : string, avgMenstrualCycleLength : number){
+    const user = await
+      User.findById(userId);
+    if (!user) {
+      throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
+    }
+    let existingJourney;
+    if (user?.personalize_Journey_Id) {
+      existingJourney = await PersonalizeJourney.findById(
+        user?.personalize_Journey_Id
+      );
+    }
+    if (!existingJourney) {
+      throw new ApiError(
+        StatusCodes.NOT_FOUND,
+        'Personalized Journey not found'
+      );
+    }
+    let data;
+    // if avgMenstrualCycleLength is not present then update it
+    if (!existingJourney?.avgMenstrualCycleLength) {
+      data = await PersonalizeJourney.findByIdAndUpdate(
+        existingJourney._id,
+        { avgMenstrualCycleLength },
+        { new: true }
+      );
+    }
+    // if avgMenstrualCycleLength is present then check if it is different or not
+    else if (existingJourney?.avgMenstrualCycleLength !== avgMenstrualCycleLength) {
+      data = await PersonalizeJourney.findByIdAndUpdate(
+        existingJourney._id,
+        { avgMenstrualCycleLength },
+        { new: true }
+      );
+    } else {
+      // Optional: If the values are the same, no need to update
+      throw new ApiError(StatusCodes.BAD_REQUEST, 'Avg menstrual cycle length already match the existing values');
+    }
+    return data;  
+  } 
 }

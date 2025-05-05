@@ -76,11 +76,11 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
     },
 
     // ---------------------------
-    periodStartDate: {
+    periodStartDate: { // ⚡⚡
       type: Date,
       required: [true, 'periodStartDate is required'],
     },
-    periodLength: {
+    periodLength: { // ⚡⚡
       type: Number,
       required: [true, 'periodLength is required'],
     },
@@ -92,7 +92,7 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
 
     // --------------------------
 
-    avgMenstrualCycleLength: {
+    avgMenstrualCycleLength: { // ⚡⚡
       type: Number,
       required: [true, 'avgMenstrualCycleLength is required'],
     },

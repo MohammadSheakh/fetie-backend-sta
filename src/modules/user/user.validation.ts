@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { Role, Roles } from '../../middlewares/roles';
+import { max } from 'date-fns';
 
 const createUserValidationSchema = z.object({
   body: z.object({
@@ -107,8 +108,22 @@ const changeUserStatusValidationSchema = z.object({
   }),
 });
 
+
+const createAccessPinCodeValidationSchema = z.object({
+  body: z.object({
+    accessPinCode : z
+      .string({
+        required_error: 'accessPinCode is required.',
+        invalid_type_error: 'accessPinCode must be a string.',
+      })
+      .min(5, 'accessPinCode should be atleast 5 number.')
+      .max(5, 'accessPinCode can not exceed 5 number.'),
+  }),
+});
+
 export const UserValidation = {
   createUserValidationSchema,
   updateUserValidationSchema,
   changeUserStatusValidationSchema,
+  createAccessPinCodeValidationSchema
 };

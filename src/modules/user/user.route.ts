@@ -45,6 +45,28 @@ router.post(
   UserController.sendInvitationLinkToAdminEmail
 );
 
+/**
+ * 
+ * Access Pin Related End Points 
+ */
+
+// set new pin
+router.post('/access-pin/set-new', 
+  auth('common'),
+  validateRequest(UserValidation.createAccessPinCodeValidationSchema),
+  UserController.setNewAccessPin
+)
+
+/**
+ * remove pin totally
+ */
+
+router.delete('/access-pin/remove-pin', 
+  auth('common'),
+  validateRequest(UserValidation.createAccessPinCodeValidationSchema),
+  UserController.removeAccessPin
+)
+
 ////////////////////////////////////////////////
 
 

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { Secret } from 'jsonwebtoken';
-import { roleRights } from './roles';
+import { Role, roleRights, RoleType } from './roles';
 import { User } from '../modules/user/user.model';
 import ApiError from '../errors/ApiError';
 import catchAsync from '../shared/catchAsync';
@@ -9,7 +9,7 @@ import { config } from '../config';
 import { TokenType } from '../modules/token/token.interface';
 import { TokenService } from '../modules/token/token.service';
 
-const auth = (...roles: string[]) =>
+const auth = (...roles: RoleType[]) => /*  string[] */
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     // Step 1: Get Authorization Header
     const tokenWithBearer = req.headers.authorization;
