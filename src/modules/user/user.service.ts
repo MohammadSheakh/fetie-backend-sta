@@ -160,7 +160,6 @@ const removeAccessPin = async (userId: string, accessPinCode : string) => {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Database error while remove access pin code because user is not found ');
   }
 
-
   if(!result.accessPinCode){
     throw new ApiError(StatusCodes.NOT_FOUND, 'Access pin code not found');
   }
@@ -176,7 +175,23 @@ const removeAccessPin = async (userId: string, accessPinCode : string) => {
     result.accessPinCode = "";
     await result.save();
   }
-  
+
+  return result;
+}
+
+const givePermissionToChangeCurrentPin = async (userId: string, accessPinCode : string) => {
+  const result = await User.findById(userId);
+  if (!result) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Database error which updating accessPinCode');
+  }
+  if(!result.accessPinCode){
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Access pin code not found');
+  }
+  if(result.accessPinCode !== accessPinCode){
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Access pin is not matched, You can not change access pin code ');
+  }
+  result.accessPinCode = "";
+  await result.save();
   return result;
 }
 
@@ -198,5 +213,6 @@ export const UserService = {
   getUserByEmail,
   ///////////////  Access pin Related Service ///////////
   setNewAccessPin,
-  removeAccessPin
+  removeAccessPin,
+  givePermissionToChangeCurrentPin,
 };

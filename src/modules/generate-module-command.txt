@@ -1,0 +1,4 @@
+
+To generate new module 
+-> node src/modules/generate-module.js <module-name>
+// here .. [src/modules/generate-module.js] is the location where generate-module.js is located .. 

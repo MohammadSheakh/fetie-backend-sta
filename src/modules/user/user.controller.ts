@@ -235,6 +235,8 @@ const sendInvitationLinkToAdminEmail = catchAsync(async (req, res) => {
 
 });
 
+//////////////  Access Pin related controller ///////////
+
 const setNewAccessPin = catchAsync(async (req, res) => {
   const userId = req.user.userId;
   if (!userId) {
@@ -265,8 +267,11 @@ const removeAccessPin = catchAsync(async (req, res) => {
   if (!userId) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
   }
+  if (!req.body.accessPinCode) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin Code is required');
+  }
 
-  const result = await UserService.removeAccessPin(userId, req.body.accessPinCode);
+  const result = await UserService.removeAccessPin(userId , req.body.accessPinCode);
   if (!result) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Access Pin can not be removed');
   }
@@ -277,6 +282,29 @@ const removeAccessPin = catchAsync(async (req, res) => {
     message: 'Access Pin Code removed successfully',
   });
 });
+
+const givePermissionToChangeCurrentPin = catchAsync(async (req, res) => {
+  const userId = req.user.userId;
+  if (!userId) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
+  }
+  if (!req.body.accessPinCode) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin Code is required');
+  }
+  
+  const result = await UserService.givePermissionToChangeCurrentPin(userId , req.body.accessPinCode);
+  if (!result) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin can not be changed');
+  }
+
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    data: result,
+    message: 'Access Pin Code removed successfully',
+  });
+});
+
+
 
 
 
@@ -296,6 +324,7 @@ export const UserController = {
 
   ////////////// Access Pin Related Controller ////////
   setNewAccessPin,
-  removeAccessPin
+  removeAccessPin,
+  givePermissionToChangeCurrentPin
   ///////////////////////////////////////////////////
 };

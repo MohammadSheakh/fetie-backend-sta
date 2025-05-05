@@ -61,11 +61,24 @@ router.post('/access-pin/set-new',
  * remove pin totally
  */
 
-router.delete('/access-pin/remove-pin', 
+router.post('/access-pin/remove-pin', 
   auth('common'),
   validateRequest(UserValidation.createAccessPinCodeValidationSchema),
   UserController.removeAccessPin
 )
+
+/**
+ * 
+ * Change Current Pin code  
+ */
+
+router.post('/access-pin/give-permission-to-change-current-pin', 
+  auth('common'),
+  validateRequest(UserValidation.createAccessPinCodeValidationSchema),
+  UserController.givePermissionToChangeCurrentPin
+)
+
+// TODO:  Forgot Pin and Verify Email Develop korte hobe .. access Pin related 
 
 ////////////////////////////////////////////////
 
