@@ -6,15 +6,16 @@ export enum AttachmentType {
   
 export enum AttachedToType {
     user = 'user',
-    meal = 'meal',
-    workout = 'workout',
-    lifeStyle = 'lifeStyle',
-    suplifyPartner = 'suplifyPartner',
-    trainingProgram = 'trainingProgram',
-    message = 'message',
-    suppliment = 'suppliment',
-    wellnessProduct = 'wellnessProduct',
-    virtualWorkoutClass = 'virtualWorkoutClass',
+    lab = 'lab'
+    // meal = 'meal',
+    // workout = 'workout',
+    // lifeStyle = 'lifeStyle',
+    // suplifyPartner = 'suplifyPartner',
+    // trainingProgram = 'trainingProgram',
+    // message = 'message',
+    // suppliment = 'suppliment',
+    // wellnessProduct = 'wellnessProduct',
+    // virtualWorkoutClass = 'virtualWorkoutClass',
 }
 
 // export enum UploaderRole {

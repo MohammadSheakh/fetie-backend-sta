@@ -25,7 +25,7 @@ const s3 = new S3Client({
 
 /////////// From Rakib Vai .. 
 // Upload file to DigitalOcean Space
-const uploadFileToSpace = async (
+export const uploadFileToSpace = async (
   file: Express.Multer.File, // : Express.Multer.File
   folder : string // : string
 ) => {

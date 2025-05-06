@@ -11,18 +11,10 @@ export interface IAttachment {
    | AttachmentType.unknown;
 
   attachedToType: 
-    AttachedToType.lifeStyle|
-    AttachedToType.message|
-    AttachedToType.suplifyPartner|
-    AttachedToType.trainingProgram|
-    AttachedToType.user|
-    AttachedToType.workout|
-    AttachedToType.virtualWorkoutClass|
-    AttachedToType.wellnessProduct|
-    AttachedToType.meal|
-    AttachedToType.suppliment;
+    AttachedToType.lab|
+    AttachedToType.user;
 
-  attachedToId: string;
+  attachedToId?: string;
   uploadedByUserId?: Types.ObjectId | string;
   createdAt?: Date;
   updatedAt?: Date;

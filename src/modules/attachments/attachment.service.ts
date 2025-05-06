@@ -1,10 +1,11 @@
 import { StatusCodes } from 'http-status-codes';
 import ApiError from '../../errors/ApiError';
 import { Attachment } from './attachment.model';
-// 🔥🔥 uploadFileToSpace khuje paowa jacche na .. fix korte hobe .. 
+
 import { AttachmentType } from './attachment.constant';
 import { GenericService } from '../__Generic/generic.services';
 import { IAttachment } from './attachment.interface';
+import { uploadFileToSpace } from '../../middlewares/digitalOcean';
 
 export class AttachmentService extends GenericService<typeof Attachment, IAttachment> {
   constructor() {
@@ -14,8 +15,8 @@ export class AttachmentService extends GenericService<typeof Attachment, IAttach
   async uploadSingleAttachment(
     file: Express.Multer.File,
     folderName: string,
-    user: any,
-    attachedToId : string,
+    uploadedByUserId: any,
+    // attachedToId : string,
     attachedToType: IAttachment['attachedToType']
   ) {
     let uploadedFileUrl:string = await uploadFileToSpace(file, folderName);
@@ -32,10 +33,10 @@ export class AttachmentService extends GenericService<typeof Attachment, IAttach
     // ekhon amader ke ekta attachment create korte hobe ..
     return await this.create({
       attachment: uploadedFileUrl,
-      uploadedByUserId: user.userId,
-      attachedToId,
       attachmentType: fileType,
-      attachedToType 
+      attachedToType,
+      // attachedToId,
+      uploadedByUserId,
     });
   }
 
@@ -58,28 +59,4 @@ export class AttachmentService extends GenericService<typeof Attachment, IAttach
     }
   }
 
-  async addOrRemoveReact  (attachmentId: string, userId: string) {
-    const attachment = await this.getById(attachmentId);
-    if (!attachment) {
-      throw new ApiError(StatusCodes.NOT_FOUND, 'Attachment not found');
-    }
-
-    const reaction = await attachment.reactions.find({userId});
-
-    if(!reaction){
-      attachment.reactions.push({userId});
-    }else{
-      attachment.reactions = attachment.reactions.filter(reaction => reaction.userId !== userId);
-    }
-
-    // const index = attachment.reactions.indexOf(userId);
-    // if (index === -1) {
-    //   attachment.reactions.push(userId);
-    // } else {
-    //   attachment.reactions.splice(index, 1);
-    // }
-
-    await attachment.save();
-    return attachment;
-  }
 }

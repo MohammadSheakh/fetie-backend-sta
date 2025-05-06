@@ -1,10 +1,11 @@
 import express from 'express';
-import * as validation from './demo.validation';
-import { DemoController} from './demo.controller';
-import { IDemo } from './demo.interface';
+import * as validation from './lab.validation';
+
 import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../shared/validateRequest';
 import auth from '../../middlewares/auth';
+import { LabController } from './lab.controller';
+import { ILab } from './lab.interface';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -12,14 +13,14 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IDemo>(
+export const optionValidationChecking = <T extends keyof ILab>(
   filters: T[]
 ) => {
   return filters;
 };
 
 // const taskService = new TaskService();
-const controller = new DemoController();
+const controller = new LabController();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
@@ -47,13 +48,13 @@ router.route('/').get(
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/create').post(
-  // [
-  //   upload.fields([
-  //     { name: 'attachments', maxCount: 15 }, // Allow up to 5 cover photos
-  //   ]),
-  // ],
+  [
+    upload.fields([
+      { name: 'attachments', maxCount: 1 }, // Allow up to 1 photo
+    ]),
+  ],
   auth('common'),
-  validateRequest(validation.createHelpMessageValidationSchema),
+  validateRequest(validation.createLabValidationSchema),
   controller.create
 );
 
@@ -71,4 +72,4 @@ router.route('/softDelete/:id').put(
 //[🚧][🧑‍💻✅][🧪] // 🆗
 
 
-export const DemoRoute = router;
+export const LabRoute = router;

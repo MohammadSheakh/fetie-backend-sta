@@ -8,6 +8,7 @@ import { DailyCycleInsightsRoute } from '../modules/_dailyCycleInsights/dailyCyc
 import { FertieRoute } from '../modules/fertie/fertie.route';
 import { ChatBotRoute } from '../modules/chatbot/chatbot.routes';
 import { HelpMessageRoute } from '../modules/helpMessage/helpMessage.route';
+import { LabRoute } from '../modules/lab/lab.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -54,6 +55,12 @@ const apiRoutes = [
     path: '/help-message',
     route: HelpMessageRoute,
   },
+  {
+    // 🌀
+    path: '/lab',
+    route: LabRoute,
+  },
+
 ];
 
 apiRoutes.forEach(route => router.use(route.path, route.route));
