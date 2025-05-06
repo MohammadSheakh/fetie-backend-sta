@@ -44,7 +44,9 @@ export const uploadFileToSpace = async (
     await s3.send(command);
 
     // Use the CDN URL for better performance
-    const fileUrl = `https://${process.env.AWS_BUCKET_NAME}.${process.env.AWS_REGION}.cdn.digitaloceanspaces.com/${fileName}`;
+    // const fileUrl = `https://${process.env.AWS_BUCKET_NAME}.${process.env.AWS_REGION}.cdn.digitaloceanspaces.com/${fileName}`;
+    const fileUrl = `https://${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
+    
     return fileUrl;
   } catch (error) {
     console.error("Error uploading to DigitalOcean Space:", error);
@@ -104,7 +106,7 @@ const uploadFileToSpaceMohammadSheakh = async (
 const deleteFileFromSpace = async (fileUrl : string) => {
   // : string  : Promise<void>
   const fileKey = fileUrl.split(
-    `${process.env.AWS_BUCKET_NAME}.${process.env.AWS_REGION}.cdn.digitaloceanspaces.com/`
+    `${process.env.AWS_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/`
   )[1]; // Extract the file path from the CDN URL
 
   const deleteParams = {
@@ -116,10 +118,10 @@ const deleteFileFromSpace = async (fileUrl : string) => {
     const command = new DeleteObjectCommand(deleteParams);
     const result = await s3.send(command);
     console.log("command" , command)
-    console.log(`Successfully deleted ${fileKey} from DigitalOcean Space`);
+    console.log(`Successfully deleted ${fileKey} from AWS S3`); //  from DigitalOcean Space
   } catch (error) {
-    console.error("Error deleting from DigitalOcean Space:", error);
-    throw new Error("Failed to delete file from DigitalOcean Space");
+    console.error("Error deleting  from AWS S3 :", error); // from DigitalOcean Space
+    throw new Error("Failed to delete file from AWS S3 "); // from DigitalOcean Space
   }
 };
 
