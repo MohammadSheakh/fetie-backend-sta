@@ -27,10 +27,14 @@ export class GenericService<  ModelType , InterfaceType> {
     console.log('filters from generic service 🧪🧪', filters);
     console.log('options from generic service 🧪🧪', options);
 
+    const result = await this.model.paginate(filters, options);
+
+    /*
     const result = await this.model.paginate(
        filters, // ISSUE :  may be issue thakte pare .. Test korte hobe .. 
       { ...filters, isDeleted : false },
       options);
+    */
     return result;
   }
 
