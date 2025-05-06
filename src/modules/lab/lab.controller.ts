@@ -25,6 +25,7 @@ export class LabController extends GenericController<
     super(new LabService(), 'Lab');
   }
 
+  //[🚧][🧑‍💻✅][🧪] // 🆗
   create = catchAsync(async (req: Request, res: Response) => {
     let { name, email, url, description } = req.body;
     
@@ -34,31 +35,31 @@ export class LabController extends GenericController<
     }
 
     // handle attachment upload 
-    let attachments : any[] = [];
+    // let attachments : any[] = [];
 
     
-      if (req.files && req.files.attachments) {
-        attachments.push(
-          ...(await Promise.all(
-            req.files.attachments.map(async file => {
-              const attachmentId = await attachmentService.uploadSingleAttachment(
-                file,
-                FolderName.fertie,
-                req.user.userId,
-                // req.body.projectId, // for attachedToId
-                AttachedToType.lab,
-              );
-              return attachmentId;
-            })
-          ))
-        );
-      }
+    //   if (req.files && req.files.attachments) {
+    //     attachments.push(
+    //       ...(await Promise.all(
+    //         req.files.attachments.map(async file => {
+    //           const attachmentId = await attachmentService.uploadSingleAttachment(
+    //             file,
+    //             FolderName.fertie,
+    //             req.user.userId,
+    //             // req.body.projectId, // for attachedToId
+    //             AttachedToType.lab,
+    //           );
+    //           return attachmentId;
+    //         })
+    //       ))
+    //     );
+    //   }
     
 
-    req.body.attachments = attachments;
+    // req.body.attachments = attachments;
     req.body.status = TStatus.active;
 
-    let namePro = name;
+    // let namePro = name;
 
     // for(let i = 0; i < 13; i++){
     //    name =`${name} - ${i}`
@@ -67,9 +68,9 @@ export class LabController extends GenericController<
         email,
         url,
         description,
-        attachments
+        // attachments
       });
-      name = namePro;
+      // name = namePro;
     // }
 
     // if (!lab) {

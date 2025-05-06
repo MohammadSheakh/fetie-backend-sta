@@ -1,4 +1,4 @@
 export enum TStatus {
-  active = 'deactive',
+  active = 'active',
   deactivate = 'deactivate'
 }
