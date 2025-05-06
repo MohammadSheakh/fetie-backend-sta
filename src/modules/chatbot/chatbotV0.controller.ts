@@ -1,4 +1,5 @@
 import { ChatOpenAI } from '@langchain/openai';
+// import { ChatOpenAI} from 'openai'
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { DailyCycleInsightsService } from '../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.service';
@@ -16,9 +17,11 @@ let personalizeJourneyService = new PersonalizedJourneyService();
 const model = new ChatOpenAI({
   temperature: 0.7,
   modelName: 'qwen/qwen3-30b-a3b:free',
+  //modelName: 'openai/chatgpt-4o-latest',
   openAIApiKey: process.env.OPENROUTER_API_KEY,
   configuration: {
-    baseURL: 'https://openrouter.ai/api/v1',
+     baseURL: 'https://openrouter.ai/api/v1',
+    //baseURL: 'https://api.openai.com/v1'
   },
   streaming: true, // Enable streaming
 });
@@ -406,9 +409,9 @@ const chatbotResponseV4ClaudeStreaming_socket = async (
     }
 
     // Set up headers for streaming
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
+     res.setHeader('Content-Type', 'text/event-stream');
+     res.setHeader('Cache-Control', 'no-cache'); // no-cache
+     res.setHeader('Connection', 'keep-alive');
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
