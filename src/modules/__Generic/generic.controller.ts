@@ -45,8 +45,12 @@ export class GenericController<ModelType, InterfaceType> {
 
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    console.log('type of req.query 🟢🟢', typeof req.query, req.query);
     const filters = req.query;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    console.log('filters 🟢🟢', filters);
+    console.log('options 🟢🟢', options);
 
     const result = await this.service.getAllWithPagination(filters, options);
 

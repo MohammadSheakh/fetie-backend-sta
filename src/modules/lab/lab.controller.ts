@@ -26,7 +26,8 @@ export class LabController extends GenericController<
   }
 
   create = catchAsync(async (req: Request, res: Response) => {
-    const { name, email, url, description } = req.body;
+    let { name, email, url, description } = req.body;
+    
     const userId = req.user.userId;
     if(!userId){
       throw new ApiError(StatusCodes.BAD_REQUEST, 'user id not found.');
@@ -57,22 +58,28 @@ export class LabController extends GenericController<
     req.body.attachments = attachments;
     req.body.status = TStatus.active;
 
-    const lab = await this.labService.create({
-      name,
-      email,
-      url,
-      description,
-      attachments,     
-    });
+    let namePro = name;
 
-    if (!lab) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, 'Lab creation failed');
+    for(let i = 0; i < 13; i++){
+       name =`${name} - ${i}`
+      const lab = await this.labService.create({
+        name,
+        email,
+        url,
+        description,
+        attachments
+      });
+      name = namePro;
     }
+
+    // if (!lab) {
+    //   throw new ApiError(StatusCodes.BAD_REQUEST, 'Lab creation failed');
+    // }
 
     res.status(StatusCodes.CREATED).json({
       success: true,
       message: 'Lab created successfully',
-      data: lab,
+      data: null,
     });
 
     

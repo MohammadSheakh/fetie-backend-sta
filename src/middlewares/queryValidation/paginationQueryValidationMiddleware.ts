@@ -6,12 +6,15 @@ import { Request, Response, NextFunction } from 'express';
 // validationMiddleware.js or a separate file for validation middleware
 export const validateFiltersForQuery = <T> (allowedFilters: string[]) => {
   return (req: Request, res:Response, next:NextFunction) => {
+
+    // req.query = req.query
     
     const filtersParam = req.query || ''; // Get filters query param
 
     // Filter out only the allowed filters from the req.query object
     const validFilters = Object.keys(filtersParam).reduce((acc, key) => {
-      if (allowedFilters.includes(key)) {
+      if (allowedFilters.includes(key) || ['sortBy', 'page', 'limit', 'populate'].includes(key)) {
+        // allowedFilters.includes(key) || ['sortBy', 'page', 'limit', 'populate'].includes(key)
         acc[key] = filtersParam[key];
       }else{
         sendResponse(res, {
@@ -24,7 +27,8 @@ export const validateFiltersForQuery = <T> (allowedFilters: string[]) => {
     }, {});
 
     req.query = validFilters; // Update the req.query object with valid filters
-
+   
+  
     // Proceed to the next middleware or controller if validation passes
     next();
   };
