@@ -13,7 +13,7 @@ const upload = multer({ storage: storage });
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof ILab>(
+export const optionValidationChecking = <T extends keyof ILab | 'sortBy' |  'page' | 'limit' | 'populate'>(
   filters: T[],
 ) => {
   return filters;
@@ -25,7 +25,7 @@ const controller = new LabController();
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', 'name'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'status', 'name', 'sortBy', 'page', 'limit', 'populate'])),
   controller.getAllWithPagination
 );
 

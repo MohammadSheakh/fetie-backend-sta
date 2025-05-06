@@ -13,7 +13,7 @@ export const validateFiltersForQuery = <T> (allowedFilters: string[]) => {
 
     // Filter out only the allowed filters from the req.query object
     const validFilters = Object.keys(filtersParam).reduce((acc, key) => {
-      if (allowedFilters.includes(key) || ['sortBy', 'page', 'limit', 'populate'].includes(key)) {
+      if (allowedFilters.includes(key)) {
         // allowedFilters.includes(key) || ['sortBy', 'page', 'limit', 'populate'].includes(key)
         acc[key] = filtersParam[key];
       }else{

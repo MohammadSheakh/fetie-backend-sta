@@ -36,7 +36,7 @@ export class LabController extends GenericController<
     // handle attachment upload 
     let attachments : any[] = [];
 
-    /*
+    
       if (req.files && req.files.attachments) {
         attachments.push(
           ...(await Promise.all(
@@ -53,15 +53,15 @@ export class LabController extends GenericController<
           ))
         );
       }
-    */
+    
 
     req.body.attachments = attachments;
     req.body.status = TStatus.active;
 
     let namePro = name;
 
-    for(let i = 0; i < 13; i++){
-       name =`${name} - ${i}`
+    // for(let i = 0; i < 13; i++){
+    //    name =`${name} - ${i}`
       const lab = await this.labService.create({
         name,
         email,
@@ -70,7 +70,7 @@ export class LabController extends GenericController<
         attachments
       });
       name = namePro;
-    }
+    // }
 
     // if (!lab) {
     //   throw new ApiError(StatusCodes.BAD_REQUEST, 'Lab creation failed');
