@@ -73,3 +73,7 @@ router.route('/softDelete/:id').put(
 
 
 export const LabRoute = router;
+
+
+
+
