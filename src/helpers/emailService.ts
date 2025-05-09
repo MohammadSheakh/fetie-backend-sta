@@ -141,12 +141,12 @@ const sendSupportMessageEmail = async (
   const adminEmail = config.smtp.emailFrom; // Admin email from config
   const html = `
     <div style="width: 45%; margin: 0 auto; font-family: Arial, sans-serif; padding: 20px; color: #333; border: 1px solid #ccc; border-radius: 20px;">
-      <div style="text-align: center; margin-bottom: 20px;">
+      <div style="text-align: left; margin-bottom: 20px;">
         <img src="https://raw.githubusercontent.com/rakibislam2233/Image-Server/refs/heads/main/mentor-services.png" alt="Logo" style="width: 200px; margin-bottom: 20px;" />
         <h1 style="color: #1B9AAA;">New Support Message</h1>
         <p style="font-size: 16px;"><strong>From:</strong> ${userName} (${userEmail})</p>
         <p style="font-size: 16px;"><strong>Subject:</strong> ${subject}</p>
-        <p style="font-size: 16px;">${message}</p>
+        <p style="font-size: 16px;"> <strong>Message:</strong>${message}</p>
       </div>
       <p style="font-size: 14px; text-align: center; margin-top: 20px;">Please respond to the user as soon as possible.</p>
     </div>
@@ -154,7 +154,7 @@ const sendSupportMessageEmail = async (
 
   await sendEmail({
     to: adminEmail || '',
-    subject: `Support Request from ${userName}`,
+    subject: `${subject}`,
     html,
   });
 };
