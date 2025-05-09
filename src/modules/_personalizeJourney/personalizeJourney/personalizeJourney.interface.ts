@@ -6,6 +6,7 @@ export interface IPersonalizeJourney {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   dateOfBirth : Date;
+  fertilityScore ?: Number;
   age : Number;
   height : Number;
   heightUnit : THeightUnit.cm | THeightUnit.inch;

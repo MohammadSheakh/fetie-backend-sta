@@ -15,6 +15,7 @@ export interface IDailyCycleInsights {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   userId: Types.ObjectId; // 🔗
+  dailyFertilityScore : Number;
   labTestLogId: Types.ObjectId;
   menstrualFlow:
     | TMenstrualFlow.light
@@ -22,6 +23,7 @@ export interface IDailyCycleInsights {
     | TMenstrualFlow.heavy
     | TMenstrualFlow.spotting
     | TMenstrualFlow.no;
+    
   mood:
     | TMood.great
     | TMood.good

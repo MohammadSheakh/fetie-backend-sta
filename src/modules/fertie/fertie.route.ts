@@ -70,9 +70,10 @@ router.route('/get-home-page-data').get(
   controller.getHomePageDataByDate
 );
 
+//[🚧][🧑‍💻✅][🧪] // 🆗
 router
   .route('/predictions')
-  .get(auth('common'), controller.getPredictionsByMonth_Latest_V3); // ?month=YYYY-MM
+  .get(auth('common'), controller.getPredictionsByMonth); // ?month=YYYY-MM
 
   // 🔥 jhamela ase .. logged in user er jonno develop korte hobe .. may be lagbeo na ei endpoint
 router

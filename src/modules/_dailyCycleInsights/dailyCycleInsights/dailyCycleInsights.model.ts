@@ -22,7 +22,11 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
       ref: 'User',
       required: [true, 'User Id is required'],
     },
-
+    dailyFertilityScore: {
+      type: Number,
+      required: [false, 'dailyFertilityScore is not required'],
+    },
+    
     labTestLogId: {
       type: Schema.Types.ObjectId,
       ref: 'LabTestLog',

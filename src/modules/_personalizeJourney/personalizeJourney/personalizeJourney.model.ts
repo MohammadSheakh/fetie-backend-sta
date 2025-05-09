@@ -19,6 +19,11 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
       required: [true, 'dateOfBirth is required'],
     },
 
+    fertilityScore: {
+      type: Number,
+      required: [false, 'fertilityScore is not required'],
+    },
+
     // 🔥 dateOfBirth er upor base kore age calculate korte hobe ..
     age: {
       type: Number,

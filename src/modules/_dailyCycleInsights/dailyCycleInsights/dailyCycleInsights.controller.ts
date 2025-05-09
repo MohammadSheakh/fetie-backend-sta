@@ -12,6 +12,9 @@ import { DailyCycleInsightsService } from './dailyCycleInsights.service';
 import { LabTestLog } from '../labTestLog/labTestLog.model';
 
 import { fromZonedTime } from 'date-fns-tz';
+import { PersonalizeJourney } from '../../_personalizeJourney/personalizeJourney/personalizeJourney.model';
+import { User } from '../../user/user.model';
+import { differenceInDays } from 'date-fns';
 
 const dailyCycleInsightsService = new DailyCycleInsightsService();
 
@@ -33,7 +36,7 @@ export class DailyCycleInsightsController extends GenericController<
     const {
       activity,
       cervicalMucus,
-      cycleDay,
+      //cycleDay, // auto calculate hobe .. 
       date,
       fertilityLevel,
       menstrualFlow,
@@ -47,11 +50,71 @@ export class DailyCycleInsightsController extends GenericController<
     console.log('🚧 DailyCycleInsightsController -> create -> userId', userId);
     req.body.userId = userId;
 
+    const user = await User.findById(userId).select('personalize_Journey_Id').lean();
+
+    if (!user) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'User not found'
+      );
+    }
+    if (!user.personalize_Journey_Id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'User does not have a personalize journey'
+      );
+    }
+
+    // Get PersonalizeJourney for ⚡periodStartDate , ⚡periodLength , ⚡periodEndDate , ⚡avgMenstrualCycleLength 
+
+    const personalizeJourney = await PersonalizeJourney.findById(user.personalize_Journey_Id).select(
+      "periodStartDate periodLength periodEndDate avgMenstrualCycleLength"
+    ).lean();
+
+    console.log("personalizeJourney 🧪🧪🧪",personalizeJourney);
+
+    if (!personalizeJourney) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'PersonalizeJourney not found'
+      );
+    }
+
+    /////////////////////////////////////////////////////////////////////////////
+
+
+    ////*********** calculate cycle day */
+
+    /*
+    // 1. Get today's date as milliseconds since the Unix Epoch using JavaScript's Date.now()
+    const today = Date.now(); // This gives the current timestamp in milliseconds
+    console.log("Today's timestamp:", today);
+
+    // 2. Ensure periodStartDate is a Date object and convert it to milliseconds
+    const periodStartDate = new Date(personalizeJourney.periodStartDate).getTime(); // Convert to milliseconds
+    console.log("Period start date timestamp:", periodStartDate);
+
+    // 3. Calculate the time difference in milliseconds
+    const timeDifference = today - periodStartDate;  // in milliseconds
+
+    // 4. Convert milliseconds to days
+    const cycleDay = Math.floor(timeDifference / (1000 * 60 * 60 * 24)) + 1; // Add 1 to include the first day of the period
+
+    console.log("Current cycle day:", cycleDay);
+    */
+
+    const currentDate = new Date(); // Current date and time
+
+    let cycleDay =
+          differenceInDays(req.body.date, personalizeJourney?.periodStartDate) + 1; // 🔰 req.body.date e hocche current date
+    
+
+    /////////////////////////////////////////////////////////////////////////////
     const dailyCycleInsightFound =
       await this.dailyCycleInsightsService.getByDateAndUserId(
         req.body.date,
         userId
-      );
+    );
 
     // Specify the user's timezone. For example, 'America/New_York', but this can be dynamic depending on the user.
     const userTimezone = 'America/New_York'; // You can replace this with the actual user's timezone.
@@ -162,7 +225,7 @@ export class DailyCycleInsightsController extends GenericController<
        *  all lab tests.. specially LH test between cycle day 2-5
        * 
        * we need information like : 
-       * phase, fertilityLevel, cycleDay 
+       * phase, fertilityLevel, cycleDay🟢 
        * 
        * we need information like : 
        * 
@@ -173,6 +236,12 @@ export class DailyCycleInsightsController extends GenericController<
        * date of intercourse, timing relative to ovulation
        * 
        */
+
+      req.body.cycleDay = cycleDay  
+
+      // cycle Day shob shomoy Daily cycle insight create korar shomoy add hobe 
+      // cycle day kokhonoi Daily cycle insight update korar shomoy add hobe na .. 
+      
 
       const result = await this.dailyCycleInsightsService.createByDateAndUserId(
         req.body
