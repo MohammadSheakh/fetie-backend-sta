@@ -22,6 +22,16 @@ const createUserValidationSchema = z.object({
         invalid_type_error: 'Password must be a string.',
       })
       .min(8, 'Password must be at least 8 characters long.'),
+
+    role: z.string({
+        required_error: 'Role is required.',
+        invalid_type_error: 'Role must be a string.',
+    })
+    .refine(role => role === 'user', {
+        message: 'Role must be "user".',
+    }),
+
+    /*
     role: z
       .string({
         required_error: 'Role is required.',
@@ -30,6 +40,7 @@ const createUserValidationSchema = z.object({
       .refine(role => Roles.includes(role as Role), {
         message: `Role must be one of the following: ${Roles.join(', ')}`,
       }),
+    */
   }),
 });
 

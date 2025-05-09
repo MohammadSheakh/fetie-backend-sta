@@ -108,6 +108,17 @@ const resetPasswordValidationSchema = z.object({
   }),
 });
 
+const resendOtpValidationSchema = z.object({
+  body: z.object({
+    email: z
+      .string({
+        required_error: 'Email is required.',
+        invalid_type_error: 'Email must be a string.',
+      })
+      .email('Invalid email address.'),
+    })
+  })
+
 const changePasswordValidationSchema = z.object({
   body: z.object({
     currentPassword: z
@@ -132,5 +143,6 @@ export const AuthValidation = {
   resetPasswordValidationSchema,
   changePasswordValidationSchema,
   googleLoginValidationSchema,
-  appleLoginValidationSchema
+  appleLoginValidationSchema,
+  resendOtpValidationSchema
 };

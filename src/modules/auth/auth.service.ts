@@ -217,7 +217,7 @@ const resendOtp = async (email: string) => {
   if (user?.isResetPassword) {
     const resetPasswordToken =
       await TokenService.createResetPasswordToken(user);
-    await OtpService.createResetPasswordOtp(user.email);
+      await OtpService.createResetPasswordOtp(user.email);
     return { resetPasswordToken };
   }
   const verificationToken = await TokenService.createVerifyEmailToken(user);

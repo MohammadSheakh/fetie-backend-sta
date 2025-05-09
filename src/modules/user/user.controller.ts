@@ -304,6 +304,26 @@ const givePermissionToChangeCurrentPin = catchAsync(async (req, res) => {
   });
 });
 
+const matchAccessPin = catchAsync(async (req, res) => {
+  const userId = req.user.userId;
+  if (!userId) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
+  }
+  if (!req.body.accessPinCode) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin Code is required');
+  }
+
+  const result = await UserService.matchAccessPin(userId , req.body.accessPinCode);
+  if (!result) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin can not be matched');
+  }
+
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    data: result,
+    message: 'Access Pin Code matched successfully',
+  });
+})
 
 
 
@@ -325,6 +345,7 @@ export const UserController = {
   ////////////// Access Pin Related Controller ////////
   setNewAccessPin,
   removeAccessPin,
-  givePermissionToChangeCurrentPin
+  givePermissionToChangeCurrentPin,
+  matchAccessPin
   ///////////////////////////////////////////////////
 };

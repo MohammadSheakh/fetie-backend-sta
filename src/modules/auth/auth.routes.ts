@@ -43,7 +43,10 @@ router.post(
   AuthController.forgotPassword,
 );
 
-router.post('/resend-otp', AuthController.resendOtp);
+//[🚧][🧑‍💻✅][🧪]  // 🆗
+router.post('/resend-otp',
+  validateRequest(AuthValidation.resendOtpValidationSchema),
+  AuthController.resendOtp);
 
 //[🚧][🧑‍💻✅][🧪] // 🆗 
 router.post(
@@ -65,6 +68,8 @@ router.post(
   validateRequest(AuthValidation.verifyEmailValidationSchema),
   AuthController.verifyEmail,
 );
+
+
 
 router.post('/logout', AuthController.logout);
 

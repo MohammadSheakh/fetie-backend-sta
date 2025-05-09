@@ -78,6 +78,17 @@ router.post('/access-pin/give-permission-to-change-current-pin',
   UserController.givePermissionToChangeCurrentPin
 )
 
+/**
+ * 
+ * Match Access Pin
+ */
+router.post('/access-pin/match',
+  auth('common'),
+  validateRequest(UserValidation.createAccessPinCodeValidationSchema),
+  UserController.matchAccessPin
+) 
+
+
 // TODO:  Forgot Pin and Verify Email Develop korte hobe .. access Pin related 
 
 ////////////////////////////////////////////////

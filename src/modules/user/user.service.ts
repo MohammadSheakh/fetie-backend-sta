@@ -195,6 +195,20 @@ const givePermissionToChangeCurrentPin = async (userId: string, accessPinCode : 
   return result;
 }
 
+const matchAccessPin = async (userId: string, accessPinCode : string) => {
+  const result = await User.findById(userId);
+  if (!result) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Database error while finding user');
+  }
+  if(!result.accessPinCode){
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Access pin code not found of this user');
+  }
+  if(result.accessPinCode !== accessPinCode){
+    throw new ApiError(StatusCodes.NOT_FOUND, 'Access pin is not matched, try again');
+  }
+  return result;
+}
+
 ///////////////////////////////////////////////////////
 
 export const UserService = {
@@ -215,4 +229,5 @@ export const UserService = {
   setNewAccessPin,
   removeAccessPin,
   givePermissionToChangeCurrentPin,
+  matchAccessPin
 };
