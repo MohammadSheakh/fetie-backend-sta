@@ -15,6 +15,7 @@ import { fromZonedTime } from 'date-fns-tz';
 import { PersonalizeJourney } from '../../_personalizeJourney/personalizeJourney/personalizeJourney.model';
 import { User } from '../../user/user.model';
 import { differenceInDays } from 'date-fns';
+import { TFertilityLevel, TPhase } from './dailyCycleInsights.constant';
 
 const dailyCycleInsightsService = new DailyCycleInsightsService();
 
@@ -238,6 +239,30 @@ export class DailyCycleInsightsController extends GenericController<
        */
 
       req.body.cycleDay = cycleDay  
+
+      let phase = '';
+      let fertilityLevel = '';
+      if (cycleDay <= 5) {
+        phase = TPhase.menstrual ; // 'Menstrual'
+        fertilityLevel = TFertilityLevel.veryLow ; // 'Very Low'
+      } else if (cycleDay <= 13) {
+        phase = TPhase.follicular ; // 'Follicular'
+        fertilityLevel = TFertilityLevel.low ; // 'Low to Medium' 🔥 Condition ta pore check korte hobe .. 
+      } else if (cycleDay === 14) {
+        phase = TPhase.ovulatory ; // 'Ovulatory'
+        fertilityLevel = TFertilityLevel.veryHigh ; // 'Very High'
+      } else if (
+        cycleDay <= Number(personalizeJourney?.avgMenstrualCycleLength)
+      ) {
+        phase = TPhase.luteal ; // 'Luteal'
+        fertilityLevel = TFertilityLevel.low ; // 'Low'
+      } else {
+        phase = 'Unknown';
+        fertilityLevel = 'Unknown';
+      }
+
+      req.body.phase = phase;
+      req.body.fertilityLevel = fertilityLevel;
 
       // cycle Day shob shomoy Daily cycle insight create korar shomoy add hobe 
       // cycle day kokhonoi Daily cycle insight update korar shomoy add hobe na .. 

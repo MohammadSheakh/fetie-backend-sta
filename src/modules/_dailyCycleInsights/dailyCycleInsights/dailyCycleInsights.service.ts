@@ -27,12 +27,19 @@ export class DailyCycleInsightsService extends GenericService<
 
   updateByDateAndUserId = async (
     data: Partial<TDailyCycleInsights>,
-    populateAnySpecificField: string
+    populateAnySpecificField?: string
   ) => {
     const { date, userId } = data;
-    const res = await this.model
+    let res;
+    if(populateAnySpecificField){
+      res = await this.model
       .findOneAndUpdate({ date, userId }, { $set: data }, { new: true })
       .populate(populateAnySpecificField);
+    }else{
+      res = await this.model
+      .findOneAndUpdate({ date, userId }, { $set: data }, { new: true })
+    }
+    
     if (!res) {
       throw new Error('Failed to update Daily Cycle Insights');
     }
