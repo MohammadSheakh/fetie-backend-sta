@@ -414,6 +414,50 @@ export class FertieController extends GenericController<
     }
   );
 
+  updateFertilityScore = catchAsync(
+    async (req: Request, res: Response) => {
+      const userId = req.user.userId;
+
+      const fertilityScoreData = await this.fertieService.calculateFertilityScore(userId);
+
+      // update todays entry with the new score 
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      /*
+        await DailyCycleInsights.findOrCreate({
+          where: {
+            user_id: userId,
+            date: today
+          },
+          defaults: {
+            dailyFertilityScore: fertilityScoreData.fertilityScore,
+            // Set other default values as needed
+          }
+        });
+
+        await DailyCycleInsights.update(
+          { dailyFertilityScore: fertilityScoreData.fertilityScore },
+          { 
+            where: { 
+              user_id: userId,
+              date: today
+            }
+          }
+        );
+      */
+    
+    res.status(StatusCodes.OK).json({
+        success: true,
+        code: StatusCodes.OK,
+        data: fertilityScoreData,
+        message: 'Fertility score ',
+      });
+
+    })
+
+
   // add more methods here if needed or override the existing ones
 }
 

@@ -85,6 +85,14 @@ router
   .route('/daily-insights-daily')
   .get(auth('common'), controller.getDailyDailyCycleInsightsByDate); // ?date=YYYY-MM-DD
 
+//[🚧][🧑‍💻✅][🧪] // 🆗
+router
+.route('/update-fertility-score')
+.get(auth('common'), controller.updateFertilityScore); 
+
+router
+.route('/get-fertility-score')
+.get(auth('common'), controller.updateFertilityScore); 
 
   
 export const FertieRoute = router;
