@@ -23,24 +23,26 @@ const conversationSchema = new Schema<IConversation>(
         ).join(', ')}`,
       ],
     },
-    attachedToId: {
-      // 🔥 fix korte hobe ... eita 
-      type: String,
-      required: [false, 'attachedToId is not required'],
-    },
-    attachedToCategory : {
-      // 🔥 fix korte hobe ... eita 
-      type: String,
-      enum: [
-        'VirtualWorkoutClass', 
-      ],
-      required: [false, 'attachedToCategory is not required'],
-    },
-    // isGroup: {
-    //   type: Boolean,
-    //   required: [false, 'isGroup is not required'],
-    //   default: false,
-    // },
+    /*
+      attachedToId: {
+        // 🔥 fix korte hobe ... eita 
+        type: String,
+        required: [false, 'attachedToId is not required'],
+      },
+      attachedToCategory : {
+        // 🔥 fix korte hobe ... eita 
+        type: String,
+        enum: [
+          'VirtualWorkoutClass', 
+        ],
+        required: [false, 'attachedToCategory is not required'],
+      },
+      // isGroup: {
+      //   type: Boolean,
+      //   required: [false, 'isGroup is not required'],
+      //   default: false,
+      // },
+    */
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

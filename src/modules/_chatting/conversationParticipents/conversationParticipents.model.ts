@@ -23,8 +23,8 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
     role: {
           type: String,
           enum: [
-            RoleType.admin,
-            RoleType.member,
+            RoleType.bot,
+            RoleType.user,
           ],
           required: [
             true,
@@ -33,16 +33,6 @@ const conversationParticipentsSchema = new Schema<IConversationParticipents>(
             ).join(', ')}`,
           ],
         },
-
-    // role : {
-    //   enum : [
-    //     RoleType.admin,
-    //     RoleType.member
-    //   ],
-    //   required: [true, `role is required it can be ${Object.values(
-    //     RoleType
-    //   ).join(', ')}`],
-    // },
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

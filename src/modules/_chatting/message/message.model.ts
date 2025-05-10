@@ -29,8 +29,8 @@ const messageSchema = new Schema<IMessage>(
     senderRole: {
       type: String,
       enum: [
-        RoleType.admin,
-        RoleType.member,
+        RoleType.bot,
+        RoleType.user,
         
       ],
       required: [
