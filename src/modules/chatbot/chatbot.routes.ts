@@ -23,7 +23,7 @@ router
   .route('/bot/socket')
   .post(
     auth('common'),
-    ChatBotV1Controller.chatbotResponseV5
+    ChatBotV1Controller.chatbotResponseV6
   );
 
 export const ChatBotRoute = router;

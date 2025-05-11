@@ -11,6 +11,10 @@ import { isValid, parse } from 'date-fns';
 import ApiError from '../../errors/ApiError';
 import { Request, Response } from 'express';
 import { ChatBotService } from './chatbotV1.service';
+import { IMessage } from '../_chatting/message/message.interface';
+import { MessagerService } from '../_chatting/message/message.service';
+import { RoleType } from '../_chatting/conversationParticipents/conversationParticipents.constant';
+import mongoose, { isValidObjectId, Mongoose } from 'mongoose';
 
 let dailyCycleInsightService = new DailyCycleInsightsService();
 let personalizeJourneyService = new PersonalizedJourneyService();
@@ -522,6 +526,15 @@ const chatbotResponseV5 = async (
   }
 };
 
+
+/**
+ * 
+ * chat bot thing .. Final Code .. 
+ * working perfectly ... 
+ * 
+ * also save the response in the database
+ * 
+ */
 const chatbotResponseV6 = async (
   req: Request,
   res: Response
@@ -529,6 +542,14 @@ const chatbotResponseV6 = async (
   try {
     const userId = req?.user?.userId;
     const userMessage = req?.body?.message;
+    const conversationId = req?.body?.conversationId;
+
+    if(!conversationId){
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `conversationId must be provided.`
+      );
+    }
 
     if (!userId) {
       throw new ApiError(
@@ -541,6 +562,20 @@ const chatbotResponseV6 = async (
       console.error('No message provided in the request body.');
       return res.status(400).json({ error: 'Message is required' });
     }
+
+    let messageService = new MessagerService();
+
+    /**
+     * 
+     * save message in the database .. 
+     */
+
+    const saveMessageToDbRes: IMessage | null = await messageService.create({
+                text: userMessage,
+                senderId: req.user.userId,
+                conversationId: conversationId,
+                senderRole: req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
+    });
 
   
 
@@ -651,8 +686,22 @@ const chatbotResponseV6 = async (
       }
 
       // Send end of stream marker
-      res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`);
-      res.end();
+      // res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`);
+
+
+      /**
+     * 
+     * save bots response in the database .. 
+     */
+
+    const saveMessageToDbRes: IMessage | null = await messageService.create({
+                text: responseText,
+                senderId: new mongoose.Types.ObjectId("68206aa9e791351fc9fdbcde"), 
+                conversationId: conversationId,
+                senderRole: RoleType.bot,
+    });
+
+     res.end(); // 🟢🟢🟢 end korte hobe 
     } catch (streamError) {
       console.error('Error processing stream:', streamError);
       res.write(`data: ${JSON.stringify({ error: "Stream processing error. Please try again." })}\n\n`);
@@ -667,6 +716,8 @@ const chatbotResponseV6 = async (
       res.write(`data: ${JSON.stringify({ error: `Something went wrong. ${error.message || error}` })}\n\n`);
       res.end();
     }
+
+    //res.end(); // 🟢🟢🟢 remove korte hobe 
   }
 };
 
