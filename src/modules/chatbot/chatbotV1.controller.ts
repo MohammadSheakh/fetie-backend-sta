@@ -205,7 +205,7 @@ const chatbotResponseV4 = async (
 
       // Stream the chat completion
     const stream = await model.chat.completions.create({
-      model: 'qwen/qwen3-30b-a3b:free',
+      model: 'gpt-3.5-turbo', // gpt-3.5-turbo           // qwen/qwen3-30b-a3b:free
       //model: 'o1-mini', // gpt-4-turbo  gpt-4o gpt-4 gpt-3.5-turbo  /// openai/chatgpt-4o-latest 
       messages: [
         { role: 'system', content: systemPrompt },
@@ -406,7 +406,7 @@ const chatbotResponseV5 = async (
     while (retries <= maxRetries) {
       try {
         stream = await model.chat.completions.create({
-          model: 'gpt-3.5-turbo',
+           model: 'gpt-3.5-turbo',  // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
           messages: [
             { role: 'system', content: systemPrompt },
             { role: 'user', content: userMessage }
