@@ -12,6 +12,8 @@ import { ConversationType } from './conversation.constant';
 import { IConversationParticipents } from '../conversationParticipents/conversationParticipents.interface';
 import { MessagerService } from '../message/message.service';
 import { IMessage } from '../message/message.interface';
+import { RoleType } from '../conversationParticipents/conversationParticipents.constant';
+import { User } from '../../user/user.model';
 
 let conversationParticipantsService = new ConversationParticipentsService();
 let messageService = new MessagerService();
@@ -28,7 +30,7 @@ export class ConversationController extends GenericController<typeof Conversatio
     let type;
     // creatorId ta req.user theke ashbe
     //req.body.creatorId = req.user.userId;
-    let { participants, message, attachedToId, attachedToCategory } = req.body; // type,
+    let { participants, message } = req.body; // type, attachedToId, attachedToCategory
 
     // type is based on participants count .. if count is greater than 2 then group else direct
 
@@ -56,66 +58,92 @@ export class ConversationController extends GenericController<typeof Conversatio
         // attachedToCategory,
       };
 
-      result = await this.service.create(conversationData);
+      // check if the conversation already exists
+      const existingConversation = await Conversation.findOne({
+        creatorId: req.user.userId,
+      });
 
-      /*
-            participants.forEach(async(participant: string) => {
-                // i think participant is just a ID
-                
-                console.log("🔥🔥participants🔥" , participants)
+      if (!existingConversation){
+        ////////// Create a new conversation
 
-                
-                const res1 =  await conversationParticipantsService.create({
-                    // 🔴 incomplete
-                    userId: participant,
-                    conversationId: result?._id,
-                } );
+        result = await this.service.create(conversationData); // 🎯🎯🎯🎯
 
-                console.log("🔥🔥res1🔥" , res1)
-
-            });
-            */
-
-      for (const participant of participants) {
-        // try {
-        console.log('🔥🔥participants🔥', participants);
-
-        const res1 = await conversationParticipantsService.create({
-          userId: participant,
-          conversationId: result?._id,
-          role: req.user.role === 'user' ? 'member' : 'admin',
-        });
-        if (!res1) {
+        if (!result) {
           throw new ApiError(
             StatusCodes.BAD_REQUEST,
-            'Unable to create conversation participant'
+            'Unable to create conversation'
           );
         }
 
-        console.log('🔥🔥res1🔥', res1);
-        // } catch (error) {
-        // console.error("Error creating conversation participant:", error);
-        // }
-      }
+        for (const participant of participants) {
+          // try {
+          console.log('🔥🔥participants🔥', participants);
 
-      if (message && result?._id) {
-        const res1: IMessage = await messageService.create({
-          text: message,
-          senderId: req.user.userId,
-          conversationId: result?._id,
-          senderRole: req.user.role === 'user' ? 'member' : 'admin',
-        });
-        if (!res1) {
-          throw new ApiError(
-            StatusCodes.BAD_REQUEST,
-            'Unable to create conversation participant'
-          );
+          // as participants is just an id .. 
+
+          let user = await User.findById(participant).select('role');
+
+          console.log(
+            '🔥🔥user role  🔥',
+            user,
+            user?.role,)
+
+          const res1 = await conversationParticipantsService.create({
+            userId: participant,
+            conversationId: result?._id,
+            role: user?.role === RoleType.user ? RoleType.user : RoleType.bot, // 🔴 ekhane jhamela ase .. 
+          });
+          if (!res1) {
+            throw new ApiError(
+              StatusCodes.BAD_REQUEST,
+              'Unable to create conversation participant'
+            );
+          }
+
+          console.log('🔥🔥res1🔥', res1);
+          // } catch (error) {
+          // console.error("Error creating conversation participant:", error);
+          // }
+        }
+
+        if (message && result?._id) {
+          const res1: IMessage | null = await messageService.create({
+            text: message,
+            senderId: req.user.userId,
+            conversationId: result?._id,
+            senderRole: req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
+          });
+          if (!res1) {
+            throw new ApiError(
+              StatusCodes.BAD_REQUEST,
+              'Unable to create conversation participant'
+            );
+          }
         }
       }
+
+      // dont need to create conversation .. 
+      // just send message to the existing conversation
+
+      let res1 ;
+      if (message && existingConversation?._id) {
+          let res1 : IMessage | null = await messageService.create({
+            text: message,
+            senderId: req.user.userId,
+            conversationId: existingConversation?._id,
+            senderRole: req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
+          });
+          if (!res1) {
+            throw new ApiError(
+              StatusCodes.BAD_REQUEST,
+              'Unable to create conversation participant'
+            );
+          }
+        }
 
       sendResponse(res, {
         code: StatusCodes.OK,
-        data: result,
+        data: result ? result : res1,
         message: `${this.modelName} created successfully`,
         success: true,
       });

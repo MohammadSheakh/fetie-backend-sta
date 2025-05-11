@@ -6,7 +6,8 @@ import auth from '../../../middlewares/auth';
 const multer = require('multer');
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
-
+import * as validation from './conversation.validation';
+import validateRequest from '../../../shared/validateRequest';
 const router = express.Router();
 
 export const optionValidationChecking = <T extends keyof IConversation>(
@@ -49,7 +50,7 @@ router.route('/create').post(
   //   ]),
   // ],
   auth('user'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  validateRequest(validation.createConversationValidationSchema),
   controller.create
 );
 

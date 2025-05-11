@@ -9,6 +9,7 @@ import { FertieRoute } from '../modules/fertie/fertie.route';
 import { ChatBotRoute } from '../modules/chatbot/chatbot.routes';
 import { HelpMessageRoute } from '../modules/helpMessage/helpMessage.route';
 import { LabRoute } from '../modules/lab/lab.route';
+import { ConversationRoute } from '../modules/_chatting/conversation/conversation.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -59,6 +60,11 @@ const apiRoutes = [
     // 🌀
     path: '/lab',
     route: LabRoute,
+  },
+  {
+    // 🌀
+    path: '/conversation',
+    route: ConversationRoute,
   },
 
 ];

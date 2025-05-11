@@ -6,10 +6,10 @@ export interface IMessage {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   text : String;
-  attachments: Types.ObjectId[];
+  attachments?: Types.ObjectId[];
   senderId :  Types.ObjectId; // 🔗
   conversationId : Types.ObjectId; // 🔗
-  senderRole : RoleType.admin | RoleType.member ; // TODO : Enum gula fix korte hobe ..
+  senderRole : RoleType.user | RoleType.bot ; // TODO : Enum gula fix korte hobe ..
   isDeleted? : boolean;
   createdAt?: Date;
   updatedAt?: Date;
