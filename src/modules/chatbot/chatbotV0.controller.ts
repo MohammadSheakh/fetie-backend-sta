@@ -425,9 +425,12 @@ export const ChatBotV0Controller = {
   chatbotResponseV4ClaudeStreaming_socket,
 };
 
-/*
 
-const chatbotResponseV2 = async (req: Request, res: Response) => {
+/*
+const chatbotResponseV4ClaudeStreaming_socket = async (
+  req: Request,
+  res: Response
+) => {
   try {
     const userId = req?.user.userId;
     const userMessage = req?.body?.message;
@@ -445,9 +448,9 @@ const chatbotResponseV2 = async (req: Request, res: Response) => {
     }
 
     // Set up headers for streaming
-    // res.setHeader('Content-Type', 'text/event-stream');
-    // res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
+     res.setHeader('Content-Type', 'text/event-stream');
+     res.setHeader('Cache-Control', 'no-cache'); // no-cache
+     res.setHeader('Connection', 'keep-alive');
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -579,18 +582,46 @@ const chatbotResponseV2 = async (req: Request, res: Response) => {
       new HumanMessage(userMessage),
     ];
 
-    const response = await model.invoke(messages); // const response =
+    ///////// const response = await model.invoke(messages);
 
-    sendResponse(res, {
-      code: StatusCodes.OK,
-      data: response.content,
-      message: `chat bot response successfully`,
-      success: true,
-    });
+    // Initialize response string
+    let responseText = '';
+
+    // Use streaming with callbacks
+    const stream = await model.stream(messages);
+
+    // Process each chunk as it arrives
+    for await (const chunk of stream) {
+      if (chunk.content) {
+        responseText += chunk.content;
+
+        // Send the chunk to the client
+        res.write(`data: ${JSON.stringify({ chunk: chunk.content })}\n\n`);
+
+        // Flush the data to ensure it's sent immediately
+        if (res.flush) {
+          res.flush();
+        }
+      }
+    }
+
+    // Send end of stream marker
+    res.write(
+      `data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`
+    );
+    res.end();
+
+    // sendResponse(res, {
+    //   code: StatusCodes.OK,
+    //   data: response.content ,
+    //   message: `chat bot response successfully`,
+    //   success: true,
+    // });
   } catch (error) {
     console.error('Chatbot error:', error);
     res.status(500).json({ error: `Something went wrong. ${error}` });
   }
 };
+
 
 */

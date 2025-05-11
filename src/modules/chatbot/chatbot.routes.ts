@@ -1,6 +1,7 @@
 import express from 'express';
 import auth from '../../middlewares/auth';
 import { ChatBotV0Controller } from './chatbotV0.controller';
+import { ChatBotV1Controller } from './chatbotV1.controller';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -22,7 +23,7 @@ router
   .route('/bot/socket')
   .post(
     auth('common'),
-    ChatBotV0Controller.chatbotResponseV4ClaudeStreaming_socket
+    ChatBotV1Controller.chatbotResponseV5
   );
 
 export const ChatBotRoute = router;

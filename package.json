@@ -78,6 +78,7 @@
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.16",
     "npm": "^10.9.2",
+    "openai": "^4.98.0",
     "redis": "^4.7.0",
     "socket.io": "^4.8.1",
     "stream": "^0.0.3",
