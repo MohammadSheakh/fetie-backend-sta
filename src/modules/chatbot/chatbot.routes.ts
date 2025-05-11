@@ -23,4 +23,8 @@ router
   .route('/bot/long-polling')
   .post(auth('common'), ChatBotV1Controller.chatbotResponseV6WithLongPolling);
 
+router
+  .route('/bot/socket')
+  .post(auth('common'), ChatBotV1Controller.chatbotResponseV6WithSocket);
+
 export const ChatBotRoute = router;
