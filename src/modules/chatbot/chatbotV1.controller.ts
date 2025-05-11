@@ -1,5 +1,5 @@
 // import { ChatOpenAI } from '@langchain/openai';
-import OpenAI from 'openai'
+import OpenAI from 'openai';
 import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { RunnableSequence } from '@langchain/core/runnables';
 import { DailyCycleInsightsService } from '../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.service';
@@ -20,7 +20,7 @@ let dailyCycleInsightService = new DailyCycleInsightsService();
 let personalizeJourneyService = new PersonalizedJourneyService();
 
 const model = new OpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY 
+  apiKey: process.env.OPENROUTER_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
   baseURL: 'https://openrouter.ai/api/v1',
   //baseURL: 'https://api.openai.com/v1'
 });
@@ -39,10 +39,7 @@ const model = new OpenAI({
   });
 */
 
-const chatbotResponseV4 = async (
-  req: Request,
-  res: Response
-) => {
+const chatbotResponseV4 = async (req: Request, res: Response) => {
   try {
     const userId = req?.user.userId;
     const userMessage = req?.body?.message;
@@ -196,8 +193,6 @@ const chatbotResponseV4 = async (
       ];
     */
 
-
-
     ///////// const response = await model.invoke(messages);
 
     // Initialize response string
@@ -208,20 +203,19 @@ const chatbotResponseV4 = async (
       const stream = await model.stream(messages);
     */
 
-      // Stream the chat completion
+    // Stream the chat completion
     const stream = await model.chat.completions.create({
       model: 'gpt-3.5-turbo', // gpt-3.5-turbo           // qwen/qwen3-30b-a3b:free
-      //model: 'o1-mini', // gpt-4-turbo  gpt-4o gpt-4 gpt-3.5-turbo  /// openai/chatgpt-4o-latest 
+      //model: 'o1-mini', // gpt-4-turbo  gpt-4o gpt-4 gpt-3.5-turbo  /// openai/chatgpt-4o-latest
       messages: [
         { role: 'system', content: systemPrompt },
-        { role: 'user', content: userMessage }
+        { role: 'user', content: userMessage },
       ],
       temperature: 0.7,
-      stream: true
+      stream: true,
     });
 
-
-     // Process each chunk as it arrives
+    // Process each chunk as it arrives
     for await (const chunk of stream) {
       const content = chunk.choices[0]?.delta?.content || '';
       if (content) {
@@ -274,16 +268,13 @@ const chatbotResponseV4 = async (
 };
 
 /**
- * 
- * chat bot thing .. Final Code .. 
- * working perfectly ... 
- * 
- * 
+ *
+ * chat bot thing .. Final Code ..
+ * working perfectly ...
+ *
+ *
  */
-const chatbotResponseV5 = async (
-  req: Request,
-  res: Response
-) => {
+const chatbotResponseV5 = async (req: Request, res: Response) => {
   try {
     const userId = req?.user?.userId;
     const userMessage = req?.body?.message;
@@ -300,8 +291,6 @@ const chatbotResponseV5 = async (
       return res.status(400).json({ error: 'Message is required' });
     }
 
-  
-
     // Set up headers for streaming
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
@@ -309,7 +298,8 @@ const chatbotResponseV5 = async (
 
     // Date parsing logic
     let dateObj;
-    const dateRegex = /(\d{1,2})[-\/\s](\d{1,2})[-\/\s](\d{2,4})|(\d{1,2})\s([a-zA-Z]+)(\s(\d{4}))?/;
+    const dateRegex =
+      /(\d{1,2})[-\/\s](\d{1,2})[-\/\s](\d{2,4})|(\d{1,2})\s([a-zA-Z]+)(\s(\d{4}))?/;
     const match = userMessage.match(dateRegex);
 
     if (match) {
@@ -318,7 +308,8 @@ const chatbotResponseV5 = async (
         const day = parseInt(match[1], 10);
         const month = parseInt(match[2], 10);
         const yearStr = match[3];
-        const year = yearStr.length === 2 ? 2000 + parseInt(yearStr) : parseInt(yearStr);
+        const year =
+          yearStr.length === 2 ? 2000 + parseInt(yearStr) : parseInt(yearStr);
 
         // Construct the date string as yyyy-MM-dd
         const dateString = `${year}-${month < 10 ? '0' + month : month}-${
@@ -331,15 +322,25 @@ const chatbotResponseV5 = async (
       // Handle natural language dates like "5 March 2025"
       else if (match[4] && match[5]) {
         const day = parseInt(match[4], 10);
-        const monthName = match[5].charAt(0).toUpperCase() + match[5].slice(1).toLowerCase();
-        const year = match[7] ? parseInt(match[7], 10) : new Date().getFullYear();
+        const monthName =
+          match[5].charAt(0).toUpperCase() + match[5].slice(1).toLowerCase();
+        const year = match[7]
+          ? parseInt(match[7], 10)
+          : new Date().getFullYear();
 
         const formattedDateString = `${day} ${monthName} ${year}`;
-        const parsedDate = parse(formattedDateString, 'd MMMM yyyy', new Date());
+        const parsedDate = parse(
+          formattedDateString,
+          'd MMMM yyyy',
+          new Date()
+        );
 
         if (isValid(parsedDate)) {
           dateObj = parsedDate;
-          console.log('✅ Parsed Date (Natural Language):', dateObj.toLocaleString());
+          console.log(
+            '✅ Parsed Date (Natural Language):',
+            dateObj.toLocaleString()
+          );
         } else {
           console.warn('❌ Invalid natural language date');
           dateObj = new Date();
@@ -353,12 +354,13 @@ const chatbotResponseV5 = async (
     console.log('dateObj 📢', dateObj);
 
     // Fetch user data
-    const [insights, allInsights, personalizedJourney, userProfileData] = await Promise.all([
-      dailyCycleInsightService.getByDateAndUserId(dateObj, userId),
-      dailyCycleInsightService.getByUserId(userId),
-      personalizeJourneyService.getByUserId(userId),
-      UserService.getMyProfile(userId),
-    ]);
+    const [insights, allInsights, personalizedJourney, userProfileData] =
+      await Promise.all([
+        dailyCycleInsightService.getByDateAndUserId(dateObj, userId),
+        dailyCycleInsightService.getByUserId(userId),
+        personalizeJourneyService.getByUserId(userId),
+        UserService.getMyProfile(userId),
+      ]);
 
     // Build system prompt
     const systemPrompt = `You are a friendly reproductive health assistant.
@@ -379,11 +381,17 @@ const chatbotResponseV5 = async (
       - periodStartData: ${personalizedJourney?.periodStartDate || 'N/A'}
       - periodLength: ${personalizedJourney?.periodLength || 'N/A'}
       - periodEndDate: ${personalizedJourney?.periodEndDate || 'N/A'}
-      - averageMenstrualCycleLength: ${personalizedJourney?.avgMenstrualCycleLength || 'N/A'}
+      - averageMenstrualCycleLength: ${
+        personalizedJourney?.avgMenstrualCycleLength || 'N/A'
+      }
       - trackOvulationBy: ${personalizedJourney?.trackOvulationBy || 'N/A'}
       - doYouHavePain: ${personalizedJourney?.doYouHavePain || 'N/A'}
-      - expectedNextPeriodStartDate: ${personalizedJourney?.expectedPeriodStartDate || 'N/A'}
-      - predictedOvulationDate: ${personalizedJourney?.predictedOvulationDate || 'N/A'}
+      - expectedNextPeriodStartDate: ${
+        personalizedJourney?.expectedPeriodStartDate || 'N/A'
+      }
+      - predictedOvulationDate: ${
+        personalizedJourney?.predictedOvulationDate || 'N/A'
+      }
 
       ----- in Daily cycle Insights Collection
       - menstrualFlow: ${insights?.menstrualFlow || 'N/A'}
@@ -415,25 +423,29 @@ const chatbotResponseV5 = async (
     let retries = 0;
     let delay = 1000; // Start with 1 second delay
     let stream;
-    
+
     while (retries <= maxRetries) {
       try {
         stream = await model.chat.completions.create({
-           model: 'gpt-3.5-turbo',  // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
+          model: 'gpt-3.5-turbo', // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: userMessage }
+            { role: 'user', content: userMessage },
           ],
           temperature: 0.7,
-          stream: true
+          stream: true,
         });
-        
+
         // If we get here, the request was successful
         break;
       } catch (error) {
         // Check if it's a rate limit error (429)
         if (error.status === 429) {
-          if (error.message && (error.message.includes('quota') || error.message.includes('billing'))) {
+          if (
+            error.message &&
+            (error.message.includes('quota') ||
+              error.message.includes('billing'))
+          ) {
             // This is a quota/billing issue - try fallback if we haven't already
             if (retries === 0) {
               console.log('Quota or billing issue. Trying fallback model...');
@@ -443,10 +455,10 @@ const chatbotResponseV5 = async (
                   model: 'gpt-3.5-turbo', // Using the same model as a placeholder, replace with actual fallback
                   messages: [
                     { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userMessage }
+                    { role: 'user', content: userMessage },
                   ],
                   temperature: 0.7,
-                  stream: true
+                  stream: true,
                 });
                 break; // If fallback succeeds, exit the retry loop
               } catch (fallbackError) {
@@ -454,29 +466,41 @@ const chatbotResponseV5 = async (
                 // Continue with retries
               }
             } else {
-              console.log('Quota or billing issue. No more fallbacks available.');
+              console.log(
+                'Quota or billing issue. No more fallbacks available.'
+              );
               throw error; // Give up after fallback attempts
             }
           }
-          
+
           // Regular rate limit - apply exponential backoff
           retries++;
           if (retries > maxRetries) {
             // Send error message to client before throwing
-            res.write(`data: ${JSON.stringify({ error: "Rate limit exceeded. Please try again later." })}\n\n`);
+            res.write(
+              `data: ${JSON.stringify({
+                error: 'Rate limit exceeded. Please try again later.',
+              })}\n\n`
+            );
             res.end();
             throw error; // Give up after max retries
           }
-          
-          console.log(`Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`);
+
+          console.log(
+            `Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`
+          );
           await new Promise(resolve => setTimeout(resolve, delay));
-          
+
           // Exponential backoff with jitter
           delay = delay * 2 * (0.5 + Math.random()); // Multiply by random factor between 1 and 1.5
         } else {
           // Not a rate limit error
           console.error('OpenAI API error:', error);
-          res.write(`data: ${JSON.stringify({ error: "An error occurred while processing your request." })}\n\n`);
+          res.write(
+            `data: ${JSON.stringify({
+              error: 'An error occurred while processing your request.',
+            })}\n\n`
+          );
           res.end();
           return; // Exit the function
         }
@@ -484,7 +508,11 @@ const chatbotResponseV5 = async (
     }
 
     if (!stream) {
-      res.write(`data: ${JSON.stringify({ error: "Failed to generate a response. Please try again." })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          error: 'Failed to generate a response. Please try again.',
+        })}\n\n`
+      );
       res.end();
       return;
     }
@@ -507,35 +535,49 @@ const chatbotResponseV5 = async (
       }
 
       // Send end of stream marker
-      res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          done: true,
+          fullResponse: responseText,
+        })}\n\n`
+      );
       res.end();
     } catch (streamError) {
       console.error('Error processing stream:', streamError);
-      res.write(`data: ${JSON.stringify({ error: "Stream processing error. Please try again." })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          error: 'Stream processing error. Please try again.',
+        })}\n\n`
+      );
       res.end();
     }
   } catch (error) {
     console.error('Chatbot error:', error);
     // Make sure we haven't already started a response
     if (!res.headersSent) {
-      res.status(500).json({ error: `Something went wrong. ${error.message || error}` });
+      res
+        .status(500)
+        .json({ error: `Something went wrong. ${error.message || error}` });
     } else {
-      res.write(`data: ${JSON.stringify({ error: `Something went wrong. ${error.message || error}` })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          error: `Something went wrong. ${error.message || error}`,
+        })}\n\n`
+      );
       res.end();
     }
   }
 };
 
-
 /**
- * 
- * chat bot thing .. Final Code .. 
- * working perfectly ... 
- * 
+ *
+ * chat bot thing .. Final Code ..
+ * working perfectly ... with long polling concept ..
+ *
  * also save the response in the database
- * 
+ *
  */
-const chatbotResponseV6 = async (
+const chatbotResponseV6WithLongPolling = async (
   req: Request,
   res: Response
 ) => {
@@ -544,7 +586,7 @@ const chatbotResponseV6 = async (
     const userMessage = req?.body?.message;
     const conversationId = req?.body?.conversationId;
 
-    if(!conversationId){
+    if (!conversationId) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         `conversationId must be provided.`
@@ -566,18 +608,17 @@ const chatbotResponseV6 = async (
     let messageService = new MessagerService();
 
     /**
-     * 
-     * save message in the database .. 
+     *
+     * save message in the database ..
      */
 
     const saveMessageToDbRes: IMessage | null = await messageService.create({
-                text: userMessage,
-                senderId: req.user.userId,
-                conversationId: conversationId,
-                senderRole: req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
+      text: userMessage,
+      senderId: req.user.userId,
+      conversationId: conversationId,
+      senderRole:
+        req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
     });
-
-  
 
     // Set up headers for streaming
     res.setHeader('Content-Type', 'text/event-stream');
@@ -594,25 +635,29 @@ const chatbotResponseV6 = async (
     let retries = 0;
     let delay = 1000; // Start with 1 second delay
     let stream;
-    
+
     while (retries <= maxRetries) {
       try {
         stream = await model.chat.completions.create({
-           model: 'gpt-3.5-turbo',  // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
+          model: 'gpt-3.5-turbo', // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
           messages: [
             { role: 'system', content: systemPrompt },
-            { role: 'user', content: userMessage }
+            { role: 'user', content: userMessage },
           ],
           temperature: 0.7,
-          stream: true
+          stream: true,
         });
-        
+
         // If we get here, the request was successful
         break;
       } catch (error) {
         // Check if it's a rate limit error (429)
         if (error.status === 429) {
-          if (error.message && (error.message.includes('quota') || error.message.includes('billing'))) {
+          if (
+            error.message &&
+            (error.message.includes('quota') ||
+              error.message.includes('billing'))
+          ) {
             // This is a quota/billing issue - try fallback if we haven't already
             if (retries === 0) {
               console.log('Quota or billing issue. Trying fallback model...');
@@ -622,10 +667,10 @@ const chatbotResponseV6 = async (
                   model: 'gpt-3.5-turbo', // Using the same model as a placeholder, replace with actual fallback
                   messages: [
                     { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userMessage }
+                    { role: 'user', content: userMessage },
                   ],
                   temperature: 0.7,
-                  stream: true
+                  stream: true,
                 });
                 break; // If fallback succeeds, exit the retry loop
               } catch (fallbackError) {
@@ -633,29 +678,41 @@ const chatbotResponseV6 = async (
                 // Continue with retries
               }
             } else {
-              console.log('Quota or billing issue. No more fallbacks available.');
+              console.log(
+                'Quota or billing issue. No more fallbacks available.'
+              );
               throw error; // Give up after fallback attempts
             }
           }
-          
+
           // Regular rate limit - apply exponential backoff
           retries++;
           if (retries > maxRetries) {
             // Send error message to client before throwing
-            res.write(`data: ${JSON.stringify({ error: "Rate limit exceeded. Please try again later." })}\n\n`);
+            res.write(
+              `data: ${JSON.stringify({
+                error: 'Rate limit exceeded. Please try again later.',
+              })}\n\n`
+            );
             res.end();
             throw error; // Give up after max retries
           }
-          
-          console.log(`Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`);
+
+          console.log(
+            `Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`
+          );
           await new Promise(resolve => setTimeout(resolve, delay));
-          
+
           // Exponential backoff with jitter
           delay = delay * 2 * (0.5 + Math.random()); // Multiply by random factor between 1 and 1.5
         } else {
           // Not a rate limit error
           console.error('OpenAI API error:', error);
-          res.write(`data: ${JSON.stringify({ error: "An error occurred while processing your request." })}\n\n`);
+          res.write(
+            `data: ${JSON.stringify({
+              error: 'An error occurred while processing your request.',
+            })}\n\n`
+          );
           res.end();
           return; // Exit the function
         }
@@ -663,7 +720,11 @@ const chatbotResponseV6 = async (
     }
 
     if (!stream) {
-      res.write(`data: ${JSON.stringify({ error: "Failed to generate a response. Please try again." })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          error: 'Failed to generate a response. Please try again.',
+        })}\n\n`
+      );
       res.end();
       return;
     }
@@ -688,41 +749,50 @@ const chatbotResponseV6 = async (
       // Send end of stream marker
       // res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`);
 
-
       /**
-     * 
-     * save bots response in the database .. 
-     */
+       *
+       * save bots response in the database ..
+       */
 
-    const saveMessageToDbRes: IMessage | null = await messageService.create({
-                text: responseText,
-                senderId: new mongoose.Types.ObjectId("68206aa9e791351fc9fdbcde"), 
-                conversationId: conversationId,
-                senderRole: RoleType.bot,
-    });
+      const saveMessageToDbRes: IMessage | null = await messageService.create({
+        text: responseText,
+        senderId: new mongoose.Types.ObjectId('68206aa9e791351fc9fdbcde'),
+        conversationId: conversationId,
+        senderRole: RoleType.bot,
+      });
 
-     res.end(); // 🟢🟢🟢 end korte hobe 
+      res.end(); // 🟢🟢🟢 end korte hobe
     } catch (streamError) {
       console.error('Error processing stream:', streamError);
-      res.write(`data: ${JSON.stringify({ error: "Stream processing error. Please try again." })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          error: 'Stream processing error. Please try again.',
+        })}\n\n`
+      );
       res.end();
     }
   } catch (error) {
     console.error('Chatbot error:', error);
     // Make sure we haven't already started a response
     if (!res.headersSent) {
-      res.status(500).json({ error: `Something went wrong. ${error.message || error}` });
+      res
+        .status(500)
+        .json({ error: `Something went wrong. ${error.message || error}` });
     } else {
-      res.write(`data: ${JSON.stringify({ error: `Something went wrong. ${error.message || error}` })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          error: `Something went wrong. ${error.message || error}`,
+        })}\n\n`
+      );
       res.end();
     }
 
-    //res.end(); // 🟢🟢🟢 remove korte hobe 
+    //res.end(); // 🟢🟢🟢 remove korte hobe
   }
 };
 
 export const ChatBotV1Controller = {
   chatbotResponseV4,
   chatbotResponseV5,
-  chatbotResponseV6
+  chatbotResponseV6WithLongPolling,
 };

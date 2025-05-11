@@ -20,10 +20,7 @@ router
   .post(auth('common'), ChatBotV0Controller.chatbotResponseV3ClaudeStreaming);
 
 router
-  .route('/bot/socket')
-  .post(
-    auth('common'),
-    ChatBotV1Controller.chatbotResponseV6
-  );
+  .route('/bot/long-polling')
+  .post(auth('common'), ChatBotV1Controller.chatbotResponseV6WithLongPolling);
 
 export const ChatBotRoute = router;
