@@ -3,6 +3,8 @@ import { validateFiltersForQuery } from '../../../middlewares/queryValidation/pa
 import { ISubscriptionPlan } from './subscriptionPlan.interface';
 import { SubscriptionController } from './subscriptionPlan.controller';
 import auth from '../../../middlewares/auth';
+import validateRequest from '../../../shared/validateRequest';
+import * as validation from './subscriptionPlan.validation';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -40,6 +42,11 @@ router.route('/').get(
   controller.getAll 
 );
 
+/**
+ *  this api is for creating subscription plan form admin dashboard .. 
+ *
+ */
+//[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/create').post(
   // [
   //   upload.fields([
@@ -47,7 +54,7 @@ router.route('/create').post(
   //   ]),
   // ],
   //auth('common'),
-  // validateRequest(UserValidation.createUserValidationSchema),
+  validateRequest(validation.createSubscriptionPlanValidationSchema),
   controller.create
 );
 
@@ -66,9 +73,14 @@ router
 
  ////////////
  
- router.route('/subscribe').get(
-  //auth('common'), // FIXME: maybe authentication lagbe na .. 
-  controller.subscribe 
+router.route('/subscribe-from-back-end').get(
+  //auth('common'), // FIXME: authentication lagbe .. 
+  controller.subscribeFromBackEnd 
+);
+
+router.route('/subscribe-from-front-end').get(
+  //auth('common'), // FIXME: authentication lagbe .. 
+  controller.subscribeFromFrontEnd 
 );
 
 router.route('/customerPortal/:customerId').get(

@@ -794,7 +794,7 @@ const chatbotResponseV6WithLongPolling = async (
 /**
  *
  * chat bot thing .. Final Code ..
- * working perfectly ... with socket.io concept ..
+ * need to be implemented ... with socket.io concept ..
  *
  * also save the response in the database
  *

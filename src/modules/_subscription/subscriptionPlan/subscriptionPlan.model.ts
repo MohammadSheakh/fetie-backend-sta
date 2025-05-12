@@ -12,7 +12,7 @@ import { ISubscriptionPlan, ISubscriptionPlanModel } from './subscriptionPlan.in
 
 const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
   {
-    subscriptionName: {
+    subscriptionName: { 
       type: String,
       required: [true, 'Subscription name is required'],
       trim: true,
@@ -61,9 +61,9 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       ],
     },
     amount: {
-      type: Number,
+      type: String, // Number
       required: [false, 'Initial Fee is required'],
-      min: [0, 'Initial Fee must be greater than zero'],
+      // min: [0, 'Initial Fee must be greater than zero'],
     },
     // renewalFee: {
     //   type: Number,
@@ -81,6 +81,16 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       ],
       default: CurrencyType.USD,
     },
+    fullAccessToInteractiveChat: {
+      type: Boolean,
+      required: [false, 'isInteractiveChat is not required'],
+      default: false,
+    },
+    canViewCycleInsights: {
+      type: Boolean,
+      required: [false, 'canViewCycleInsights is not required'],
+      default: false,
+    },
     features: {
       //> One Subscription can have multiple features ...
       type: [String],
@@ -96,23 +106,15 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
     //   default: false, // Indicates if the subscription supports a free trial
     // },
   
-    isDeleted: {
-      type: Boolean,
-      required: [false, 'isDeleted is not required'],
-      default: false,
-    },
-
     ///////////////////
 
     stripe_product_id : {
       type: String,
       required: [true, 'stripe_product_id is required'],
-      default: null,
     },
     stripe_price_id : {
       type: String,
       required: [true, 'stripe_price_id is required'],
-      default: null,
     },
 
     // as we can not update existing stripe product id and price id
@@ -122,9 +124,18 @@ const subscriptionPlanSchema = new Schema<ISubscriptionPlan>(
       type: Boolean,
       required: [false, 'isActive is not required'],
       default: true,
+    },
+
+    isDeleted: {
+      type: Boolean,
+      required: [false, 'isDeleted is not required'],
+      default: false,
     }
   },
-  { timestamps: true }
+  { 
+    timestamps: true ,
+    versionKey: false
+  }
 );
 
 subscriptionPlanSchema.plugin(paginate);

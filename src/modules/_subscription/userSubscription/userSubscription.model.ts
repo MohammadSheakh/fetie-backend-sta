@@ -122,7 +122,10 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       default: false,
     },
   },
-  { timestamps: true }
+  { 
+    timestamps: true,
+    versionKey: false
+   }
 );
 
 userSubscriptionSchema.plugin(paginate);

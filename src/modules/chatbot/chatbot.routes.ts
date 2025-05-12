@@ -21,10 +21,10 @@ router
 
 router
   .route('/bot/long-polling')
-  .post(auth('common'), ChatBotV1Controller.chatbotResponseV6WithLongPolling);
+  .post(auth('common'), ChatBotV1Controller.chatbotResponseV6WithLongPolling); // working perfectly .. 
 
 router
   .route('/bot/socket')
-  .post(auth('common'), ChatBotV1Controller.chatbotResponseV6WithSocket);
+  .post(auth('common'), ChatBotV1Controller.chatbotResponseV6WithSocket);// need implementation ..
 
 export const ChatBotRoute = router;

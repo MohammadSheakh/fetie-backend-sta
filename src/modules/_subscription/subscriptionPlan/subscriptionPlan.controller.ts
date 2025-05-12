@@ -27,7 +27,7 @@ export class SubscriptionController extends GenericController<
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string );
   }
 
-  subscribe = catchAsync(async (req: Request, res: Response) => {
+  subscribeFromBackEnd = catchAsync(async (req: Request, res: Response) => {
     // get product price by the plan parameter
     // plan parameter comes from req.query
     const { plan } = req.query;
@@ -137,6 +137,10 @@ export class SubscriptionController extends GenericController<
     });
   });
 
+  subscribeFromFrontEnd = catchAsync(async (req: Request, res: Response) => {
+    
+  )}
+
   customerPortal = catchAsync(async (req: Request, res: Response) => {
     const portalSession = await this.stripe.billingPortal.sessions.create({
       customer: req.params.customerId, // The ID of the customer you want to create a portal session for
@@ -213,7 +217,7 @@ export class SubscriptionController extends GenericController<
   // ⚡⚡ For Fertie Project 
   /*
     As Admin can create subscription plan ...
-
+    //[🚧][🧑‍💻✅][🧪] // 🆗
   */  
   create = catchAsync(async (req: Request, res: Response) => {
     const data : ISubscriptionPlan = req.body;
@@ -225,12 +229,13 @@ export class SubscriptionController extends GenericController<
     data.renewalFrequncy = RenewalFrequncyType.monthly;
     data.currency = CurrencyType.USD;
     data.features = req.body.features;
-    if(!data.amount){
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        `amount is required`
-      );
-    }
+    // zod diye validation kora ase .. 
+    // if(!data.amount){
+    //   throw new ApiError(
+    //     StatusCodes.BAD_REQUEST,
+    //     `amount is required`
+    //   );
+    // }
 
     // now we have to create stripe product and price 
     // and then we have to save the productId and priceId in our database
@@ -240,12 +245,13 @@ export class SubscriptionController extends GenericController<
     });
 
     const price = await this.stripe.prices.create({
-      unit_amount: data?.amount * 100, // Amount in cents
+      unit_amount: Math.round(parseFloat(data?.amount) * 100), // Amount in cents
       currency: data.currency,
-      recurring: {
-        interval: 'month', // or 'year' for yearly subscriptions
-        interval_count: 1, // Number of intervals (e.g., 1 month)
-      },
+      // -- as i dont want to make this recurring ... 
+      // recurring: {
+      //   interval: 'month', // or 'year' for yearly subscriptions
+      //   interval_count: 1, // Number of intervals (e.g., 1 month)
+      // },
       product: product.id,
     });
     data.stripe_product_id = product.id;
@@ -261,7 +267,7 @@ export class SubscriptionController extends GenericController<
       success: true,
     });
   }
-  );  
+  );
 
   /*
     if admin wants to update a subscription plan , 

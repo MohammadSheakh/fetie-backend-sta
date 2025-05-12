@@ -11,18 +11,19 @@ export interface ISubscriptionPlan {
   subscriptionType: SubscriptionType.premium;  //   | SubscriptionType.standard | SubscriptionType.vip
   initialDuration :  InitialDurationType.month ;
   renewalFrequncy : RenewalFrequncyType.monthly ;
-  amount : 0;
+  amount : string //number;
   // renewalFee : 0;
   currency : CurrencyType.USD; //  | CurrencyType.EUR
   features: String[];
   // freeTrialDuration : Number;
   // freeTrialEnabled : Boolean;
-
+  fullAccessToInteractiveChat : Boolean;
+  canViewCycleInsights: Boolean;
+  
   stripe_product_id : String;
   stripe_price_id : String;
 
   isActive : Boolean;
-
   isDeleted : Boolean;
   createdAt?: Date;
   updatedAt?: Date;
