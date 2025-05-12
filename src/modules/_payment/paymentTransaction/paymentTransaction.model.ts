@@ -23,13 +23,21 @@ const paymentTransactionSchema = new Schema<ISubscription>(
       enum: ['subscription'], // , 'order'
       required: true
     },
-    // For subscription payments
-    subscriptionId: {
+    userSubscriptionId : {
       type: Schema.Types.ObjectId,
-      // ref: 'UserSubscription',
-      ref: 'Subscription',
-      required: function() { return this.type.toString() === 'subscription'; } // 🔥🔥 bujhi nai 
+      ref: 'UserSubscription',
+      required: false
     },
+    
+    /*
+      // For subscription payments
+      subscriptionId: {
+        type: Schema.Types.ObjectId,
+        // ref: 'UserSubscription',
+        ref: 'Subscription',
+        required: function() { return this.type.toString() === 'subscription'; } // 🔥🔥 bujhi nai 
+      },
+    */
 
     // For product purchases
     orderId: {
