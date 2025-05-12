@@ -107,6 +107,8 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       required: [true, 'stripe_subscription_id is required'],
       default: null,
     },
+    /*
+    /////////////////////// stripe_customer_id  i think main user collection e rakha better 
     stripe_customer_id: {
       // > stripe er customer id ...
       type: String,
@@ -116,6 +118,7 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       ],
       default: null,
     },
+    */
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

@@ -30,17 +30,8 @@ export class SubscriptionController extends GenericController<
   subscribeFromBackEnd = catchAsync(async (req: Request, res: Response) => {
     // get product price by the plan parameter
     // plan parameter comes from req.query
-    const { plan } = req.query;
+    const { subscriptionPlanId } = req.query;
     const { userId } = req.user;
-
-    if (!plan) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        `plan is not provided in query, it should be ${Object.values(
-          SubscriptionType
-        ).join(', ')}`
-      );
-    }
 
     if (!userId) {
       throw new ApiError(
@@ -49,35 +40,88 @@ export class SubscriptionController extends GenericController<
       );
     }
 
-    // check if plan is valid
-    const validPLan = await subscriptionPlanService.getBySubscriptionType(
-      plan as string
-    );
-
-    if (!validPLan) {
+    if (!subscriptionPlanId) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        `Invalid plan provided in query, it should be ${Object.values(
-          SubscriptionType
-        ).join(', ')}`
+        // `plan is not provided in query, it should be ${Object.values(
+        //   SubscriptionType
+        // ).join(', ')}`
+        'subscriptionPlanId is not provided in req.query'
       );
     }
 
-    let priceId;
-
-    switch (plan.toString().toLowerCase()) {
-      case SubscriptionType.premium:
-        priceId = process.env.STRIPE_PREMIUM_PLAN_PRICE_ID; // 🔥 add korte hobe process.env file e .
-        break;
-      
-      default:
-        throw new ApiError(
-          StatusCodes.BAD_REQUEST,
-          `Invalid plan provided in query, it should be ${Object.values(
-            SubscriptionType
-          ).join(', ')}`
-        );
+    
+    // get the subscription plan by id
+    const subscriptionPlan = await subscriptionPlanService.getById(
+      subscriptionPlanId as string
+    );
+    if (!subscriptionPlan) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `Subscription plan not found`
+      );
     }
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `User not found`
+      );
+    }
+
+    // create or retrieve stripe customer id 
+
+    let stripeCustomerId = user.stripe_customer_id;
+
+    if (!stripeCustomerId) {
+      const customer = await this.stripe.customers.create({
+        email: user.email,
+        name: user.name,
+        metadata: {
+          userId: user?._id.toString(),
+        },
+      });
+
+      stripeCustomerId = customer.id;
+      user.stripe_customer_id = stripeCustomerId;
+      await user.save();
+
+       // Update user with Stripe customer ID
+       //await userService.update(userId, { stripe_customer_id: stripeCustomerId });
+    }
+
+    // check if plan is valid
+    // const validPLan = await subscriptionPlanService.getBySubscriptionType(
+    //   plan as string
+    // );
+
+    // if (!validPLan) {
+    //   throw new ApiError(
+    //     StatusCodes.BAD_REQUEST,
+    //     `Invalid plan provided in query, it should be ${Object.values(
+    //       SubscriptionType
+    //     ).join(', ')}`
+    //   );
+    // }
+
+    /*
+      switch (plan.toString().toLowerCase()) {
+        case SubscriptionType.premium:
+          priceId = process.env.STRIPE_PREMIUM_PLAN_PRICE_ID; // 🔥 add korte hobe process.env file e .
+          break;
+        
+        default:
+          throw new ApiError(
+            StatusCodes.BAD_REQUEST,
+            `Invalid plan provided in query, it should be ${Object.values(
+              SubscriptionType
+            ).join(', ')}`
+          );
+      } 
+    */
+
 
     /// productId and priceId duita e lagbe .. stripe er ..
     /// check out session er shomoy ..
@@ -89,8 +133,9 @@ export class SubscriptionController extends GenericController<
     // check out session ..
 
     const session = await this.stripe.checkout.sessions.create({
-      mode: 'subscription', // You can change it to 'payment' if it's a one-time payment
-      payment_method_types: ['card'],
+      mode: 'payment', // You can change it to 'payment' if it's a one-time payment  // 'subscription'
+      payment_method_types: ['card', 'paypal'],
+      customer: stripeCustomerId,
       line_items: [
         {
           /*
@@ -104,14 +149,15 @@ export class SubscriptionController extends GenericController<
             },
             quantity: 1,
           */
-          price: priceId, // Use the price ID from your Stripe Dashboard
+          price: subscriptionPlan.stripe_price_id, // Use the price ID from your Stripe Dashboard
           quantity: 1,
         },
       ],
-      success_url: `${process.env.CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      //success_url: `${process.env.CLIENT_URL}/success?session_id=${CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.CLIENT_URL}/cancel`,
       metadata: {
         userId: userId, // Store userId or other data in metadata for future reference
+        subscriptionPlanId : subscriptionPlanId as string,
       },
     });
 
@@ -137,9 +183,41 @@ export class SubscriptionController extends GenericController<
     });
   });
 
+
+  // 2. Verify Session Completion (Client-side Success Page Handler)
+verifyCheckoutSession = catchAsync(async (req: Request, res: Response) => {
+  const { session_id } = req.query;
+  
+  if (!session_id) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      "Session ID is required"
+    );
+  }
+  
+  // Retrieve the session to verify its status
+  const session = await this.stripe.checkout.sessions.retrieve(session_id as string);
+  
+  if (session.payment_status !== 'paid') {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      "Payment has not been completed"
+    );
+  }
+  
+  // Success verification can be minimal here as the webhook will handle the actual subscription creation
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    data: { verified: true },
+    message: "Payment verified successfully",
+    success: true,
+  });
+});
+
+
   subscribeFromFrontEnd = catchAsync(async (req: Request, res: Response) => {
     
-  )}
+  })
 
   customerPortal = catchAsync(async (req: Request, res: Response) => {
     const portalSession = await this.stripe.billingPortal.sessions.create({
@@ -156,12 +234,12 @@ export class SubscriptionController extends GenericController<
   });
 
   webhook = catchAsync(async (req: Request, res: Response) => {
-    const sig = req.headers['stripe-signature'];
+    const signature  = req.headers['stripe-signature'];
     const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET; // Your webhook secret from Stripe Dashboard
 
     let event;
 
-    event = this.stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+    event = this.stripe.webhooks.constructEvent(req.body, signature, endpointSecret);
 
     if (!event) {
       throw new ApiError(
@@ -177,31 +255,41 @@ export class SubscriptionController extends GenericController<
 
     // Handle the event
     switch (event.type) {
-      case 'checkout.session.completed':
+      case 'checkout.session.completed': // 🟢
         // Handle successful subscription creation here
         console.log('Subscription created successfully:', event.data.object);
+        await this.handleCheckoutSessionCompleted(event.data.object);
+        break;
+      case 'invoice.payment_succeeded':  // 🟢
+        console.log("Invoice payment succeeded:", event.data.object);
+        await this.handleInvoicePaymentSucceeded(event.data.object);
+        break;
+      case 'invoice.payment_failed': // 🟢
+        // Event when the payment failed  due to card problem  or insufficient funds (every subscription interval )
+        console.log('Invoice payment failed:', event.data);
+        await this.handleInvoicePaymentFailed(event.data.object);
+        break;
+      case 'customer.subscription.updated': // 🟢
+        // Handle subscription update here
+        console.log('Subscription updated:', event.data.object);
+        await this.handleSubscriptionUpdated(event.data.object);
+        break;
+      case 'customer.subscription.deleted': // 🟢
+        // Handle subscription cancellation here 
+        console.log('Subscription canceled:', event.data.object);
+        await this.handleSubscriptionCanceled(event.data.object);
         break;
       case 'invoice.paid':
         // Handle successful invoice payment here
         // Event when payment is successful (every subscription interval )
         console.log('Invoice paid:', event.data);
         break;
-      case 'invoice.payment_failed':
-        // Event when the payment failed  due to card problem  or insufficient funds (every subscription interval )
-        console.log('Invoice payment failed:', event.data);
-        break;
+      
       case 'customer.subscription.trial_will_end':
         // Event when the trial period is about to end
         console.log('Trial period will end:', event.data.object);
         break;
-      case 'customer.subscription.updated':
-        // Handle subscription update here
-        console.log('Subscription updated:', event.data);
-        break;
-      case 'customer.subscription.deleted':
-        // Handle subscription cancellation here
-        console.log('Subscription canceled:', event.data.object);
-        break;
+      
       default:
         console.log(`Unhandled event type ${event.type}`);
     }

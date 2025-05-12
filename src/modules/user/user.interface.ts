@@ -34,6 +34,9 @@ export type TUser = {
   isResetPassword: boolean;
   failedLoginAttempts: number;
   lockUntil: Date | undefined;
+  
+  // -- stripe er customer id .. 
+  stripe_customer_id : string;
   // -- google  and apple login 
   googleId: string;
   appleId: string;
@@ -67,6 +70,8 @@ export interface IUser  {
   isResetPassword: boolean;
   failedLoginAttempts: number;
   lockUntil: Date | undefined;
+  // -- stripe er customer id .. 
+  stripe_customer_id : string;
   // -- google  and apple login 
   googleId: string;
   appleId: string;

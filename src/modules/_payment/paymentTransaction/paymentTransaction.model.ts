@@ -6,7 +6,7 @@ import paginate from '../../../common/plugins/paginate';
 import { ISubscription, ISubscriptionModel } from './subscription.interface';
 import { CurrencyType } from '../../_subscription/subscriptionPlan/subscriptionPlan.constant';
 
-const paymentMethodSchema = new Schema<ISubscription>(
+const paymentTransactionSchema = new Schema<ISubscription>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -16,11 +16,11 @@ const paymentMethodSchema = new Schema<ISubscription>(
     paymentMethodId: {
       type: Schema.Types.ObjectId,
       ref: 'PaymentMethod',
-      required: true
+      required: false
     },
     type: {
       type: String,
-      enum: ['subscription', 'order'],
+      enum: ['subscription'], // , 'order'
       required: true
     },
     // For subscription payments
@@ -35,8 +35,10 @@ const paymentMethodSchema = new Schema<ISubscription>(
     orderId: {
       type: Schema.Types.ObjectId,
       ref: 'Order',
-      required: function() { return this.type.toString() === 'order'; }
+      // required: function() { return this.type.toString() === 'order'; }
+      required: false
     },
+    
     paymentMethodOrProcessorOrGateway: {
       type: String,
       enum: ['stripe', 'paypal'],
@@ -107,9 +109,9 @@ const paymentMethodSchema = new Schema<ISubscription>(
   { timestamps: true }
 );
 
-subscriptionSchema.plugin(paginate);
+paymentTransactionSchema.plugin(paginate);
 
-subscriptionSchema.pre('save', function(next) {
+paymentTransactionSchema.pre('save', function(next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
@@ -120,7 +122,7 @@ subscriptionSchema.pre('save', function(next) {
 
 
 // Use transform to rename _id to _projectId
-subscriptionSchema.set('toJSON', {
+paymentTransactionSchema.set('toJSON', {
   transform: function (doc, ret, options) {
     ret._subscriptionId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field
@@ -129,7 +131,7 @@ subscriptionSchema.set('toJSON', {
 });
 
 
-export const Subscription = model<ISubscription, ISubscriptionModel>(
-  'Subscription',
-  subscriptionSchema
+export const PaymentTransaction = model<ISubscription, ISubscriptionModel>(
+  'PaymentTransactions',
+  paymentTransactionSchema
 );

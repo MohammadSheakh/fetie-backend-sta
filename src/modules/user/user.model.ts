@@ -78,6 +78,7 @@ const userSchema = new Schema<TUser, UserModal>(
       ],
       default: TSubscriptionType.free,
     },
+    
     status : {
       type: String,
       enum:  [TStatusType.active, TStatusType.inactive],
@@ -111,6 +112,18 @@ const userSchema = new Schema<TUser, UserModal>(
       default: 0,
     },
     lockUntil: { type: Date }, // 🔴 not sure 
+
+    // ------------ For Payment Related Thing ... 
+
+    stripe_customer_id: {
+      // > stripe er customer id ...
+      type: String,
+      required: [
+        false,
+        'stripe_customer_id is not required',
+      ],
+      default: null,
+    },
 
     //------------- New Fields for Google and Apple Login
     googleId: {
