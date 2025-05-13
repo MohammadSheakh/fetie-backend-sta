@@ -127,12 +127,14 @@ export class SubscriptionController extends GenericController<
       ],
       // process.env.CLIENT_URL
       // process.env.BACKEND_IP
+      success_url:`${'http://127.0.0.1:3000'}/api/v1/subscription/confirm-payment?session_id={CHECKOUT_SESSION_ID}&userId=${userId}&amount=${subscriptionPlan.amount}&subscriptionId=${subscriptionPlan._id}&duration=${subscriptionPlan.initialDuration}`,
+      /*
       success_url: "${'http://127.0.0.1:3000'}/api/v1/subscription/confirm-payment"+
       "?session_id={CHECKOUT_SESSION_ID}"+
       "&userId=${userId}&amount=${subscriptionPlan.amount}"+
       "&subscriptionId=${subscriptionPlan._id}"+
       "&duration=${subscriptionPlan.initialDuration}",
-
+      */
       cancel_url: `${'http://127.0.0.1:3000'}/api/v1/subscription/cancel?paymentId=${"paymentDummy"}`,
       invoice_creation: {
         enabled: true,
@@ -233,7 +235,6 @@ export class SubscriptionController extends GenericController<
 
   */
 
-  
 
   confirmPayment = catchAsync(async (req: Request, res: Response) => {
     const userAgent = req.headers['user-agent'];
@@ -257,10 +258,26 @@ export class SubscriptionController extends GenericController<
       _id: paymentResult.subscriptionId,
     });
 
-    if (deviceType !== "Mobile") {
-      res.redirect(
-        `https://ootms.com/payment-success?amount=${paymentResult.amount}&duration=${subscription.duration}&noOfDispatches=${subscription.noOfDispatches}&subcriptionName=${subscription.name}&subcriptionId=${subscription._id}`
+    if (!subscription) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `Subscription plan not found`
       );
+    }
+
+    if (deviceType !== "Mobile") {
+      /*
+        res.redirect(
+          "${'http://127.0.0.1:3000'}/api/v1/subscription/payment-success"+
+        "?amount=${paymentResult.amount}"+
+        "&duration=${paymentResult.duration}"+
+        "&subcriptionName=${paymentResult.subcriptionName}"+
+        "&subscriptionId=${subscriptionPlan._id}",
+        );
+      */
+
+        // &noOfDispatches=${subscription.noOfDispatches} 🟢🟢 kono feature provide korte chaile .. korte parbo .. 
+      res.redirect(`http://127.0.0.1:3000/api/v1/payment-success?amount=${paymentResult.amount}&duration=${subscription?.initialDuration}&subcriptionName=${subscription?.subscriptionName}&subcriptionId=${subscription._id}`)
     }
   }
 
@@ -269,6 +286,26 @@ export class SubscriptionController extends GenericController<
       code: StatusCodes.OK,
       message: req.t("thank you for payment"),
       success: true,
+    });
+});
+
+ confirmPaymentssInApp = catchAsync(async (req : Request, res: Response) => {
+  const data : IConfirmPayment = {
+    userId: req.user.userId,
+    subscriptionId: req.body.subscriptionId,
+    amount: req.body.amount,
+    duration: req.body.duration,
+    // noOfDispatches: req.body.noOfDispatches,
+    paymentIntentId: req.body.paymentId,
+  };
+
+  const paymentResult = await paymentTransactionService.confirmPayment(data);
+
+  sendResponse(res, {
+      code: StatusCodes.OK,
+      message: req.t("thank you for payment"),
+      success: true,
+      data: paymentResult,
     });
 });
 
