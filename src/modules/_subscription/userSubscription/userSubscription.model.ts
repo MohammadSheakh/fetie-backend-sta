@@ -34,9 +34,22 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       type: Date,
       required: true,
     },
+    // renewalDate is not expiration date
+    expirationDate: {
+      type: Date,
+      required: false,
+      // validate: {
+      //   validator: function (value) {  // 🔴🔴 validation ta check dite hobe .. 
+      //     return value > this.subscriptionStartDate;
+      //   },
+      //   message:
+      //     'expirationDate must be after subscription start date ',
+      // },
+    },
+
     renewalDate: {
       type: Date,
-      required: true,
+      required: false,
       validate: {
         validator: function (value) {
           return value > this.subscriptionStartDate;
@@ -46,16 +59,15 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       },
     },
     
-  
     billingCycle: {
       type: Number,
       required: [true, 'billingCycle is required'],
-      default: 1,
+      default: 0,
     },
     isAutoRenewed: {
       type: Boolean,
       required: [false, 'isAutoRenewed is not required'],
-      default: true,
+      default: false,
     },
     cancelledAt: {
       type: Date,

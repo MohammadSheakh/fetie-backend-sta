@@ -4,13 +4,10 @@ import { ISubscriptionPlan } from "./subscriptionPlan.interface";
 import { SubscriptionPlan } from "./subscriptionPlan.model";
 import { UserSubscriptionService } from "../userSubscription/userSubscription.service";
 
-
-
 export class SubscriptionPlanService extends GenericService<typeof SubscriptionPlan, ISubscriptionPlan>
 {
     private stripe : Stripe
-
-
+    
     constructor(){
         super(SubscriptionPlan)
          // Initialize Stripe with secret key (from your Stripe Dashboard) // https://dashboard.stripe.com/test/dashboard
@@ -167,6 +164,7 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
         await userSubscriptionService.update(userSubscription._id, updates);
     }
 
+    /*
     // 4.5 Handle Subscription Canceled
 private async handleSubscriptionCanceled(subscription: any) {
   // Get user subscription by Stripe subscription ID
@@ -193,4 +191,6 @@ userSubscriptionService.getByStripeSubscriptionId = async (stripeSubscriptionId:
   });
 };
 
+
+*/
 }

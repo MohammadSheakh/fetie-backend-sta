@@ -26,6 +26,17 @@ router.route('/paginate').get(
   controller.getAllWithPagination 
 );
 
+//[🚧][🧑‍💻✅][🧪] // 🆗
+router.route('/subscribe-from-back-end').get(
+  auth('common'), // FIXME: authentication lagbe .. 
+  controller.subscribeFromBackEnd 
+);
+
+router.route("/confirm-payment").get(
+  controller.confirmPayment
+)
+
+
 router.route('/:id').get(
   // auth('common'),
   controller.getById 
@@ -73,10 +84,6 @@ router
 
  ////////////
  
-router.route('/subscribe-from-back-end').get(
-  //auth('common'), // FIXME: authentication lagbe .. 
-  controller.subscribeFromBackEnd 
-);
 
 router.route('/subscribe-from-front-end').get(
   //auth('common'), // FIXME: authentication lagbe .. 

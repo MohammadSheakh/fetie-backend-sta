@@ -49,7 +49,7 @@ const paymentTransactionSchema = new Schema<ISubscription>(
     
     paymentMethodOrProcessorOrGateway: {
       type: String,
-      enum: ['stripe', 'paypal'],
+      enum: ['stripe', 'paypal', 'card'],
       required: true
     },
     // External payment IDs

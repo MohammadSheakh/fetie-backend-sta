@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import { GenericController } from '../../__Generic/generic.controller';
-import { ISubscriptionPlan, TSubscriptionPlan } from './subscriptionPlan.interface';
+import { IConfirmPayment, ISubscriptionPlan, TSubscriptionPlan } from './subscriptionPlan.interface';
 import { Subscription, SubscriptionPlan } from './subscriptionPlan.model';
 import { SubscriptionPlanService } from './subscriptionPlan.service';
 import sendResponse from '../../../shared/sendResponse';
@@ -11,9 +11,13 @@ import ApiError from '../../../errors/ApiError';
 import { CurrencyType, InitialDurationType, RenewalFrequncyType, SubscriptionType } from './subscriptionPlan.constant';
 import { User } from '../../user/user.model';
 import { UserCustomService } from '../../user/user.service';
+import mongoose from 'mongoose';
+import { PaymentTransactionService } from '../../_payment/paymentTransaction/paymentTransaction.service';
 
 const subscriptionPlanService = new SubscriptionPlanService();
 const userCustomService = new UserCustomService();
+
+const paymentTransactionService = new PaymentTransactionService();
 
 export class SubscriptionController extends GenericController<
   typeof Subscription,
@@ -24,7 +28,13 @@ export class SubscriptionController extends GenericController<
   constructor() {
     super(new SubscriptionPlanService(), 'Subscription Plan');
     // Initialize Stripe with secret key (from your Stripe Dashboard) // https://dashboard.stripe.com/test/dashboard
-    this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY as string );
+    this.stripe = new Stripe(
+      process.env.STRIPE_SECRET_KEY as string,
+      {
+        apiVersion: '2025-02-24.acacia',
+        typescript: true,
+      }
+  );
   }
 
   subscribeFromBackEnd = catchAsync(async (req: Request, res: Response) => {
@@ -33,6 +43,10 @@ export class SubscriptionController extends GenericController<
     const { subscriptionPlanId } = req.query;
     const { userId } = req.user;
 
+    console.log('userId 🔥🔥', userId);
+    console.log('subscriptionPlanId 🔥🔥', subscriptionPlanId);
+
+    
     if (!userId) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
@@ -50,10 +64,18 @@ export class SubscriptionController extends GenericController<
       );
     }
 
+    // Validate if subscriptionPlanId is a valid ObjectId
+  if (!mongoose.Types.ObjectId.isValid(subscriptionPlanId)) {
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      `Invalid subscriptionPlanId provided`
+    );
+  }
+
     
     // get the subscription plan by id
     const subscriptionPlan = await subscriptionPlanService.getById(
-      subscriptionPlanId as string
+      subscriptionPlanId // as string
     );
     if (!subscriptionPlan) {
       throw new ApiError(
@@ -80,7 +102,7 @@ export class SubscriptionController extends GenericController<
         email: user.email,
         name: user.name,
         metadata: {
-          userId: user?._id.toString(),
+          userId: userId.toString(), // ekhane user._id chilo 🟢🟢
         },
       });
 
@@ -92,69 +114,29 @@ export class SubscriptionController extends GenericController<
        //await userService.update(userId, { stripe_customer_id: stripeCustomerId });
     }
 
-    // check if plan is valid
-    // const validPLan = await subscriptionPlanService.getBySubscriptionType(
-    //   plan as string
-    // );
-
-    // if (!validPLan) {
-    //   throw new ApiError(
-    //     StatusCodes.BAD_REQUEST,
-    //     `Invalid plan provided in query, it should be ${Object.values(
-    //       SubscriptionType
-    //     ).join(', ')}`
-    //   );
-    // }
-
-    /*
-      switch (plan.toString().toLowerCase()) {
-        case SubscriptionType.premium:
-          priceId = process.env.STRIPE_PREMIUM_PLAN_PRICE_ID; // 🔥 add korte hobe process.env file e .
-          break;
-        
-        default:
-          throw new ApiError(
-            StatusCodes.BAD_REQUEST,
-            `Invalid plan provided in query, it should be ${Object.values(
-              SubscriptionType
-            ).join(', ')}`
-          );
-      } 
-    */
-
-
-    /// productId and priceId duita e lagbe .. stripe er ..
-    /// check out session er shomoy ..
-
-    // if we have own database with plans table .. make sure
-    // make sure we have both stripe productId and priceId ..
-
-    // when a customer subscribe a plan  .. we need to create stripe
-    // check out session ..
-
+    // we can call this session  paymentGatewayData
     const session = await this.stripe.checkout.sessions.create({
       mode: 'payment', // You can change it to 'payment' if it's a one-time payment  // 'subscription'
-      payment_method_types: ['card', 'paypal'],
+      payment_method_types: ['card'], // , 'paypal'
       customer: stripeCustomerId,
       line_items: [
         {
-          /*
-            price_data: {
-              currency: "usd", // or your preferred currency
-              product_data: {
-                name: plan.name,
-                description: plan.description,
-              },
-              unit_amount: plan.price * 100, // Amount in cents
-            },
-            quantity: 1,
-          */
           price: subscriptionPlan.stripe_price_id, // Use the price ID from your Stripe Dashboard
           quantity: 1,
         },
       ],
-      //success_url: `${process.env.CLIENT_URL}/success?session_id=${CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.CLIENT_URL}/cancel`,
+      // process.env.CLIENT_URL
+      // process.env.BACKEND_IP
+      success_url: "${'http://127.0.0.1:3000'}/api/v1/subscription/confirm-payment"+
+      "?session_id={CHECKOUT_SESSION_ID}"+
+      "&userId=${userId}&amount=${subscriptionPlan.amount}"+
+      "&subscriptionId=${subscriptionPlan._id}"+
+      "&duration=${subscriptionPlan.initialDuration}",
+
+      cancel_url: `${'http://127.0.0.1:3000'}/api/v1/subscription/cancel?paymentId=${"paymentDummy"}`,
+      invoice_creation: {
+        enabled: true,
+      },
       metadata: {
         userId: userId, // Store userId or other data in metadata for future reference
         subscriptionPlanId : subscriptionPlanId as string,
@@ -177,11 +159,120 @@ export class SubscriptionController extends GenericController<
 
     sendResponse(res, {
       code: StatusCodes.OK,
-      data: session.url,
+      data: session.url, //session.url,
       message: `${this.modelName} created successfully`,
       success: true,
     });
   });
+
+  /*
+
+
+  line_items: [
+        {
+          
+          //  price_data: {
+          //    currency: "usd", // or your preferred currency
+          //    product_data: {
+          //      name: subscriptionPlan.name,
+          //      description: "please, fill up your information",
+          //      images: payload?.images, // optional
+          //    },
+          //    unit_amount: subscriptionPlan.price * 100, // Amount in cents
+          //  },
+          //  quantity: 1,
+          
+          price: subscriptionPlan.stripe_price_id, // Use the price ID from your Stripe Dashboard
+          quantity: 1,
+        },
+      ],
+
+  
+    // check if plan is valid
+    // const validPLan = await subscriptionPlanService.getBySubscriptionType(
+    //   plan as string
+    // );
+
+    // if (!validPLan) {
+    //   throw new ApiError(
+    //     StatusCodes.BAD_REQUEST,
+    //     `Invalid plan provided in query, it should be ${Object.values(
+    //       SubscriptionType
+    //     ).join(', ')}`
+    //   );
+    // }
+
+    
+      switch (plan.toString().toLowerCase()) {
+        case SubscriptionType.premium:
+          priceId = process.env.STRIPE_PREMIUM_PLAN_PRICE_ID; // 🔥 add korte hobe process.env file e .
+          break;
+        
+        default:
+          throw new ApiError(
+            StatusCodes.BAD_REQUEST,
+            `Invalid plan provided in query, it should be ${Object.values(
+              SubscriptionType
+            ).join(', ')}`
+          );
+      } 
+    
+
+
+    /// productId and priceId duita e lagbe .. stripe er ..
+    /// check out session er shomoy ..
+
+    // if we have own database with plans table .. make sure
+    // make sure we have both stripe productId and priceId ..
+
+    // when a customer subscribe a plan  .. we need to create stripe
+    // check out session ..
+
+
+
+
+  */
+
+  
+
+  confirmPayment = catchAsync(async (req: Request, res: Response) => {
+    const userAgent = req.headers['user-agent'];
+    // Check if the request is from a mobile device
+    const isMobile = /Mobile|Android|iPhone|iPad|iPod/i.test(userAgent);
+
+    const deviceType = isMobile ? "Mobile" : "PC";
+    
+    const data : IConfirmPayment = {
+      userId: req.query.userId,
+      subscriptionId: req.query.subscriptionId,
+      amount: req.query.amount,
+      duration: req.query.duration,
+      // noOfDispatches: req.query.noOfDispatches, // 🟢🟢 kono ekta payment confirm korle .. amra jodi kono feature user ke provide korte chai .. like user 20 ta token pabe ... 
+    };
+
+    const paymentResult = await paymentTransactionService.confirmPayment(data);
+
+    if (paymentResult) {
+    const subscription = await SubscriptionPlan.findOne({
+      _id: paymentResult.subscriptionId,
+    });
+
+    if (deviceType !== "Mobile") {
+      res.redirect(
+        `https://ootms.com/payment-success?amount=${paymentResult.amount}&duration=${subscription.duration}&noOfDispatches=${subscription.noOfDispatches}&subcriptionName=${subscription.name}&subcriptionId=${subscription._id}`
+      );
+    }
+  }
+
+
+  sendResponse(res, {
+      code: StatusCodes.OK,
+      message: req.t("thank you for payment"),
+      success: true,
+    });
+});
+
+
 
 
   // 2. Verify Session Completion (Client-side Success Page Handler)

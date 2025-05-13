@@ -8,19 +8,19 @@ export interface IPaymentTransaction {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   userId : Types.ObjectId;
-  paymentMethodId  ?: Types.ObjectId;
-  type : 'subscription';
-  subscriptionId : Types.ObjectId;
+  paymentMethodId  ? : Types.ObjectId;
+  type ?: 'subscription';
+  subscriptionId ?: Types.ObjectId;
   orderId ?: Types.ObjectId;
   paymentMethodOrProcessorOrGateway : 'stripe' | 'paypal';
-  externalTransactionOrPaymentId : string;
-  amount : number;
-  currency: CurrencyType.USD;
-  paymentStatus : 'succeeded' | 'pending' | 'failed';
-  description : string;
+  externalTransactionOrPaymentId : string; // to store payment intent id .. 
+  amount  ?: number;
+  currency ?: CurrencyType.USD;
+  paymentStatus ?: 'succeeded' | 'pending' | 'failed';
+  description ?: string;
 
-  isActive : Boolean;
-  isDeleted : Boolean;
+  isActive ?: Boolean;
+  isDeleted ?: Boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -14,6 +14,7 @@ export interface IUserSubscription {
 
   subscriptionStartDate : Date;
   currentPeriodStartDate : Date;
+  expirationDate : Date;
   renewalDate : Date;
   billingCycle: Number;
   isAutoRenewed : Boolean;

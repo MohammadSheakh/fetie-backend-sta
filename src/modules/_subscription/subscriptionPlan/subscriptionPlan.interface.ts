@@ -4,6 +4,15 @@ import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { CurrencyType, InitialDurationType, RenewalFrequncyType, SubscriptionType } from './subscriptionPlan.constant';
 
+export interface IConfirmPayment {
+    userId: string | any;
+    subscriptionId: string | any;
+    amount: string | any;
+    duration: string | any;
+    paymentIntentId? : string | any;
+}
+
+
 export interface ISubscriptionPlan {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
