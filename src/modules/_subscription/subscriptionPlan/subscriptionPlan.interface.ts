@@ -6,7 +6,7 @@ import { CurrencyType, InitialDurationType, RenewalFrequncyType, SubscriptionTyp
 
 export interface IConfirmPayment {
     userId: string | any;
-    subscriptionId: string | any;
+    subscriptionPlanId: string | any;
     amount: string | any;
     duration: string | any;
     paymentIntentId? : string | any;

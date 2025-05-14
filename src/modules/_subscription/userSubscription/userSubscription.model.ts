@@ -116,7 +116,7 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
 
     stripe_subscription_id: {
       type: String,
-      required: [true, 'stripe_subscription_id is required'],
+      required: [false, 'stripe_subscription_id is not required'], // 🟢🟢 for recurring payment 
       default: null,
     },
     /*

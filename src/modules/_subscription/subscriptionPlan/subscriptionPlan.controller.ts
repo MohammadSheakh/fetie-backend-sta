@@ -245,7 +245,7 @@ export class SubscriptionController extends GenericController<
     
     const data : IConfirmPayment = {
       userId: req.query.userId,
-      subscriptionId: req.query.subscriptionId,
+      subscriptionPlanId: req.query.subscriptionId,
       amount: req.query.amount,
       duration: req.query.duration,
       // noOfDispatches: req.query.noOfDispatches, // 🟢🟢 kono ekta payment confirm korle .. amra jodi kono feature user ke provide korte chai .. like user 20 ta token pabe ... 
@@ -255,7 +255,7 @@ export class SubscriptionController extends GenericController<
 
     if (paymentResult) {
     const subscription = await SubscriptionPlan.findOne({
-      _id: paymentResult.subscriptionId,
+      _id: paymentResult.subscriptionPlanId,
     });
 
     if (!subscription) {

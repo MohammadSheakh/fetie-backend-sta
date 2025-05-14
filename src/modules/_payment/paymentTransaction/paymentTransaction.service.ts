@@ -4,6 +4,11 @@ import { IPaymentTransaction } from "./paymentTransaction.interface";
 import { UserSubscription } from "../../_subscription/userSubscription/userSubscription.model";
 import crypto from 'crypto';
 import { IConfirmPayment } from "../../_subscription/subscriptionPlan/subscriptionPlan.interface";
+import { UserSubscriptionStatusType } from "../../_subscription/userSubscription/userSubscription.constant";
+import { TPaymentStatus } from "./paymentTransaction.constant";
+import { CurrencyType } from "../../_subscription/subscriptionPlan/subscriptionPlan.constant";
+
+
 
 export class PaymentTransactionService extends GenericService<typeof PaymentTransaction, IPaymentTransaction>
 {
@@ -20,7 +25,7 @@ export class PaymentTransactionService extends GenericService<typeof PaymentTran
     confirmPayment = async (data : IConfirmPayment) => {
       const {
         userId,
-        subscriptionId,
+        subscriptionPlanId,
         amount,
         duration,
         // noOfDispatches,  // 🟢🟢 kono ekta payment confirm korle .. amra jodi kono feature user ke provide korte chai .. like user 20 ta token pabe ... 
@@ -28,12 +33,12 @@ export class PaymentTransactionService extends GenericService<typeof PaymentTran
       } = data;
 
       // Generate a random ID of 16 bytes, converted to hexadecimal
-      const paymentId = `pi_${crypto.randomBytes(16).toString("hex")}`;
+      const _paymentIntentId = `pi_${crypto.randomBytes(16).toString("hex")}`;
 
       const paymentDataBody : IPaymentTransaction = {
-        externalTransactionOrPaymentId: paymentIntentId ? paymentIntentId : paymentId,
+        externalTransactionOrPaymentId: paymentIntentId ? paymentIntentId : _paymentIntentId,
         amount,
-        subscriptionId: subscriptionId,
+        subscriptionPlanId: subscriptionPlanId,
         userId: userId,
         paymentMethodOrProcessorOrGateway: "stripe", // "Card" mahin vai ekhane eta likhsilo
       };
@@ -41,40 +46,90 @@ export class PaymentTransactionService extends GenericService<typeof PaymentTran
       let paymentData : IPaymentTransaction;
 
       try {
-        // Save payment data
-        paymentData = new PaymentTransaction(paymentDataBody);
+        
 
-        await paymentData.save();
-
-        // // Set the expiry date (today's date + duration) in YYYY-MM-DD format
-
+        ////////////// Set Expiry Date ////////////
         const today = new Date();
-        today.setHours(0, 0, 0, 0); // Reset time to midnight
-        const expiryDate = new Date(today);
-        expiryDate.setDate(today.getDate() + Number(duration));
+        console.log("today", today);
 
-        // // Extract date in YYYY-MM-DD format
-        const formattedExpiryDate = expiryDate.toISOString().split("T")[0];
+        // Reset time to midnight
+        today.setHours(0, 0, 0, 0);
+
+        const expiryDate = new Date(today);
+        console.log("expiryDate before adding month", expiryDate);
+
+        // If duration is 'month', add 1 month to today's date
+        if (duration === 'month') {
+          expiryDate.setMonth(today.getMonth() + 1); // Adds 1 month
+        }
+
+        console.log("expiryDate after adding month", expiryDate);
+
+        // Store as a full ISO string (with time and timezone)
+        const isoFormattedExpiryDate = expiryDate.toISOString();
+        console.log("ISO Formatted Expiry Date", isoFormattedExpiryDate);
+
 
         // // Check if the user already has a subscription in MySubscription
-        const existingUserSubscription =
-          (await UserSubscription.findOne({ user: userId })) ?? false;
+        const existingUserSubscription = await UserSubscription.findOne({ userId: userId , subscriptionPlanId : subscriptionPlanId });
 
+        let savedUserSubscription;
         if (existingUserSubscription) {
+
+          console.log("🎯🎯 if block userSubscription")
+
+          existingUserSubscription.status = UserSubscriptionStatusType.active;
           // Update the existing subscription
-          existingUserSubscription.subscriptionPlanId = subscriptionId;
-          existingUserSubscription.expirationDate = formattedExpiryDate;
+          existingUserSubscription.subscriptionPlanId = subscriptionPlanId;
+          existingUserSubscription.billingCycle = Number(existingUserSubscription.billingCycle) + 1; 
+
+          if(existingUserSubscription.billingCycle == 1){
+            existingUserSubscription.subscriptionStartDate = new Date();
+            existingUserSubscription.currentPeriodStartDate = new Date();
+          }else{
+            existingUserSubscription.currentPeriodStartDate = new Date();
+          }
+          existingUserSubscription.expirationDate = expiryDate;
+          existingUserSubscription.renewalDate = expiryDate;
           
-          await existingUserSubscription.save();
+          savedUserSubscription = await existingUserSubscription.save();
         } else {
+
+          console.log("🎯🎯 else block userSubscription")
+
           // Create a new subscription
           const newSubscription = new UserSubscription({
-            user: userId,
-            subscription: subscriptionId,
-            expiryDate: formattedExpiryDate,
+            userId: userId,
+            subscriptionPlanId: subscriptionPlanId,
+            expiryDate: expiryDate,
           });
-          await newSubscription.save();
+
+          newSubscription.billingCycle = Number(newSubscription.billingCycle) + 1;
+
+          if(newSubscription.billingCycle == 1){
+            newSubscription.subscriptionStartDate = new Date();
+            newSubscription.currentPeriodStartDate = new Date();
+          }
+          newSubscription.status = UserSubscriptionStatusType.active;
+          newSubscription.expirationDate = expiryDate;
+          newSubscription.renewalDate = expiryDate;
+        
+          savedUserSubscription =  await newSubscription.save();
+
+
         }
+
+
+
+        // Save payment data
+        paymentDataBody.currency = CurrencyType.USD; // Set the currency to USD
+        paymentDataBody.type = "subscription"; // Set the type to "subscription"
+        paymentDataBody.paymentStatus = TPaymentStatus.succeeded
+        paymentDataBody.userSubscriptionId = savedUserSubscription._id; // Save the user subscription ID
+
+        paymentData = await this.create(paymentDataBody);
+
+
       } catch (error) {
         console.error("Error in confirmPayment:", error);
         throw new Error("Failed to process the payment and subscription.");

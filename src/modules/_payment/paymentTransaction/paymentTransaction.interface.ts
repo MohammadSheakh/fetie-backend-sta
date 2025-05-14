@@ -1,8 +1,7 @@
 import { Model, Types } from 'mongoose';
-
-
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
-import { CurrencyType, InitialDurationType, RenewalFrequncyType, SubscriptionType } from './subscriptionPlan.constant';
+import { CurrencyType } from '../../_subscription/subscriptionPlan/subscriptionPlan.constant';
+import { TPaymentStatus } from './paymentTransaction.constant';
 
 export interface IPaymentTransaction {
   // _taskId: undefined | Types.ObjectId;
@@ -10,13 +9,15 @@ export interface IPaymentTransaction {
   userId : Types.ObjectId;
   paymentMethodId  ? : Types.ObjectId;
   type ?: 'subscription';
-  subscriptionId ?: Types.ObjectId;
+  subscriptionPlanId ?: Types.ObjectId;
+  userSubscriptionId ?: Types.ObjectId;
   orderId ?: Types.ObjectId;
   paymentMethodOrProcessorOrGateway : 'stripe' | 'paypal';
+  paymentIntentId ?: string; // to store payment intent id ..
   externalTransactionOrPaymentId : string; // to store payment intent id .. 
   amount  ?: number;
   currency ?: CurrencyType.USD;
-  paymentStatus ?: 'succeeded' | 'pending' | 'failed';
+  paymentStatus ?: TPaymentStatus.disputed | TPaymentStatus.succeeded | TPaymentStatus.pending | TPaymentStatus.failed | TPaymentStatus.uncaptured;
   description ?: string;
 
   isActive ?: Boolean;
@@ -30,13 +31,15 @@ export type TPaymentTransaction = {
   userId : Types.ObjectId;
   paymentMethodId  ?: Types.ObjectId;
   type : 'subscription';
-  subscriptionId : Types.ObjectId;
+  subscriptionPlanId : Types.ObjectId;
+  userSubscriptionId : Types.ObjectId;
   orderId ?: Types.ObjectId;
   paymentMethodOrProcessorOrGateway : 'stripe' | 'paypal';
+  paymentIntentId : string; // to store payment intent id ..
   externalTransactionOrPaymentId : string;
   amount : number;
   currency: CurrencyType.USD;
-  paymentStatus : 'succeeded' | 'pending' | 'failed';
+  paymentStatus : TPaymentStatus.disputed | TPaymentStatus.succeeded | TPaymentStatus.pending | TPaymentStatus.failed | TPaymentStatus.uncaptured;
   description : string;
 
   isActive : Boolean;

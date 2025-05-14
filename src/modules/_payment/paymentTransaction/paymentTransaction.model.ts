@@ -2,11 +2,11 @@ import { model, Schema } from 'mongoose';
 
 import paginate from '../../../common/plugins/paginate';
 
-
-import { ISubscription, ISubscriptionModel } from './subscription.interface';
 import { CurrencyType } from '../../_subscription/subscriptionPlan/subscriptionPlan.constant';
+import { TPaymentStatus } from './paymentTransaction.constant';
+import { IPaymentTransaction, IPaymentTransactionModel } from './paymentTransaction.interface';
 
-const paymentTransactionSchema = new Schema<ISubscription>(
+const paymentTransactionSchema = new Schema<IPaymentTransaction>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -29,22 +29,21 @@ const paymentTransactionSchema = new Schema<ISubscription>(
       required: false
     },
     
-    /*
       // For subscription payments
-      subscriptionId: {
-        type: Schema.Types.ObjectId,
-        // ref: 'UserSubscription',
-        ref: 'Subscription',
-        required: function() { return this.type.toString() === 'subscription'; } // 🔥🔥 bujhi nai 
-      },
-    */
+    subscriptionPlanId: {
+      type: Schema.Types.ObjectId,
+      // ref: 'UserSubscription',
+      ref: 'SubscriptionPlan',
+      required: function() { return this.type.toString() === 'subscription'; } // 🔥🔥 bujhi nai 
+    },
+    
 
     // For product purchases
     orderId: {
       type: Schema.Types.ObjectId,
       ref: 'Order',
-      // required: function() { return this.type.toString() === 'order'; }
-      required: false
+      required: function() { return this.type.toString() === 'order'; }
+      // required: false
     },
     
     paymentMethodOrProcessorOrGateway: {
@@ -56,7 +55,7 @@ const paymentTransactionSchema = new Schema<ISubscription>(
     // stripe_payment_intent_id /  paypal_transaction_id
     externalTransactionOrPaymentId: {
       type: String,
-      required: 'true' 
+      required: true
     },
     // stripe_payment_intent_id: {
     //   type: String,
@@ -78,7 +77,13 @@ const paymentTransactionSchema = new Schema<ISubscription>(
     },
     paymentStatus: {
       type: String,
-      enum: ['pending', 'processing', 'completed', 'failed', 'refunded', 'cancelled'],
+      enum: [
+
+            TPaymentStatus.disputed , TPaymentStatus.succeeded ,
+            TPaymentStatus.pending , TPaymentStatus.failed,
+            TPaymentStatus.uncaptured
+
+      ],
       default: 'pending'
     },
     
@@ -123,7 +128,7 @@ paymentTransactionSchema.pre('save', function(next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
-  this.renewalFee = this.initialFee
+  // this.renewalFee = this.initialFee
   
   next();
 });
@@ -139,7 +144,7 @@ paymentTransactionSchema.set('toJSON', {
 });
 
 
-export const PaymentTransaction = model<ISubscription, ISubscriptionModel>(
+export const PaymentTransaction = model<IPaymentTransaction, IPaymentTransactionModel>(
   'PaymentTransactions',
   paymentTransactionSchema
 );
