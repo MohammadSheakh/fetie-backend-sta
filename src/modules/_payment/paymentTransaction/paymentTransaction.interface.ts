@@ -13,7 +13,7 @@ export interface IPaymentTransaction {
   userSubscriptionId ?: Types.ObjectId;
   orderId ?: Types.ObjectId;
   paymentMethodOrProcessorOrGateway : 'stripe' | 'paypal';
-  paymentIntentId ?: string; // to store payment intent id ..
+  stripe_payment_intent_id ?: string; // to store payment intent id ..
   externalTransactionOrPaymentId : string; // to store payment intent id .. 
   amount  ?: number;
   currency ?: CurrencyType.USD;
@@ -35,7 +35,7 @@ export type TPaymentTransaction = {
   userSubscriptionId : Types.ObjectId;
   orderId ?: Types.ObjectId;
   paymentMethodOrProcessorOrGateway : 'stripe' | 'paypal';
-  paymentIntentId : string; // to store payment intent id ..
+  stripe_payment_intent_id : string; // to store payment intent id ..
   externalTransactionOrPaymentId : string;
   amount : number;
   currency: CurrencyType.USD;

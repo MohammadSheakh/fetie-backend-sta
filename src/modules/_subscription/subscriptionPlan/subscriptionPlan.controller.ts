@@ -1,8 +1,7 @@
 import { Request, Response } from 'express';
 import catchAsync from '../../../shared/catchAsync';
 import { GenericController } from '../../__Generic/generic.controller';
-import { IConfirmPayment, ISubscriptionPlan, TSubscriptionPlan } from './subscriptionPlan.interface';
-import { Subscription, SubscriptionPlan } from './subscriptionPlan.model';
+import { IConfirmPayment, ISubscriptionPlan } from './subscriptionPlan.interface';
 import { SubscriptionPlanService } from './subscriptionPlan.service';
 import sendResponse from '../../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
@@ -13,6 +12,7 @@ import { User } from '../../user/user.model';
 import { UserCustomService } from '../../user/user.service';
 import mongoose from 'mongoose';
 import { PaymentTransactionService } from '../../_payment/paymentTransaction/paymentTransaction.service';
+import { SubscriptionPlan } from './subscriptionPlan.model';
 
 const subscriptionPlanService = new SubscriptionPlanService();
 const userCustomService = new UserCustomService();
@@ -20,7 +20,7 @@ const userCustomService = new UserCustomService();
 const paymentTransactionService = new PaymentTransactionService();
 
 export class SubscriptionController extends GenericController<
-  typeof Subscription,
+  typeof SubscriptionPlan,
   ISubscriptionPlan
 > {
   private stripe: Stripe;
@@ -252,6 +252,8 @@ export class SubscriptionController extends GenericController<
     };
 
     const paymentResult = await paymentTransactionService.confirmPayment(data);
+
+    console.log('paymentResult 🔥🔥', paymentResult);
 
     if (paymentResult) {
     const subscription = await SubscriptionPlan.findOne({

@@ -29,14 +29,15 @@ export class PaymentTransactionService extends GenericService<typeof PaymentTran
         amount,
         duration,
         // noOfDispatches,  // 🟢🟢 kono ekta payment confirm korle .. amra jodi kono feature user ke provide korte chai .. like user 20 ta token pabe ... 
-        paymentIntentId,
+        stripe_payment_intent_id,
       } = data;
 
       // Generate a random ID of 16 bytes, converted to hexadecimal
       const _paymentIntentId = `pi_${crypto.randomBytes(16).toString("hex")}`;
 
       const paymentDataBody : IPaymentTransaction = {
-        externalTransactionOrPaymentId: paymentIntentId ? paymentIntentId : _paymentIntentId,
+        // externalTransactionOrPaymentId
+        stripe_payment_intent_id: stripe_payment_intent_id ? stripe_payment_intent_id : _paymentIntentId,
         amount,
         subscriptionPlanId: subscriptionPlanId,
         userId: userId,
@@ -115,8 +116,6 @@ export class PaymentTransactionService extends GenericService<typeof PaymentTran
           newSubscription.renewalDate = expiryDate;
         
           savedUserSubscription =  await newSubscription.save();
-
-
         }
 
 

@@ -37,7 +37,6 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
       required: function() { return this.type.toString() === 'subscription'; } // 🔥🔥 bujhi nai 
     },
     
-
     // For product purchases
     orderId: {
       type: Schema.Types.ObjectId,
@@ -55,12 +54,12 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
     // stripe_payment_intent_id /  paypal_transaction_id
     externalTransactionOrPaymentId: {
       type: String,
-      required: true
+      required: false
     },
-    // stripe_payment_intent_id: {
-    //   type: String,
-    //   required: function() { return this.paymentProcessor === 'stripe'; }
-    // },
+    stripe_payment_intent_id: {
+      type: String,
+      required: false,
+    },
     // paypal_transaction_id: {
     //   type: String,
     //   required: function() { return this.paymentProcessor === 'paypal'; }
