@@ -37,6 +37,10 @@ export class SubscriptionController extends GenericController<
   );
   }
 
+  subscribeFromFrontEnd = catchAsync(async (req: Request, res: Response) => {
+    
+  })
+
   subscribeFromBackEnd = catchAsync(async (req: Request, res: Response) => {
     // get product price by the plan parameter
     // plan parameter comes from req.query
@@ -72,7 +76,6 @@ export class SubscriptionController extends GenericController<
     );
   }
 
-    
     // get the subscription plan by id
     const subscriptionPlan = await subscriptionPlanService.getById(
       subscriptionPlanId // as string
@@ -168,8 +171,6 @@ export class SubscriptionController extends GenericController<
   });
 
   /*
-
-
   line_items: [
         {
           
@@ -235,6 +236,19 @@ export class SubscriptionController extends GenericController<
 
   */
 
+  paymentSuccess = catchAsync(async (req: Request, res: Response) => {
+    
+    const { amount, duration, subcriptionName, subscriptionId } = req.query;
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: null, //session.url,
+      message: `${amount} - ${duration}  -  ${subcriptionName}  -  ${subscriptionId}`,
+      success: true,
+    });
+
+  });
+
 
   confirmPayment = catchAsync(async (req: Request, res: Response) => {
     const userAgent = req.headers['user-agent'];
@@ -267,6 +281,8 @@ export class SubscriptionController extends GenericController<
       );
     }
 
+    console.log('subscription 🔥🔥🔥🔥🔥🔥🔥🔥', subscription);
+
     if (deviceType !== "Mobile") {
       /*
         res.redirect(
@@ -279,19 +295,20 @@ export class SubscriptionController extends GenericController<
       */
 
         // &noOfDispatches=${subscription.noOfDispatches} 🟢🟢 kono feature provide korte chaile .. korte parbo .. 
-      res.redirect(`http://127.0.0.1:3000/api/v1/payment-success?amount=${paymentResult.amount}&duration=${subscription?.initialDuration}&subcriptionName=${subscription?.subscriptionName}&subcriptionId=${subscription._id}`)
+      // 🟢🟢🟢🟢 ekhane front-end er URL jabe i think .. 
+        res.redirect(`${'http://127.0.0.1:3000'}/api/v1/subscription/payment-success?amount=${paymentResult.amount}&duration=${subscription?.initialDuration}&subcriptionName=${subscription?.subscriptionName}&subcriptionId=${subscription._id}`)
+   
     }
   }
-
 
   sendResponse(res, {
       code: StatusCodes.OK,
       message: req.t("thank you for payment"),
       success: true,
     });
-});
+  });
 
- confirmPaymentssInApp = catchAsync(async (req : Request, res: Response) => {
+  confirmPaymentssInApp = catchAsync(async (req : Request, res: Response) => {
   const data : IConfirmPayment = {
     userId: req.user.userId,
     subscriptionId: req.body.subscriptionId,
@@ -309,45 +326,38 @@ export class SubscriptionController extends GenericController<
       success: true,
       data: paymentResult,
     });
-});
-
-
+  });
 
 
   // 2. Verify Session Completion (Client-side Success Page Handler)
-verifyCheckoutSession = catchAsync(async (req: Request, res: Response) => {
-  const { session_id } = req.query;
-  
-  if (!session_id) {
-    throw new ApiError(
-      StatusCodes.BAD_REQUEST,
-      "Session ID is required"
-    );
-  }
-  
-  // Retrieve the session to verify its status
-  const session = await this.stripe.checkout.sessions.retrieve(session_id as string);
-  
-  if (session.payment_status !== 'paid') {
-    throw new ApiError(
-      StatusCodes.BAD_REQUEST,
-      "Payment has not been completed"
-    );
-  }
-  
-  // Success verification can be minimal here as the webhook will handle the actual subscription creation
-  sendResponse(res, {
-    code: StatusCodes.OK,
-    data: { verified: true },
-    message: "Payment verified successfully",
-    success: true,
-  });
-});
-
-
-  subscribeFromFrontEnd = catchAsync(async (req: Request, res: Response) => {
+  verifyCheckoutSession = catchAsync(async (req: Request, res: Response) => {
+    const { session_id } = req.query;
     
-  })
+    if (!session_id) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "Session ID is required"
+      );
+    }
+    
+    // Retrieve the session to verify its status
+    const session = await this.stripe.checkout.sessions.retrieve(session_id as string);
+    
+    if (session.payment_status !== 'paid') {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        "Payment has not been completed"
+      );
+    }
+    
+    // Success verification can be minimal here as the webhook will handle the actual subscription creation
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: { verified: true },
+      message: "Payment verified successfully",
+      success: true,
+    });
+  });
 
   customerPortal = catchAsync(async (req: Request, res: Response) => {
     const portalSession = await this.stripe.billingPortal.sessions.create({

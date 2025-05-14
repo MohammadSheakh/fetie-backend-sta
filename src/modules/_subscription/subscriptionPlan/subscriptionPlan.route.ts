@@ -36,6 +36,10 @@ router.route("/confirm-payment").get(
   controller.confirmPayment
 )
 
+router.route('/payment-success').get(
+  controller.paymentSuccess
+)
+
 
 router.route('/:id').get(
   // auth('common'),
