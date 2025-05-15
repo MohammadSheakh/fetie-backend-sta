@@ -106,9 +106,15 @@ export class DailyCycleInsightsController extends GenericController<
 
     const currentDate = new Date(); // Current date and time
 
+    console.log("periodStartDate 🧪", personalizeJourney?.periodStartDate);
+    console.log("req.body.date 🧪", req.body.date);
+
+
     let cycleDay =
           differenceInDays(req.body.date, personalizeJourney?.periodStartDate) + 1; // 🔰 req.body.date e hocche current date
     
+
+    console.log("cycleDay 🧪", cycleDay);
 
     /////////////////////////////////////////////////////////////////////////////
     const dailyCycleInsightFound =
@@ -122,10 +128,10 @@ export class DailyCycleInsightsController extends GenericController<
     
     // Convert the local time to UTC
     const dateInUserTimezone = new Date(req.body.date); // Create a Date object from the input string
-    console.log("dateInUserTimezone 🧪", dateInUserTimezone);
+    // console.log("dateInUserTimezone 🧪", dateInUserTimezone);
     const dateInUtc = fromZonedTime(dateInUserTimezone, userTimezone);
     
-    console.log("dateInUtc 🧪", dateInUtc);
+    // console.log("dateInUtc 🧪", dateInUtc);
 
     // Now you can save this UTC date to your database // 🔥🔥 UTC format bad diye may be ISO format use korte hobe ... 
     req.body.date = dateInUtc;
