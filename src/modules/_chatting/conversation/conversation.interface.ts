@@ -9,6 +9,11 @@ export interface IConversation {
   type: ConversationType.direct | ConversationType.group;
   attachedToId? : String,
   attachedToCategory? : 'TrainingProgram' | ''; // 🔗
+  ///////////////////////////////////////
+  month: string;
+  year: number;
+  title?: string;
+  ///////////////////////////////////////
   isDeleted? : boolean;
   createdAt?: Date;
   updatedAt?: Date;

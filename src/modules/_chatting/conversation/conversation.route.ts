@@ -8,6 +8,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 import * as validation from './conversation.validation';
 import validateRequest from '../../../shared/validateRequest';
+import { ConversationV2Controller } from './conversationv2.controller';
 const router = express.Router();
 
 export const optionValidationChecking = <T extends keyof IConversation>(
@@ -18,6 +19,7 @@ export const optionValidationChecking = <T extends keyof IConversation>(
 
 // const taskService = new TaskService();
 const controller = new ConversationController();
+const controllerV2 = new ConversationV2Controller();
 
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
@@ -42,7 +44,7 @@ router.route('/').get(
   controller.getAll
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
+//[🚧][🧑‍💻✅][🧪] // 🆗2️⃣
 router.route('/create').post(
   // [
   //   upload.fields([
@@ -51,7 +53,7 @@ router.route('/create').post(
   // ],
   auth('user'),
   validateRequest(validation.createConversationValidationSchema),
-  controller.create
+  controllerV2.create // 2️⃣
 );
 
 router.route('/delete/:id').delete(

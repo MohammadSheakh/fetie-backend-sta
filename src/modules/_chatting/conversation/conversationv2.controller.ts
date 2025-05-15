@@ -1,0 +1,165 @@
+import { Request, Response } from 'express';
+import catchAsync from '../../../shared/catchAsync';
+import sendResponse from '../../../shared/sendResponse';
+import { GenericController } from '../../__Generic/generic.controller';
+import { Conversation } from './conversation.model';
+import { ConversationService } from './conversation.service';
+import { StatusCodes } from 'http-status-codes';
+import { ConversationParticipentsService } from '../conversationParticipents/conversationParticipents.service';
+import ApiError from '../../../errors/ApiError';
+import { IConversation, IConversationModel } from './conversation.interface';
+import { ConversationType } from './conversation.constant';
+import { IConversationParticipents } from '../conversationParticipents/conversationParticipents.interface';
+import { MessagerService } from '../message/message.service';
+import { IMessage } from '../message/message.interface';
+import { RoleType } from '../conversationParticipents/conversationParticipents.constant';
+import { User } from '../../user/user.model';
+import { format } from 'date-fns';
+
+let conversationParticipantsService = new ConversationParticipentsService();
+let messageService = new MessagerService();
+
+export class ConversationV2Controller extends GenericController<typeof Conversation, IConversation> {
+  conversationService = new ConversationService();
+
+  constructor() {
+    super(new ConversationService(), 'Conversation');
+  }
+
+  // override  // 2️⃣
+  create = catchAsync(async (req: Request, res: Response) => {
+    let type;
+    // creatorId ta req.user theke ashbe
+    //req.body.creatorId = req.user.userId;
+    let { participants, message } = req.body; // type, attachedToId, attachedToCategory
+
+    // type is based on participants count .. if count is greater than 2 then group else direct
+
+    if (!participants) {
+      // 🔥 test korte hobe logic ..
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'Without participants you can not create a conversation'
+      );
+    }
+
+    participants = [...participants, req.user.userId]; // add yourself to the participants list
+
+    let result: IConversation;
+    if (participants.length > 0) {
+      type =
+        participants.length > 2
+          ? ConversationType.group
+          : ConversationType.direct;
+
+      // const currentMonth = format(new Date(), 'LLLL');
+
+      // console.log(currentMonth); // e.g. "May"
+
+      console.log('🔥month🔥', format(new Date(), 'LLLL'), "🔥year🔥", new Date().getFullYear());
+    
+      const conversationData: IConversation = {
+        creatorId: req.user.userId,
+        type,
+        month: format(new Date(), 'LLLL'), // format(new Date(), 'LLLL')
+        year: 2026 , // new Date().getFullYear()
+        // attachedToId,
+        // attachedToCategory,
+      };
+
+      // check if the conversation already exists
+      const existingConversation = await Conversation.findOne({
+        creatorId: req.user.userId,
+        month: conversationData.month,
+        year: conversationData.year,
+      });
+
+      if (!existingConversation){
+        ////////// Create a new conversation
+
+        result = await this.service.create(conversationData); // 🎯🎯🎯🎯
+
+        if (!result) {
+          throw new ApiError(
+            StatusCodes.BAD_REQUEST,
+            'Unable to create conversation'
+          );
+        }
+
+        for (const participant of participants) {
+          // try {
+          // console.log('🔥🔥participants🔥', participants);
+
+          // as participants is just an id .. 
+
+          let user = await User.findById(participant).select('role');
+
+          // console.log(
+          //   '🔥🔥user role  🔥',
+          //   user,
+          //   user?.role,)
+
+          const res1 = await conversationParticipantsService.create({
+            userId: participant,
+            conversationId: result?._id,
+            role: user?.role === RoleType.user ? RoleType.user : RoleType.bot, // 🔴 ekhane jhamela ase .. 
+          });
+          if (!res1) {
+            throw new ApiError(
+              StatusCodes.BAD_REQUEST,
+              'Unable to create conversation participant'
+            );
+          }
+
+          // console.log('🔥🔥res1🔥', res1);
+          // } catch (error) {
+          // console.error("Error creating conversation participant:", error);
+          // }
+        }
+
+        if (message && result?._id) {
+          const res1: IMessage | null = await messageService.create({
+            text: message,
+            senderId: req.user.userId,
+            conversationId: result?._id,
+            senderRole: req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
+          });
+          if (!res1) {
+            throw new ApiError(
+              StatusCodes.BAD_REQUEST,
+              'Unable to create conversation participant'
+            );
+          }
+        }
+      }
+
+      // dont need to create conversation .. 
+      // just send message to the existing conversation
+
+      let res1 ;
+      if (message && existingConversation?._id) {
+          let res1 : IMessage | null = await messageService.create({
+            text: message,
+            senderId: req.user.userId,
+            conversationId: existingConversation?._id,
+            senderRole: req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
+          });
+          if (!res1) {
+            throw new ApiError(
+              StatusCodes.BAD_REQUEST,
+              'Unable to create conversation participant'
+            );
+          }
+        }
+
+      sendResponse(res, {
+        code: StatusCodes.OK,
+        data: result ? result : res1,
+        message: `${this.modelName} created successfully`,
+        success: true,
+      });
+    }
+  });
+
+  // add more methods here if needed or override the existing ones
+}
