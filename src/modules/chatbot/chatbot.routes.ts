@@ -24,6 +24,12 @@ router
   .post(auth('common'), ChatBotV1Controller.chatbotResponseV6WithLongPolling); // working perfectly .. 
 
 router
+  .route('/bot/long-polling-with-history')
+  .post(auth('common'), ChatBotV1Controller.chatbotResponseLongPollingWithHistory); // working perfectly .. 
+
+
+  
+router
   .route('/bot/cycleInsight')
   .get(auth('common'), ChatBotV1Controller.getCycleInsight);
 
