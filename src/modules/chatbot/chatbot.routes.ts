@@ -27,4 +27,8 @@ router
   .route('/bot/socket')
   .post(auth('common'), ChatBotV1Controller.chatbotResponseV6WithSocket);// need implementation ..
 
+router
+  .route('/bot/cycleInsight')
+  .get(auth('common'), ChatBotV1Controller.getCycleInsight);
+
 export const ChatBotRoute = router;

@@ -6,6 +6,7 @@ import { DailyCycleInsightsService } from '../_dailyCycleInsights/dailyCycleInsi
 import { PersonalizedJourneyService } from '../_personalizeJourney/personalizeJourney/personalizeJourney.service';
 import { UserService } from '../user/user.service';
 import sendResponse from '../../shared/sendResponse';
+import { differenceInDays } from 'date-fns';
 import { StatusCodes } from 'http-status-codes';
 import { isValid, parse } from 'date-fns';
 import ApiError from '../../errors/ApiError';
@@ -1013,9 +1014,326 @@ const chatbotResponseV6WithSocket = async (
   }
 };
 
+const getCycleInsight = async (req: Request, res: Response) => {
+  const userId = req?.user?.userId;
+
+  const currentDate = new Date();
+  
+  const personalizedJourneyService = new PersonalizedJourneyService();
+
+  // const personalizedJourney = await personalizedJourneyService.getByUserId(
+  //     userId
+  //   );
+
+  // Fetch user data
+  const [insights, allInsights, personalizedJourney, userProfileData] = await Promise.all([
+    dailyCycleInsightService.getByDateAndUserId(new Date(), userId),
+    dailyCycleInsightService.getByUserId(userId),
+    personalizeJourneyService.getByUserId(userId),
+    UserService.getMyProfile(userId),
+  ]);
+
+  let cycleDay =
+        differenceInDays(currentDate, personalizedJourney?.periodStartDate) + 1;
+
+  let phase = '';
+    let fertilityLevel = '';
+    if (cycleDay <= 5) {
+      phase = 'Menstrual';
+      fertilityLevel = 'Very Low';
+    } else if (cycleDay <= 13) {
+      phase = 'Follicular';
+      fertilityLevel = 'Low to Medium';
+    } else if (cycleDay === 14) {
+      phase = 'Ovulatory';
+      fertilityLevel = 'Very High';
+    } else if (
+      cycleDay <= Number(personalizedJourney?.avgMenstrualCycleLength)
+    ) {
+      phase = 'Luteal';
+      fertilityLevel = 'Low';
+    } else {
+      phase = 'Unknown';
+      fertilityLevel = 'Unknown';
+    }
+
+    
+    
+
+    // Build system prompt
+    const systemPrompt = `You are a friendly reproductive health assistant Named Fertie.
+      Based on user's cycle, lab tests, Pattern you noticed and daily logs, provide helpful Suggestion.
+  
+      Be Statistic.
+
+      Data available: 
+
+      - phase: ${phase || 'N/A'}
+      - fertilityLevel: ${fertilityLevel || 'N/A'}
+      - cycleDay: ${cycleDay || 'N/A'}
+
+      ----- in Personalized Journey Collection
+      - dateOfBirth: ${personalizedJourney?.dateOfBirth || 'N/A'}
+      - age: ${personalizedJourney?.age || 'N/A'}
+      - height: ${personalizedJourney?.height || 'N/A'}
+      - heightUnit: ${personalizedJourney?.heightUnit || 'N/A'}
+      - weight: ${personalizedJourney?.weight || 'N/A'}
+      - weightUnit: ${personalizedJourney?.weightUnit || 'N/A'}
+      - tryingToConceive: ${personalizedJourney?.tryingToConceive || 'N/A'}
+      - areCyclesRegular: ${personalizedJourney?.areCyclesRegular || 'N/A'}
+      - describeFlow: ${personalizedJourney?.describeFlow || 'N/A'}
+      - periodStartData: ${personalizedJourney?.periodStartDate || 'N/A'}
+      - periodLength: ${personalizedJourney?.periodLength || 'N/A'}
+      - periodEndDate: ${personalizedJourney?.periodEndDate || 'N/A'}
+      - averageMenstrualCycleLength: ${personalizedJourney?.avgMenstrualCycleLength || 'N/A'}
+      - trackOvulationBy: ${personalizedJourney?.trackOvulationBy || 'N/A'}
+      - doYouHavePain: ${personalizedJourney?.doYouHavePain || 'N/A'}
+      - expectedNextPeriodStartDate: ${personalizedJourney?.expectedPeriodStartDate || 'N/A'}
+      - predictedOvulationDate: ${personalizedJourney?.predictedOvulationDate || 'N/A'}
+
+      ----- in Daily cycle Insights Collection
+      - menstrualFlow: ${insights?.menstrualFlow || 'N/A'}
+      - mood: ${insights?.mood || 'N/A'}
+      - activity: ${insights?.activity || 'N/A'}
+      - symptoms: ${insights?.symptoms || 'N/A'}
+      
+      - cervicalMucus: ${insights?.cervicalMucus || 'N/A'}
+
+      ----- User Data 
+      - name: ${userProfileData?.name || 'N/A'}
+      - email: ${userProfileData?.email || 'N/A'}
+      - role: ${userProfileData?.role || 'N/A'}
+      - subscriptionType: ${userProfileData?.subscriptionType || 'N/A'}
+      - phoneNumber: ${userProfileData?.phoneNumber || 'N/A'}
+      - lastPasswordChangeDate: ${userProfileData?.lastPasswordChange || 'N/A'}
+
+      - labTestLog: ${JSON.stringify(insights?.labTestLogId) || 'N/A'}
+      - allInsights: ${JSON.stringify(allInsights) || 'N/A'}
+
+      ---------------------------
+      give me response like {
+        "currentCycleInfo" : "Current cycle info here",
+        "suggestion" : "Your suggestion here",
+        "patternFertieNoticed" : "Pattern you noticed here",
+        "whatToKeepInMindInThisCycle" : "What to keep in mind in this cycle",
+      }
+    `;
+
+    //  - phase: ${insights?.phase || 'N/A'}
+    //   - fertilityLevel: ${insights?.fertilityLevel || 'N/A'}
+    //   - cycleDay: ${insights?.cycleDay || 'N/A'}
+
+
+    ////////////////////////////////////////////////////
+
+
+
+    // Initialize response string
+    let responseText = '';
+
+    // Retry logic for API rate limits
+    const maxRetries = 3;
+    let retries = 0;
+    let delay = 1000; // Start with 1 second delay
+    let stream;
+
+    while (retries <= maxRetries) {
+      try {
+        stream = await model.chat.completions.create({
+          model: 'gpt-3.5-turbo', // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
+          messages: [
+            { role: 'system', content: systemPrompt },
+            // { role: 'user', content: userMessage },
+          ],
+          temperature: 0.7,
+          stream: true,
+        });
+
+        // If we get here, the request was successful
+        break;
+      } catch (error) {
+        // Check if it's a rate limit error (429)
+        if (error.status === 429) {
+          if (
+            error.message &&
+            (error.message.includes('quota') ||
+              error.message.includes('billing'))
+          ) {
+            // This is a quota/billing issue - try fallback if we haven't already
+            if (retries === 0) {
+              console.log('Quota or billing issue. Trying fallback model...');
+              try {
+                // Try a different model as fallback
+                stream = await model.chat.completions.create({
+                  model: 'gpt-3.5-turbo', // Using the same model as a placeholder, replace with actual fallback
+                  messages: [
+                    { role: 'system', content: systemPrompt },
+                    // { role: 'user', content: userMessage },
+                  ],
+                  temperature: 0.7,
+                  stream: true,
+                });
+                break; // If fallback succeeds, exit the retry loop
+              } catch (fallbackError) {
+                console.error('Fallback model failed:', fallbackError);
+                // Continue with retries
+              }
+            } else {
+              console.log(
+                'Quota or billing issue. No more fallbacks available.'
+              );
+              throw error; // Give up after fallback attempts
+            }
+          }
+
+          // Regular rate limit - apply exponential backoff
+          retries++;
+          if (retries > maxRetries) {
+            // Send error message to client before throwing
+            res.write(
+              `data: ${JSON.stringify({
+                error: 'Rate limit exceeded. Please try again later.',
+              })}\n\n`
+            );
+            res.end();
+            throw error; // Give up after max retries
+          }
+
+          console.log(
+            `Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`
+          );
+          await new Promise(resolve => setTimeout(resolve, delay));
+
+          // Exponential backoff with jitter
+          delay = delay * 2 * (0.5 + Math.random()); // Multiply by random factor between 1 and 1.5
+        } else {
+          // Not a rate limit error
+          console.error('OpenAI API error:', error);
+          res.write(
+            `data: ${JSON.stringify({
+              error: 'An error occurred while processing your request.',
+            })}\n\n`
+          );
+          res.end();
+          return; // Exit the function
+        }
+      }
+    }
+
+    if (!stream) {
+      res.write(
+        `data: ${JSON.stringify({
+          error: 'Failed to generate a response. Please try again.',
+        })}\n\n`
+      );
+      res.end();
+      return;
+    }
+
+    // Process each chunk as it arrives
+    try {
+
+
+      /*
+      
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            responseText += content;
+
+            //res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`); // 🟢
+
+            // Flush the data to ensure it's sent immediately
+            if (res.flush) {
+              res.flush();
+            }
+          }
+        }
+
+      */
+
+        // Process each chunk as it arrives
+ 
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        if (content) {
+          responseText += content;
+        }
+      }
+
+      // Parse the JSON string into an object
+      let jsonResponse;
+      try {
+        // First, try to parse the response directly
+        jsonResponse = JSON.parse(responseText);
+      } catch (parseError) {
+        // If direct parsing fails, try to extract JSON from the response
+        console.log("Failed to parse direct response, attempting to extract JSON");
+        
+        // Try to extract JSON using regex
+        const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          try {
+            jsonResponse = JSON.parse(jsonMatch[0]);
+          } catch (extractError) {
+            console.error('Failed to extract valid JSON:', extractError);
+            jsonResponse = {
+              suggestion: "Failed to parse AI response. Please try again.",
+              patternFertieNoticed: "",
+              whatToKeepInMindInThisCycle: ""
+            };
+          }
+        } else {
+          // Fallback to a structured response if parsing fails
+          jsonResponse = {
+            suggestion: responseText.substring(0, 200) + "...",
+            patternFertieNoticed: "Unable to parse the complete response",
+            whatToKeepInMindInThisCycle: "Please try again later"
+          };
+        }
+      }
+     
+
+      // Send end of stream marker
+      // res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n `); // 🟢
+
+      sendResponse(res, {
+        code: StatusCodes.OK,
+        data: jsonResponse, //session.url,
+        message: `not created successfully`,
+        success: true,
+      });
+
+      /**
+       *
+       * save bots response in the database ..
+       */
+
+      
+
+      res.end(); // 🟢🟢🟢 end korte hobe
+    } catch (streamError) {
+      console.error('Error processing stream:', streamError);
+      res.write(
+        `data: ${JSON.stringify({
+          error: 'Stream processing error. Please try again.',
+        })}\n\n`
+      );
+      res.end();
+    }
+
+
+
+
+
+    ///////////////////////////////////////////////////
+
+}
+
 export const ChatBotV1Controller = {
   chatbotResponseV4,
   chatbotResponseV5,
   chatbotResponseV6WithLongPolling,
   chatbotResponseV6WithSocket,
+  getCycleInsight
 };
