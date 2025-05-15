@@ -15,7 +15,10 @@ import { ChatBotService } from './chatbotV1.service';
 import { IMessage } from '../_chatting/message/message.interface';
 import { MessagerService } from '../_chatting/message/message.service';
 import { RoleType } from '../_chatting/conversationParticipents/conversationParticipents.constant';
-import mongoose, { isValidObjectId, Mongoose } from 'mongoose';
+import mongoose from 'mongoose';
+import { IDailyCycleInsights } from '../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.interface';
+import { IPersonalizeJourney } from '../_personalizeJourney/personalizeJourney/personalizeJourney.interface';
+import { IUser } from '../user/user.interface';
 
 let dailyCycleInsightService = new DailyCycleInsightsService();
 let personalizeJourneyService = new PersonalizedJourneyService();
@@ -792,227 +795,7 @@ const chatbotResponseV6WithLongPolling = async (
   }
 };
 
-/**
- *
- * chat bot thing .. Final Code ..
- * need to be implemented ... with socket.io concept ..
- *
- * also save the response in the database
- *
- */
-const chatbotResponseV6WithSocket = async (
-  req: Request,
-  res: Response
-): Promise<any> => {
-  try {
-    const userId = req?.user?.userId;
-    const userMessage = req?.body?.message;
-    const conversationId = req?.body?.conversationId;
 
-    if (!conversationId) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        `conversationId must be provided.`
-      );
-    }
-
-    if (!userId) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        `User not authenticated. Please log in.`
-      );
-    }
-
-    if (!userMessage) {
-      console.error('No message provided in the request body.');
-      return res.status(400).json({ error: 'Message is required' });
-    }
-
-    let messageService = new MessagerService();
-
-    /**
-     *
-     * save message in the database ..
-     */
-
-    const saveMessageToDbRes: IMessage | null = await messageService.create({
-      text: userMessage,
-      senderId: req.user.userId,
-      conversationId: conversationId,
-      senderRole:
-        req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
-    });
-
-    // Set up headers for streaming
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-
-    let systemPrompt = await ChatBotService.dateParse(userMessage, userId);
-
-    // Initialize response string
-    let responseText = '';
-
-    // Retry logic for API rate limits
-    const maxRetries = 3;
-    let retries = 0;
-    let delay = 1000; // Start with 1 second delay
-    let stream;
-
-    while (retries <= maxRetries) {
-      try {
-        stream = await model.chat.completions.create({
-          model: 'gpt-3.5-turbo', // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
-          messages: [
-            { role: 'system', content: systemPrompt },
-            { role: 'user', content: userMessage },
-          ],
-          temperature: 0.7,
-          stream: true,
-        });
-
-        // If we get here, the request was successful
-        break;
-      } catch (error) {
-        // Check if it's a rate limit error (429)
-        if (error.status === 429) {
-          if (
-            error.message &&
-            (error.message.includes('quota') ||
-              error.message.includes('billing'))
-          ) {
-            // This is a quota/billing issue - try fallback if we haven't already
-            if (retries === 0) {
-              console.log('Quota or billing issue. Trying fallback model...');
-              try {
-                // Try a different model as fallback
-                stream = await model.chat.completions.create({
-                  model: 'gpt-3.5-turbo', // Using the same model as a placeholder, replace with actual fallback
-                  messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user', content: userMessage },
-                  ],
-                  temperature: 0.7,
-                  stream: true,
-                });
-                break; // If fallback succeeds, exit the retry loop
-              } catch (fallbackError) {
-                console.error('Fallback model failed:', fallbackError);
-                // Continue with retries
-              }
-            } else {
-              console.log(
-                'Quota or billing issue. No more fallbacks available.'
-              );
-              throw error; // Give up after fallback attempts
-            }
-          }
-
-          // Regular rate limit - apply exponential backoff
-          retries++;
-          if (retries > maxRetries) {
-            // Send error message to client before throwing
-            res.write(
-              `data: ${JSON.stringify({
-                error: 'Rate limit exceeded. Please try again later.',
-              })}\n\n`
-            );
-            res.end();
-            throw error; // Give up after max retries
-          }
-
-          console.log(
-            `Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`
-          );
-          await new Promise(resolve => setTimeout(resolve, delay));
-
-          // Exponential backoff with jitter
-          delay = delay * 2 * (0.5 + Math.random()); // Multiply by random factor between 1 and 1.5
-        } else {
-          // Not a rate limit error
-          console.error('OpenAI API error:', error);
-          res.write(
-            `data: ${JSON.stringify({
-              error: 'An error occurred while processing your request.',
-            })}\n\n`
-          );
-          res.end();
-          return; // Exit the function
-        }
-      }
-    }
-
-    if (!stream) {
-      res.write(
-        `data: ${JSON.stringify({
-          error: 'Failed to generate a response. Please try again.',
-        })}\n\n`
-      );
-      res.end();
-      return;
-    }
-
-    // Process each chunk as it arrives
-    try {
-      for await (const chunk of stream) {
-        const content = chunk.choices[0]?.delta?.content || '';
-        if (content) {
-          responseText += content;
-
-          // Send the chunk to the client
-          res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
-
-          // Flush the data to ensure it's sent immediately
-          if (res.flush) {
-            res.flush();
-          }
-        }
-      }
-
-      // Send end of stream marker
-      // res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`);
-
-      /**
-       *
-       * save bots response in the database ..
-       */
-
-      const saveMessageToDbRes: IMessage | null = await messageService.create({
-        text: responseText,
-        senderId: new mongoose.Types.ObjectId('68206aa9e791351fc9fdbcde'),
-        conversationId: conversationId,
-        senderRole: RoleType.bot,
-      });
-
-      res.end(); // 🟢🟢🟢 end korte hobe
-    } catch (streamError) {
-      console.error('Error processing stream:', streamError);
-      res.write(
-        `data: ${JSON.stringify({
-          error: 'Stream processing error. Please try again.',
-        })}\n\n`
-      );
-      res.end();
-    }
-  } catch (error) {
-    console.error('Chatbot error:', error);
-    // Make sure we haven't already started a response
-    if (!res.headersSent) {
-      res
-        .status(500)
-        .json({ error: `Something went wrong. ${error.message || error}` });
-    } else {
-      res.write(
-        `data: ${JSON.stringify({
-          error: `Something went wrong. ${error.message || error}`,
-        })}\n\n`
-      );
-      res.end();
-    }
-
-    //res.end(); // 🟢🟢🟢 remove korte hobe
-  }
-};
 
 const getCycleInsight = async (req: Request, res: Response) => {
   const userId = req?.user?.userId;
@@ -1025,13 +808,32 @@ const getCycleInsight = async (req: Request, res: Response) => {
   //     userId
   //   );
 
+
+
   // Fetch user data
-  const [insights, allInsights, personalizedJourney, userProfileData] = await Promise.all([
+  const [insights, allInsights, personalizedJourney, userProfileData] 
+  : [IDailyCycleInsights, IDailyCycleInsights[], IPersonalizeJourney, any]
+  = await Promise.all([
     dailyCycleInsightService.getByDateAndUserId(new Date(), userId),
     dailyCycleInsightService.getByUserId(userId),
     personalizeJourneyService.getByUserId(userId),
     UserService.getMyProfile(userId),
   ]);
+
+  
+  // if(insights.whatToKeepInMindInThisCycle && insights.suggestion && insights.patternFertieNoticed && insights.currentCycleInfo) {
+  //   sendResponse(res, {
+  //       code: StatusCodes.OK,
+  //       data: {
+  //         whatToKeepInMindInThisCycle: insights.whatToKeepInMindInThisCycle,
+  //         suggestion: insights.suggestion,
+  //         patternFertieNoticed: insights.patternFertieNoticed,
+  //         currentCycleInfo: insights.currentCycleInfo,
+  //       },
+  //       message: `not created successfully`,
+  //       success: true,
+  //     });
+  // }
 
   let cycleDay =
         differenceInDays(currentDate, personalizedJourney?.periodStartDate) + 1;
@@ -1137,6 +939,8 @@ const getCycleInsight = async (req: Request, res: Response) => {
     let delay = 1000; // Start with 1 second delay
     let stream;
 
+
+
     while (retries <= maxRetries) {
       try {
         stream = await model.chat.completions.create({
@@ -1230,28 +1034,7 @@ const getCycleInsight = async (req: Request, res: Response) => {
       return;
     }
 
-    // Process each chunk as it arrives
     try {
-
-
-      /*
-      
-        for await (const chunk of stream) {
-          const content = chunk.choices[0]?.delta?.content || '';
-          if (content) {
-            responseText += content;
-
-            //res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`); // 🟢
-
-            // Flush the data to ensure it's sent immediately
-            if (res.flush) {
-              res.flush();
-            }
-          }
-        }
-
-      */
-
         // Process each chunk as it arrives
  
       for await (const chunk of stream) {
@@ -1266,6 +1049,8 @@ const getCycleInsight = async (req: Request, res: Response) => {
       try {
         // First, try to parse the response directly
         jsonResponse = JSON.parse(responseText);
+
+        console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
       } catch (parseError) {
         // If direct parsing fails, try to extract JSON from the response
         console.log("Failed to parse direct response, attempting to extract JSON");
@@ -1334,6 +1119,5 @@ export const ChatBotV1Controller = {
   chatbotResponseV4,
   chatbotResponseV5,
   chatbotResponseV6WithLongPolling,
-  chatbotResponseV6WithSocket,
   getCycleInsight
 };

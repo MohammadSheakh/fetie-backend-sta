@@ -31,7 +31,6 @@ const messageSchema = new Schema<IMessage>(
       enum: [
         RoleType.bot,
         RoleType.user,
-        
       ],
       required: [
         true,

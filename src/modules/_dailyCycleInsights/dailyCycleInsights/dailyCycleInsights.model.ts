@@ -139,6 +139,26 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
       type: Date,
       required: [true, 'date is required'],
     },
+
+    //////////////// This information come from AI 
+
+    currentCycleInfo: {
+      type: String,
+      required: [false, 'currentCycleInfo is not required'],
+    },
+    suggestion: {
+      type: String,
+      required: [false, 'suggestion is not required'],
+    },
+    patternFertieNoticed: {
+      type: String,
+      required: [false, 'patternFertieNoticed is not required'],
+    },
+    whatToKeepInMindInThisCycle: {
+      type: String,
+      required: [false, 'whatToKeepInMindInThisCycle is not required'],
+    }
+    
   },
   { timestamps: true }
 );

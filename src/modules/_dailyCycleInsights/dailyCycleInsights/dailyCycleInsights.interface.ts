@@ -58,6 +58,13 @@ export interface IDailyCycleInsights {
 
   date: Date;
 
+  //////////////// This information come from AI 
+
+  currentCycleInfo ?: string; 
+  suggestion ?: string;  
+  patternFertieNoticed ? : string;
+  whatToKeepInMindInThisCycle ?: string;
+
   isDeleted: Boolean;
   createdAt?: Date;
   updatedAt?: Date;

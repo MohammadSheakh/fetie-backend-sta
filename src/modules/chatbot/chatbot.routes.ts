@@ -24,10 +24,6 @@ router
   .post(auth('common'), ChatBotV1Controller.chatbotResponseV6WithLongPolling); // working perfectly .. 
 
 router
-  .route('/bot/socket')
-  .post(auth('common'), ChatBotV1Controller.chatbotResponseV6WithSocket);// need implementation ..
-
-router
   .route('/bot/cycleInsight')
   .get(auth('common'), ChatBotV1Controller.getCycleInsight);
 
