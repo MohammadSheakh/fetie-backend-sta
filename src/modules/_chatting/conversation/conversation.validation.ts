@@ -11,7 +11,7 @@ export const createConversationValidationSchema = z.object({
     message: z.string({
       required_error: 'message is required',
       invalid_type_error: 'message must be a string',
-    }),
+    }).optional(),
   }),
 
   // params: z.object({

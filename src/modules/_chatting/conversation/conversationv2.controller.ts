@@ -52,12 +52,6 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
           ? ConversationType.group
           : ConversationType.direct;
 
-      // const currentMonth = format(new Date(), 'LLLL');
-
-      // console.log(currentMonth); // e.g. "May"
-
-      console.log('🔥month🔥', format(new Date(), 'LLLL'), "🔥year🔥", new Date().getFullYear());
-    
       const conversationData: IConversation = {
         creatorId: req.user.userId,
         type,
@@ -69,7 +63,7 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
 
       // check if the conversation already exists
       const existingConversation = await Conversation.findOne({
-        creatorId: req.user.userId,
+        creatorId: conversationData.creatorId,
         month: conversationData.month,
         year: conversationData.year,
       });
