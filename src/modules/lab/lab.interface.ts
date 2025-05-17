@@ -11,6 +11,9 @@ export interface ILab {
   url : String;
   description : String;
   status ? : TStatus.active | TStatus.deactivate;
+  phone:  String;
+  websiteURL: String;
+  address: String;
   isDeleted? : Boolean;  
   createdAt?: Date;
   updatedAt?: Date;

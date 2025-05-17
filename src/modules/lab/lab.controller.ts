@@ -27,13 +27,15 @@ export class LabController extends GenericController<
 
   //[🚧][🧑‍💻✅][🧪] // 🆗
   create = catchAsync(async (req: Request, res: Response) => {
-    let { name, email, url, description } = req.body;
+    let { name, email, url, description, phone, websiteURL, address } = req.body;
     
     const userId = req.user.userId;
     if(!userId){
       throw new ApiError(StatusCodes.BAD_REQUEST, 'user id not found.');
     }
 
+
+    // TODO:  Image upload handle korte hobe 
     // handle attachment upload 
     // let attachments : any[] = [];
 
@@ -68,6 +70,9 @@ export class LabController extends GenericController<
         email,
         url,
         description,
+        phone,
+        websiteURL,
+        address,
         // attachments
       });
       // name = namePro;
@@ -80,7 +85,7 @@ export class LabController extends GenericController<
     res.status(StatusCodes.CREATED).json({
       success: true,
       message: 'Lab created successfully',
-      data: null,
+      data: lab,
     });
 
     

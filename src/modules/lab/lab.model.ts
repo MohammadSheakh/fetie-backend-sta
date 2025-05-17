@@ -26,6 +26,18 @@ const labSchema = new Schema<ILab>(
       type: String,
       required: [true, 'Url is required'],
     },
+    phone: {
+      type: String,
+      required: [true, 'Phone is required'],
+    },
+    websiteURL: {
+      type: String,
+      required: [true, 'WebsiteURL is required'],
+    },
+    address: {
+      type: String,
+      required: [true, 'Address is required'],
+    },
     description: {
       type: String,
       required: [true, 'Description is required'],

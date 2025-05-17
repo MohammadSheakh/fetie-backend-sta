@@ -18,12 +18,33 @@ export const createLabValidationSchema = z.object({
       }).email({
       message: 'email must be a valid email address.',
     }),
+    phone: z
+    .string({
+        required_error: 'phone is required, phone must be a string.',
+        invalid_type_error: 'phone must be a string.',
+      }),
+      address: z
+    .string({
+        required_error: 'address is required, address must be a string.',
+        invalid_type_error: 'address must be a string.',
+      }).min(5, {
+      message: 'address must be at least 5 characters long.',
+    }).max(500, {
+      message: 'address must be at most 500 characters long.',
+    }),
     url: z
     .string({
         required_error: 'url is required, url must be a string.',
         invalid_type_error: 'url must be a string.',
       }).url({
       message: 'url must be a valid url.',
+    }),
+    websiteURL: z
+    .string({
+        required_error: 'websiteURL is required, url must be a string.',
+        invalid_type_error: 'websiteURL must be a string.',
+      }).url({
+      message: 'websiteURL must be a valid url.',
     }),
     description: z
     .string({

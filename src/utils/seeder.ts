@@ -4,8 +4,6 @@ import { User } from '../modules/user/user.model';
 // Load environment variables
 dotenv.config();
 
-// TODO : Seeder kivabe run kore shikhte hobe .. 
-
 // Sample data for default users
 const usersData = [
   {
