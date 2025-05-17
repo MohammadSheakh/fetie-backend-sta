@@ -26,9 +26,9 @@ let dailyCycleInsightService = new DailyCycleInsightsService();
 let personalizeJourneyService = new PersonalizedJourneyService();
 
 const model = new OpenAI({
-  apiKey: process.env.OPENROUTER_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
-  baseURL: 'https://openrouter.ai/api/v1',
-  //baseURL: 'https://api.openai.com/v1'
+  apiKey: process.env.OPENAI_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
+  // baseURL: 'https://openrouter.ai/api/v1',
+  baseURL: 'https://api.openai.com/v1'
 });
 
 /*
@@ -45,7 +45,6 @@ const model = new OpenAI({
   });
 */
 
-
 const chatbotResponseLongPollingWithHistory = async (
   req: Request,
   res: Response
@@ -54,29 +53,22 @@ const chatbotResponseLongPollingWithHistory = async (
     const userId = req?.user?.userId;
     const userMessage = req?.body?.message;
     const conversationId = req?.body?.conversationId;
-
     if (!conversationId) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         `conversationId must be provided.`
       );
     }
-
     if (!userId) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         `User not authenticated. Please log in.`
       );
     }
-
     if (!userMessage) {
       console.error('No message provided in the request body.');
       return res.status(400).json({ error: 'Message is required' });
     }
-
-    
-
-
     let messageService = new MessagerService();
 
     /**
@@ -152,7 +144,7 @@ const chatbotResponseLongPollingWithHistory = async (
     while (retries <= maxRetries) {
       try {
         stream = await model.chat.completions.create({
-          model: 'gpt-3.5-turbo', // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
+          model: 'gpt-4o', // GPT-4o // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
           messages: formattedMessages,
           /*
             [
@@ -313,8 +305,6 @@ const chatbotResponseLongPollingWithHistory = async (
     //res.end(); // 🟢🟢🟢 remove korte hobe
   }
 };
-
-
 
 const getCycleInsight = async (req: Request, res: Response) => {
   const userId = req?.user?.userId;
@@ -635,7 +625,6 @@ const getCycleInsight = async (req: Request, res: Response) => {
 }
 
 export const ChatBotV1Controller = {
-  
   getCycleInsight,
   chatbotResponseLongPollingWithHistory
 };
