@@ -1,28 +1,18 @@
-import { StatusCodes } from "http-status-codes";
-import ApiError from "../../errors/ApiError";
 import { GenericService } from "../__Generic/generic.services";
-import { User } from "../user/user.model";
 import { IFertie } from "./fertie.interface";
 import { Fertie } from "./fertie.model";
-import { PersonalizeJourney } from "../_personalizeJourney/personalizeJourney/personalizeJourney.model";
-import { DailyCycleInsights } from "../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.model";
-import { LabTestLog } from "../_dailyCycleInsights/labTestLog/labTestLog.model";
-import { IDailyCycleInsights } from "../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.interface";
-import { IPersonalizeJourney } from "../_personalizeJourney/personalizeJourney/personalizeJourney.interface";
-import { ILabModel } from "../lab/lab.interface";
-import { ILabTestLog } from "../_dailyCycleInsights/labTestLog/labTestLog.interface";
-import { TActivity, TCervicalMucus, TMenstrualFlow, TSymptoms } from "../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.constant";
 
 export class FertieService extends GenericService<typeof Fertie, IFertie>{
     constructor(){
         super(Fertie)
     }
 
-
-    /**
+/**
  * Calculate fertility score based on user data
  * Returns a score from 0-100 with breakdown of factors
  */
+
+/*
  calculateFertilityScore = async (userId : string) => {
   try {
     // Fetch all required data from database
@@ -96,6 +86,7 @@ export class FertieService extends GenericService<typeof Fertie, IFertie>{
     throw error;
   }
 };
+*/
    
     // Add more service here ..
 }
@@ -105,6 +96,7 @@ export class FertieService extends GenericService<typeof Fertie, IFertie>{
  * Calculate score for ovulation signals (35% of total)
  * Checks cervical mucus, ovulation tests, and symptoms
  */
+/*
 const calculateOvulationScore = (dailyInsights : Partial<IDailyCycleInsights[]>, personalJourney : Partial<IPersonalizeJourney> ) => {
   // Initialize with a base score
   let score = 50;
@@ -158,12 +150,14 @@ const calculateOvulationScore = (dailyInsights : Partial<IDailyCycleInsights[]>,
   // Cap at 100
   return Math.min(100, score);
 };
+*/
 
 
 
 /**
  * Calculate score for intercourse timing (25% of total)
  */
+/*
 const calculateIntercourseScore = (dailyInsights : Partial<IDailyCycleInsights[]>, personalJourney  : Partial<IPersonalizeJourney>) => {
   // Initialize score
   let score = 0;
@@ -243,11 +237,13 @@ const calculateIntercourseScore = (dailyInsights : Partial<IDailyCycleInsights[]
 
   return score;
 };
+*/
 
 
 /**
  * Calculate score based on hormone levels (20% of total)
  */
+/*
 const calculateHormoneScore = (labTests, dailyInsights : Partial<IDailyCycleInsights[]>) => {
   // If no lab tests available, return neutral score
   if (!labTests || labTests.length === 0) return 50;
@@ -369,10 +365,12 @@ const calculateHormoneScore = (labTests, dailyInsights : Partial<IDailyCycleInsi
   // Ensure score stays in 0-100 range
   return Math.min(100, Math.max(0, score));
 };
+*/
 
 /**
  * Calculate score for cycle consistency (10% of total)
  */
+/*
 const calculateCycleConsistencyScore = (personalJourney : Partial<IPersonalizeJourney>, dailyInsights : Partial<IDailyCycleInsights[]> ) => {
   let score = 50; // Start with neutral score
   
@@ -419,10 +417,12 @@ const calculateCycleConsistencyScore = (personalJourney : Partial<IPersonalizeJo
   
   return Math.min(100, Math.max(0, score));
 };
+*/
 
 /**
  * Calculate score for lifestyle factors (10% of total)
  */
+/*
 const calculateLifestyleScore = (dailyInsights : Partial<IDailyCycleInsights[]>) => {
   let score = 50; // Start with neutral score
   
@@ -474,11 +474,13 @@ const calculateLifestyleScore = (dailyInsights : Partial<IDailyCycleInsights[]>)
   
   return Math.min(100, Math.max(0, score));
 };
+*/
 
 
 /**
  * Helper function to determine current cycle day
  */
+/*
 const getCurrentCycleDay = (dailyInsights : Partial<IDailyCycleInsights[]>, personalJourney : Partial<IPersonalizeJourney>) => {
   if (!personalJourney || !personalJourney.periodStartDate) return null;
   
@@ -507,11 +509,13 @@ const getCurrentCycleDay = (dailyInsights : Partial<IDailyCycleInsights[]>, pers
   
   return daysSincePeriodStart + 1; // Adding 1 because day 1 is first day of period
 }
+*/
 
 
 /**
  * Helper function to get cycle day for a specific date
  */
+/*
 const getCycleDayForDate = (date, personalJourney, dailyInsights) => {
   if (!personalJourney || !personalJourney.periodStartDate) return null;
   
@@ -567,10 +571,12 @@ const getCycleDayForDate = (date, personalJourney, dailyInsights) => {
   
   return daysSincePeriodStart + 1; // Adding 1 because day 1 is first day of period
 };
+*/
 
 /**
  * Helper function to get cycle day for a specific date
  */
+/*
 const getCycleDayForDate_ = (date, personalJourney : Partial<IPersonalizeJourney>) => {
   if (!personalJourney || !personalJourney.periodStartDate) return null;
   
@@ -593,3 +599,4 @@ const getCycleDayForDate_ = (date, personalJourney : Partial<IPersonalizeJourney
   
   return daysSincePeriodStart + 1; // Adding 1 because day 1 is first day of period
 };
+*/

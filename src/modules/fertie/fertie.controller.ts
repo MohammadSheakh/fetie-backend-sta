@@ -73,7 +73,7 @@ export class FertieController extends GenericController<
 
     // const expectedPeriodStartDate = new Date('2025-05-20T00:00:00.000Z');
 
-    // Step 3: Calculate the difference in days
+    // Step 3: Calculate the difference in days // 🟢🟢🟢🟢🟢
     const daysLeftForNextPeriodStart = differenceInDays(
       personalizedJourney?.expectedPeriodStartDate,
       currentDate
@@ -414,6 +414,12 @@ export class FertieController extends GenericController<
     }
   );
 
+  // add more methods here if needed or override the existing ones
+}
+
+
+  /*
+  
   updateFertilityScore = catchAsync(
     async (req: Request, res: Response) => {
       const userId = req.user.userId;
@@ -425,28 +431,28 @@ export class FertieController extends GenericController<
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      /*
-        await DailyCycleInsights.findOrCreate({
-          where: {
-            user_id: userId,
-            date: today
-          },
-          defaults: {
-            dailyFertilityScore: fertilityScoreData.fertilityScore,
-            // Set other default values as needed
-          }
-        });
+      
+        // await DailyCycleInsights.findOrCreate({
+        //   where: {
+        //     user_id: userId,
+        //     date: today
+        //   },
+        //   defaults: {
+        //     dailyFertilityScore: fertilityScoreData.fertilityScore,
+        //     // Set other default values as needed
+        //   }
+        // });
 
-        await DailyCycleInsights.update(
-          { dailyFertilityScore: fertilityScoreData.fertilityScore },
-          { 
-            where: { 
-              user_id: userId,
-              date: today
-            }
-          }
-        );
-      */
+        // await DailyCycleInsights.update(
+        //   { dailyFertilityScore: fertilityScoreData.fertilityScore },
+        //   { 
+        //     where: { 
+        //       user_id: userId,
+        //       date: today
+        //     }
+        //   }
+        // );
+      
     
     res.status(StatusCodes.OK).json({
         success: true,
@@ -455,11 +461,9 @@ export class FertieController extends GenericController<
         message: 'Fertility score ',
       });
 
-    })
+  })
 
-
-  // add more methods here if needed or override the existing ones
-}
+  */
 
 /*
 

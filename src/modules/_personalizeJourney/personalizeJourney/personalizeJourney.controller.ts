@@ -23,6 +23,7 @@ function calculatePeriodEndDate(periodStartDate: Date, periodLength: number) {
   return startDate;
 }
 
+// 🟢🟢🟢🟢🟢
 function calculateExpectedPeriodStartDate(
   periodStartDate: Date,
   avgMenstrualCycleLength: number
@@ -34,6 +35,7 @@ function calculateExpectedPeriodStartDate(
   return startDate;
 }
 
+// 🟢🟢🟢🟢🟢
 function calculateOvulationDate(expectedPeriodStartDate: Date) {
   const startDate = new Date(expectedPeriodStartDate);
 
@@ -73,12 +75,13 @@ export class PersonalizedJourneyController extends GenericController<
           data.periodStartDate,
           parseInt(data?.periodLength)
         );
+        // 🟢🟢🟢🟢🟢
         data.expectedPeriodStartDate = calculateExpectedPeriodStartDate(
           data.periodStartDate,
           parseInt(data?.avgMenstrualCycleLength)
         );
         data.predictedOvulationDate = calculateOvulationDate(
-          data.expectedPeriodStartDate
+          data.expectedPeriodStartDate  // 🟢🟢🟢🟢🟢
         ); // 14 days before expected period start date
 
         const updatedPersonalJourney =
