@@ -92,4 +92,7 @@ router.route('/participants/all').get(
   controller.showParticipantsOfExistingConversation
 );
 
+router.route('trigger-cron').get(
+  controllerV2.triggerCronJob
+);
 export const ConversationRoute = router;

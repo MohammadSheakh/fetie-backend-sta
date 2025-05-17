@@ -15,6 +15,8 @@ import { IMessage } from '../message/message.interface';
 import { RoleType } from '../conversationParticipents/conversationParticipents.constant';
 import { User } from '../../user/user.model';
 import { format } from 'date-fns';
+import mongoose from 'mongoose';
+import { sendDailyMessageToAllConversations } from './conversation.cron';
 
 let conversationParticipantsService = new ConversationParticipentsService();
 let messageService = new MessagerService();
@@ -125,6 +127,15 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
             );
           }
         }
+
+        if(!message){
+          const res1: IMessage | null = await messageService.create({
+            text: "How are you feeling today ?",
+            senderId: new mongoose.Types.ObjectId('68206aa9e791351fc9fdbcde'),  // this is bot id .. eta process.env file theke ashbe .. 
+            conversationId: result?._id,
+            senderRole: RoleType.bot,
+          });
+        }
       }
 
       // dont need to create conversation .. 
@@ -154,6 +165,24 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
       });
     }
   });
+
+  // this trigger Cron Job is For Manual Testing:
+  triggerCronJob = catchAsync(async (req: Request, res: Response) => {
+  try {
+    await sendDailyMessageToAllConversations();
+    
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      message: 'Cron job triggered successfully',
+      success: true,
+    });
+  } catch (error) {
+    throw new ApiError(
+      StatusCodes.INTERNAL_SERVER_ERROR,
+      'Failed to trigger cron job'
+    );
+  }
+});
 
   // add more methods here if needed or override the existing ones
 }
