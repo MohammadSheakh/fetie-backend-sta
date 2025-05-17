@@ -70,10 +70,24 @@ router.route('/get-home-page-data').get(
   controller.getHomePageDataByDate
 );
 
-//[🚧][🧑‍💻✅][🧪] // 🆗
+//[🚧][🧑‍💻✅][🧪] // 🆗🆗🆗
 router
   .route('/predictions')
-  .get(auth('common'), controller.getPredictionsByMonth); // ?month=YYYY-MM
+  .get(auth('common'), controller.getPredictionsByMonthV2); // ?month=YYYY-MM
+// [
+//   {
+//             "month": "2025-01",
+//             "predictedPeriodStart": "2025-05-13T00:00:00.000Z",
+//             "predictedPeriodEnd": "2025-05-20T00:00:00.000Z",
+//             "predictedOvulationDate": "2025-05-27T00:00:00.000Z",
+//             "fertileWindow": [
+//                 "2025-05-24T00:00:00.000Z",
+//                 "2025-05-28T00:00:00.000Z"
+//             ],
+//             "dailyLogs": {}
+//   },
+//   {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+// ]
 
   // 🔥 jhamela ase .. logged in user er jonno develop korte hobe .. may be lagbeo na ei endpoint
 router
