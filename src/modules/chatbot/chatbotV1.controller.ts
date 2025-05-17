@@ -20,6 +20,7 @@ import { IDailyCycleInsights } from '../_dailyCycleInsights/dailyCycleInsights/d
 import { IPersonalizeJourney } from '../_personalizeJourney/personalizeJourney/personalizeJourney.interface';
 import { IUser } from '../user/user.interface';
 import { Message } from '../_chatting/message/message.model';
+import { Conversation } from '../_chatting/conversation/conversation.model';
 
 let dailyCycleInsightService = new DailyCycleInsightsService();
 let personalizeJourneyService = new PersonalizedJourneyService();
@@ -842,6 +843,12 @@ const chatbotResponseLongPollingWithHistory = async (
         req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
     });
 
+    // also update the last message of the conversation 
+    await Conversation.findByIdAndUpdate(
+      conversationId,
+      { lastMessageSenderRole: RoleType.user},
+      { new: true }
+    );
 
     /**
      *
@@ -861,11 +868,7 @@ const chatbotResponseLongPollingWithHistory = async (
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-
-
     let systemPrompt = await ChatBotService.dateParse(userMessage, userId);
-
-
 
      // Convert previous messages to the format expected by the API
     const formattedMessages = [
@@ -901,7 +904,7 @@ const chatbotResponseLongPollingWithHistory = async (
       try {
         stream = await model.chat.completions.create({
           model: 'gpt-3.5-turbo', // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
-          messages: formattedMessages ,
+          messages: formattedMessages,
           /*
             [
               { role: 'system', content: systemPrompt },
@@ -1024,6 +1027,13 @@ const chatbotResponseLongPollingWithHistory = async (
         conversationId: conversationId,
         senderRole: RoleType.bot,
       });
+
+      // also update the last message of the conversation 
+      await Conversation.findByIdAndUpdate(
+        conversationId,
+        { lastMessageSenderRole: RoleType.bot},
+        { new: true }
+      );
 
       res.end(); // 🟢🟢🟢 end korte hobe
     } catch (streamError) {
