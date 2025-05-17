@@ -15,12 +15,13 @@ export const initConversationCronJobs = (): void => {
   // Schedule daily message by bot to all conversations at 9:00 AM
   // You can adjust the schedule as needed - this example is daily at 9 AM
 
-  console.log('⌛Scheduling daily message to all conversations at 9:00 AM  ⌛');
+  console.log('⌛Scheduling daily message to all conversations after 12 hours ..  ⌛');
 
   cronService.schedule(
     'daily-conversation-message',
     //'0 9 * * *', // At 9:00 AM every day
-    '*/50 * * * *', // This will run every 50 minute for testing
+    // '*/50 * * * *', // This will run every 50 minute for testing
+    '0 0/12 * * *',  // This will run every 12 hours 
     sendDailyMessageToAllConversations
   );
 
