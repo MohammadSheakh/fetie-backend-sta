@@ -2,6 +2,7 @@ import { model, Schema } from 'mongoose';
 import paginate from '../../../common/plugins/paginate';
 import { IConversation, IConversationModel } from './conversation.interface';
 import { ConversationType } from './conversation.constant';
+import { RoleType } from '../message/message.constant';
 
 const conversationSchema = new Schema<IConversation>(
   {
@@ -70,6 +71,21 @@ const conversationSchema = new Schema<IConversation>(
       //     return `${monthNames[this.month - 1]} ${this.year}`;
       // }
     },
+
+    lastMessageSenderRole: {
+          type: String,
+          enum: [
+            RoleType.bot,
+            RoleType.user,
+          ],
+          required: [
+            false,
+            `lastMessageSenderRole is required it can be ${Object.values(
+              RoleType
+            ).join(', ')}`,
+          ],
+        },
+
 
     isDeleted: {
       type: Boolean,

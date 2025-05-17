@@ -19,8 +19,8 @@ export const initConversationCronJobs = (): void => {
 
   cronService.schedule(
     'daily-conversation-message',
-    '0 9 * * *', // At 9:00 AM every day
-    //'*/1 * * * *', // This will run every minute for testing
+    //'0 9 * * *', // At 9:00 AM every day
+    '*/1 * * * *', // This will run every minute for testing
     sendDailyMessageToAllConversations
   );
 
@@ -59,13 +59,26 @@ export const sendDailyMessageToAllConversations = async (): Promise<void> => {
         // Select a random message from the array
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
         
-        await messageService.create({
-          text: randomMessage,
-          senderId: new mongoose.Types.ObjectId(botId),
-          conversationId: conversation._id,
-          senderRole: RoleType.bot
-        });
+        let lastMessageSenderRoleOfAConversation = await Conversation.findById(conversation._id).select('lastMessageSenderRole');
+
+        console.log("lastMessageSenderRoleOfAConversation :: ", lastMessageSenderRoleOfAConversation, "type of ", typeof lastMessageSenderRoleOfAConversation);
+
+        // if(lastMessageSenderRoleOfAConversation !== RoleType.bot  ) 
         
+        if(lastMessageSenderRoleOfAConversation?.lastMessageSenderRole !== RoleType.bot) {
+          await messageService.create({
+            text: randomMessage,
+            senderId: new mongoose.Types.ObjectId(botId),
+            conversationId: conversation._id,
+            senderRole: RoleType.bot
+          });
+
+          await Conversation.findByIdAndUpdate(
+            conversation._id,
+            { lastMessageSenderRole: RoleType.bot },
+            { new: true }
+          );
+        }
         // console.log(`Message sent to conversation: ${conversation._id}`);
       } catch (error) {
         console.error(`Failed to send message to conversation ${conversation._id}:`, error);

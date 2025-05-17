@@ -1,6 +1,7 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { ConversationType } from './conversation.constant';
+import { RoleType } from '../message/message.constant';
 
 export interface IConversation {
   // _taskId: undefined | Types.ObjectId;
@@ -17,7 +18,7 @@ export interface IConversation {
   isDeleted? : boolean;
   createdAt?: Date;
   updatedAt?: Date;
-  lastMessage? : Types.ObjectId; // 🔗
+  lastMessageSenderRole? : RoleType.bot | RoleType.user; //  Types.ObjectId 🔗
   // isGroup : boolean;  
 }
 

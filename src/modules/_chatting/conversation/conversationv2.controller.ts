@@ -135,6 +135,13 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
             conversationId: result?._id,
             senderRole: RoleType.bot,
           });
+
+          // also update the last message of the conversation 
+          await Conversation.findByIdAndUpdate(
+          result?._id,
+          { lastMessageSenderRole: RoleType.bot},
+          { new: true }
+        );
         }
       }
 
