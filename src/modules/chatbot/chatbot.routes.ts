@@ -1,6 +1,5 @@
 import express from 'express';
 import auth from '../../middlewares/auth';
-import { ChatBotV0Controller } from './chatbotV0.controller';
 import { ChatBotV1Controller } from './chatbotV1.controller';
 
 const multer = require('multer');
@@ -16,19 +15,9 @@ const router = express.Router();
 // };
 
 router
-  .route('/bot')
-  .post(auth('common'), ChatBotV0Controller.chatbotResponseV3ClaudeStreaming);
-
-router
-  .route('/bot/long-polling')
-  .post(auth('common'), ChatBotV1Controller.chatbotResponseV6WithLongPolling); // working perfectly .. 
-
-router
   .route('/bot/long-polling-with-history')
   .post(auth('common'), ChatBotV1Controller.chatbotResponseLongPollingWithHistory); // working perfectly .. 
 
-
-  
 router
   .route('/bot/cycleInsight')
   .get(auth('common'), ChatBotV1Controller.getCycleInsight);
