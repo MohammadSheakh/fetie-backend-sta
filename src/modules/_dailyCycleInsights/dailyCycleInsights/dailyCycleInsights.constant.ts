@@ -32,12 +32,14 @@ export enum TPhase {
     follicular = 'follicular',
     ovulatory = 'ovulatory',
     luteal = 'luteal',
+    Unknown = 'Unknown',
 }
 export enum TFertilityLevel {
     veryHigh = 'veryHigh',
     medium = 'medium',
     low = 'low',
     veryLow = 'veryLow',
+    Unknown = 'Unknown',
 }
 
 export enum TCervicalMucus {

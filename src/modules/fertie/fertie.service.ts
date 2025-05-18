@@ -1,10 +1,146 @@
 import { GenericService } from "../__Generic/generic.services";
+import { DailyCycleInsights } from "../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.model";
+import { PersonalizeJourney } from "../_personalizeJourney/personalizeJourney/personalizeJourney.model";
+import { User } from "../user/user.model";
 import { IFertie } from "./fertie.interface";
 import { Fertie } from "./fertie.model";
 
 export class FertieService extends GenericService<typeof Fertie, IFertie>{
     constructor(){
         super(Fertie)
+    }
+
+    predictAllDates = async (userId: string) => {
+      // , monthQuery:any
+      const user = await User.findById(userId);
+      
+      const journey = await PersonalizeJourney.findById(
+        user?.personalize_Journey_Id
+      );
+
+      if (!journey) return null;
+  
+      const { periodStartDate, periodLength, avgMenstrualCycleLength } = journey;
+      const today = new Date();
+      
+      // This will be our reference date to calculate future periods
+      const baseDate = new Date(periodStartDate);
+      
+      // The month we want to start showing predictions from
+      const startMonth =  today; // monthQuery ? new Date(`${monthQuery}-01`) :
+      const startYear = startMonth.getFullYear();
+      const startMonthNum = startMonth.getMonth();
+      
+      // Create a map to store predictions by month
+      const predictionsByMonth : any = {};
+      
+      // Calculate predictions for enough cycles to cover 12 months from the start month
+      // We'll generate more than 12 months of predictions to ensure we have data for all requested months
+      const cyclesToGenerate = 12; // Generate enough cycles to ensure coverage
+      
+      for (let i = 0; i < cyclesToGenerate; i++) {
+        // Calculate this cycle's predicted start date
+        const predictedStart = new Date(baseDate);
+        predictedStart.setDate(
+          predictedStart.getDate() + i * Number(avgMenstrualCycleLength)
+        );
+        
+        // Skip if this prediction is before our start month
+        const predictionYear = predictedStart.getFullYear();
+        const predictionMonth = predictedStart.getMonth();
+        if (
+          predictionYear < startYear || 
+          (predictionYear === startYear && predictionMonth < startMonthNum)
+        ) {
+          continue;
+        }
+        
+        // Create month key for this prediction
+        const monthKey = `${predictionYear}-${String(predictionMonth + 1).padStart(2, '0')}`;
+        
+        // Skip if we already have 12 months of predictions
+        if (
+          Object.keys(predictionsByMonth).length >= 12 && 
+          !predictionsByMonth[monthKey]
+        ) {
+          continue;
+        }
+        
+        // Calculate other prediction dates
+        const predictedEnd = new Date(predictedStart);
+        predictedEnd.setDate(predictedEnd.getDate() + Number(periodLength) - 1);
+  
+        const ovulation = new Date(predictedStart);
+        ovulation.setDate(
+          ovulation.getDate() + Math.floor(Number(avgMenstrualCycleLength) / 2)
+        );
+  
+        const fertileStart = new Date(ovulation);
+        fertileStart.setDate(fertileStart.getDate() - 3);
+  
+        const fertileEnd = new Date(ovulation);
+        fertileEnd.setDate(fertileEnd.getDate() + 1);
+        
+        // Initialize this month's prediction if it doesn't exist
+        if (!predictionsByMonth[monthKey]) {
+          predictionsByMonth[monthKey] = {
+            month: monthKey,
+            events: [],
+            dailyLogs: {}
+          };
+        }
+        
+        // Add this cycle's prediction to the appropriate month
+        predictionsByMonth[monthKey].events.push({
+          predictedPeriodStart: predictedStart,
+          predictedPeriodEnd: predictedEnd,
+          predictedOvulationDate: ovulation,
+          fertileWindow: [fertileStart, fertileEnd]
+        });
+      }
+      
+      // Now fetch daily insights for each month we have predictions for
+      for (const monthKey of Object.keys(predictionsByMonth)) {
+        const [year, month] = monthKey.split('-').map(Number);
+        
+        const startDate = new Date(year, month - 1, 1);
+        const endDate = new Date(year, month, 0); // Last day of month
+        
+        // Fetch DailyCycleInsights for this month
+        const insights = await DailyCycleInsights.find({
+          userId,
+          date: { $gte: startDate, $lte: endDate },
+        }).lean();
+        
+        const formattedData:any = {};
+        
+        insights.forEach(entry => {
+          const dateKey = entry.date
+            .toISOString()
+            .slice(0, 10)
+            .split('-')
+            .reverse()
+            .join('-'); // DD-MM-YYYY
+          
+          const { menstrualFlow, phase } = entry;
+          
+          formattedData[dateKey] = {};
+          
+          if (menstrualFlow)
+            formattedData[dateKey].menstrualFlow = menstrualFlow;
+          if (phase) 
+            formattedData[dateKey].phase = phase;
+        });
+        
+        predictionsByMonth[monthKey].dailyLogs = formattedData;
+      }
+      
+      // Convert the predictions map to an array sorted by month
+      const predictions = Object.values(predictionsByMonth)
+        .sort((a: any, b: any) => a.month.localeCompare(b.month))
+        .slice(0, 12); // Ensure we only return 12 months
+      
+      return predictions;
     }
 
 /**

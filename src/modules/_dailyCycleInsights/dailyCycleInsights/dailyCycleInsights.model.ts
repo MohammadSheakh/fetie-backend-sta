@@ -100,6 +100,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TPhase.follicular,
         TPhase.ovulatory,
         TPhase.luteal,
+        TPhase.Unknown,
       ],
       required: [
         false,
@@ -113,6 +114,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TFertilityLevel.medium,
         TFertilityLevel.low,
         TFertilityLevel.veryLow,
+        TFertilityLevel.Unknown,
       ],
       required: [
         false,
