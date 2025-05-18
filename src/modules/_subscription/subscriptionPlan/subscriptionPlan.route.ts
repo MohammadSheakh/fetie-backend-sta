@@ -29,11 +29,13 @@ router.route('/paginate').get(
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/subscribe-from-back-end').get(
   auth('common'), // FIXME: authentication lagbe .. 
+  validateRequest(validation.subscribeFromBackEndValidationSchema),
   controller.subscribeFromBackEnd 
 );
 
 router.route('/subscribe-from-front-end').get(
   auth('common'), // FIXME: authentication lagbe .. 
+  validateRequest(validation.subscribeFromFrontEndValidationSchema),
   // controller.subscribeFromFrontEnd // 🔴🔴 
   controller.subscribeFromFrontEndV2 // 🟢
 );

@@ -10,6 +10,7 @@ import cluster from 'cluster';
 import { createClient } from 'redis';
 import socketIORedis from '@socket.io/redis-adapter';
 import { initConversationCronJobs } from './modules/_chatting/conversation/conversation.cron';
+import { initUserSubscriptionCron } from './modules/_subscription/userSubscription/userSubscription.cron';
 // test 
 // Number of CPU cores
 const numCPUs = os.cpus().length;
@@ -98,7 +99,8 @@ process.on('uncaughtException', error => {
 
   main();
 
-  initConversationCronJobs()
+  initConversationCronJobs();
+  initUserSubscriptionCron();
 
   //SIGTERM
   // process.on('SIGTERM', () => {

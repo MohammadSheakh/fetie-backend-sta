@@ -50,13 +50,13 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
     renewalDate: {
       type: Date,
       required: false,
-      validate: {
-        validator: function (value) {
-          return value > this.subscriptionStartDate;
-        },
-        message:
-          'initial Period End Date must be after subscription start date ',
-      },
+      // validate: {
+      //   validator: function (value) {
+      //     return value > this.subscriptionStartDate;
+      //   },
+      //   message:
+      //     'initial Period End Date must be after subscription start date ',
+      // },
     },
     
     billingCycle: {

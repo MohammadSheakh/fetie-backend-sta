@@ -33,18 +33,64 @@ export const createSubscriptionPlanValidationSchema = z.object({
     })),
     
     }),
-
-    
-
+     // params: z.object({
+    //   id: z.string().optional(),
+    // }),
+    // query: z.object({
+    //   page: z.string().optional(),
+    // }),
   })
 
-  // params: z.object({
+  export const subscribeFromFrontEndValidationSchema = z.object({
+  body: z.object({
+    subscriptionPlanId: z  
+    .string({
+        required_error: 'subscriptionName is required, subscriptionName must be a string.',
+        invalid_type_error: 'subscriptionName must be a string.',
+      }).max(500, {
+      message: 'subscriptionName must be at most 100 characters long.',
+    }),
+
+    stripeData: z.object({
+      stripe_subscription_id: z.string({
+        required_error: 'stripe_subscription_id is required',
+        invalid_type_error: 'stripe_subscription_id must be a string',
+      }),
+      stripe_payment_intent_id: z.string({
+        required_error: 'stripe_payment_intent_id is required',
+        invalid_type_error: 'stripe_payment_intent_id must be a string',
+      })
+    }, {
+      required_error: 'stripeData is required',
+      invalid_type_error: 'stripeData must be an object',
+    })
+  }),
+    // params: z.object({
   //   id: z.string().optional(),
   // }),
   // query: z.object({
   //   page: z.string().optional(),
   // }),
-   
+  })
+
+ 
+  export const subscribeFromBackEndValidationSchema = z.object({
+    body: z.object({
+      
+    }),
+      // params: z.object({
+    //   id: z.string().optional(),
+    // }),
+    query: z.object({
+      subscriptionPlanId: z.string(
+        {
+          required_error: 'subscriptionPlanId is required in query',
+          invalid_type_error: 'subscriptionPlanId must be a string and required in query',
+        }),
+    }),
+})
+
+ 
 
 
 

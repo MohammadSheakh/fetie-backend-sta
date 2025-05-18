@@ -9,7 +9,7 @@ class CronService {
    * @param schedule - Cron schedule expression (e.g., '0 0 * * *' for daily at midnight)
    * @param task - Function to execute when the job runs
    */
-  public schedule(name: string, schedule: string, task: () => void): void {
+  public schedule(name: string, schedule: string, additionalMessage :string, task: () => void): void {
     if (this.jobs.has(name)) {
       console.log(`Cron job '${name}' already exists. Stopping and replacing.`);
       this.stop(name);
@@ -21,7 +21,7 @@ class CronService {
     });
 
     this.jobs.set(name, job);
-    console.log(`Cron job '${name}' scheduled with pattern: ${schedule}`);
+    console.log(`Cron job '${name}' scheduled with pattern: ${schedule} || ${additionalMessage}`);
   }
 
    /**
