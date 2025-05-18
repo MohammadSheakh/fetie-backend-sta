@@ -13,6 +13,10 @@ import { UserCustomService } from '../../user/user.service';
 import mongoose from 'mongoose';
 import { PaymentTransactionService } from '../../_payment/paymentTransaction/paymentTransaction.service';
 import { SubscriptionPlan } from './subscriptionPlan.model';
+import { UserSubscription } from '../userSubscription/userSubscription.model';
+import { PaymentTransaction } from '../../_payment/paymentTransaction/paymentTransaction.model';
+import { TPaymentStatus } from '../../_payment/paymentTransaction/paymentTransaction.constant';
+import { UserSubscriptionStatusType } from '../userSubscription/userSubscription.constant';
 
 const subscriptionPlanService = new SubscriptionPlanService();
 const userCustomService = new UserCustomService();
@@ -38,7 +42,193 @@ export class SubscriptionController extends GenericController<
   }
 
   subscribeFromFrontEnd = catchAsync(async (req: Request, res: Response) => {
+    const {
+      subscriptionPlanId,
+      stripeData
+    } = req.body;
+
+    req.body.userId = req.user.userId;
+    let userId = req.body.userId;
+
+    // Validate required fields
+    if ( !subscriptionPlanId || !stripeData) {
+      return res.status(400).json({
+        success: false,
+        message: 'Required data missing in req.body , subscriptionPlanId and stripeData object are required',
+        data: null,
+      });
+    }
+
+    let subscriptionPlan : ISubscriptionPlan | null = await SubscriptionPlan.findById(subscriptionPlanId);
+
+    if (!subscriptionPlan) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `Subscription plan not found`
+      );
+    }
+
+    // Validate Stripe data contains necessary information
+    if (!stripeData.stripe_subscription_id || !stripeData.stripe_payment_intent_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Required Stripe data missing',
+        data: null,
+      });
+    }
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
+    // Extract stripe data
+    const { 
+      stripe_subscription_id, 
+      stripe_payment_intent_id,
+      // amount,
+      // currency,
+      
+      //paymentStatus,
+      //currentPeriodStart,
+      //currentPeriodEnd,
+      //subscriptionStatus,
+    } = stripeData;
+
+    /**
+     * subscriptionId jehetu ase .. to amra etar upor base kore 
+     * user er jonno subscriptionStartDate, currentPeriodStartDate, 
+     * expirationDate, renewalDate, billingCycle, isAutoRenewed
+     * 
+     * egula calculate and find korbo .. and 
+     * 
+     * userSubscription table e save korbo ..
+     * 
+     * for this project we dont keep multiple UserSubscription for a user
+     * so we will update the existing subscription and update billing cycle to track 
+     * how many times user buy the subscription
+     */
+
+    /// find user subscription by userId
+    const userSubscription = await UserSubscription.findOne({
+      userId,
+      subscriptionPlanId,
+    });
+
+    let newUserSubscription;
+    let updatedUserSubscription;
+    if (!userSubscription) {
+
+      /// Create new user subscription
+      newUserSubscription = await UserSubscription.create([{
+        userId,
+        subscriptionPlanId,
+        subscriptionStartDate:  new Date(),
+        currentPeriodStartDate: new Date(),
+        expirationDate: new Date(currentPeriodEnd * 1000) || null,
+        renewalDate: new Date(currentPeriodEnd * 1000) || null,
+        billingCycle: 1,
+        isAutoRenewed: true,
+        status: UserSubscriptionStatusType.active,
+        stripe_subscription_id
+      }], { session });
+
+      if (!newUserSubscription) {
+        await session.abortTransaction();
+        session.endSession();
+        return res.status(400).json({
+          success: false,
+          message: 'Failed to update user subscription type',
+          data: null,
+        });
+      }
+    }else{
+      /// update the existing user subscription
+
+        updatedUserSubscription = await UserSubscription.findByIdAndUpdate(
+        userSubscription._id,
+        {
+          subscriptionStartDate:  new Date(),
+          currentPeriodStartDate: new Date(),
+          expirationDate: new Date(currentPeriodEnd * 1000) || null,
+          renewalDate: new Date(currentPeriodEnd * 1000) || null,
+          billingCycle: Number(userSubscription.billingCycle) + 1,
+          isAutoRenewed: true,
+          status: UserSubscriptionStatusType.active,
+          stripe_subscription_id
+        },
+        { new: true, session }
+      );
+    }
+
+    // Create payment transaction record
+    const newPaymentTransaction = await PaymentTransaction.create([{
+      userId,
+      type: 'subscription',
+      userSubscriptionId: newUserSubscription[0]._id ? newUserSubscription[0]._id : updatedUserSubscription._id,
+      subscriptionPlanId,
+      paymentMethodOrProcessorOrGateway: 'stripe',
+      stripe_payment_intent_id,
+      externalTransactionOrPaymentId: stripe_payment_intent_id,
+      amount: subscriptionPlan.amount || 0, // 🟢
+      currency: subscriptionPlan.currency || CurrencyType.USD,  // 🟢
+      paymentStatus: TPaymentStatus.succeeded,
+      description: `Subscription payment for user ${userId}`,
+    }], { session });
+
+    if (!newPaymentTransaction) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({
+        success: false,
+        message: 'Failed to update user subscription type',
+        data: null,
+      });
+    }
+
+    let updateUsersSubscriptionType = await User.findByIdAndUpdate(
+      userId,
+      { subscriptionType: SubscriptionType.premium },
+      { new: true, session }
+    );
+
+    if (!updateUsersSubscriptionType) {
+      await session.abortTransaction();
+      session.endSession();
+      return res.status(400).json({
+        success: false,
+        message: 'Failed to update user subscription type',
+        data: null,
+      });
+    }
+    // Commit the transaction
+
+    await session.commitTransaction();
+    session.endSession();
+
+
+    sendResponse(res, {
+      code: StatusCodes.CREATED,
+      data: {
+        userSubscription: newUserSubscription[0],
+        paymentTransaction: newPaymentTransaction[0]
+      },
+      message: `${this.modelName} created successfully`,
+      success: true,
+    });
+
+
+  //   catch (error) {
+  //   await session.abortTransaction();
+  //   session.endSession();
     
+  //   console.error('Error creating subscription:', error);
+    
+  //   return res.status(500).json({
+  //     success: false,
+  //     message: 'Failed to create subscription',
+  //     error: error.message
+  //   });
+  // }
+
   })
 
   subscribeFromBackEnd = catchAsync(async (req: Request, res: Response) => {

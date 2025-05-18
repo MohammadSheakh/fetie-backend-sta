@@ -1,11 +1,10 @@
 import { model, Schema } from 'mongoose';
 
 import paginate from '../../../common/plugins/paginate';
+import { IPaymentMethod, IPaymentMethodModel } from './paymentMethod.interface';
 
 
-import { ISubscription, ISubscriptionModel } from './subscription.interface';
-
-const paymentMethodSchema = new Schema<ISubscription>(
+const paymentMethodSchema = new Schema<IPaymentMethod>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -54,29 +53,29 @@ const paymentMethodSchema = new Schema<ISubscription>(
   { timestamps: true }
 );
 
-subscriptionSchema.plugin(paginate);
+paymentMethodSchema.plugin(paginate);
 
-subscriptionSchema.pre('save', function(next) {
+paymentMethodSchema.pre('save', function(next) {
   // Rename _id to _projectId
   // this._taskId = this._id;
   // this._id = undefined;  // Remove the default _id field
-  this.renewalFee = this.initialFee
+  // this.renewalFee = this.initialFee
   
   next();
 });
 
 
 // Use transform to rename _id to _projectId
-subscriptionSchema.set('toJSON', {
+paymentMethodSchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._subscriptionId = ret._id;  // Rename _id to _subscriptionId
+    ret._paymentMethodId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field
     return ret;
   }
 });
 
 
-export const Subscription = model<ISubscription, ISubscriptionModel>(
-  'Subscription',
-  subscriptionSchema
+export const PaymentMethod = model<IPaymentMethod, IPaymentMethodModel>(
+  'PaymentMethod',
+  paymentMethodSchema
 );
