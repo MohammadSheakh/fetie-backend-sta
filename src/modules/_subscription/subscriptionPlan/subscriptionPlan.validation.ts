@@ -61,7 +61,7 @@ export const createSubscriptionPlanValidationSchema = z.object({
         invalid_type_error: 'stripe_payment_intent_id must be a string',
       })
     }, {
-      required_error: 'stripeData is required',
+      required_error: 'stripeData is required and must be an object it contains stripe_subscription_id, stripe_payment_intent_id ', 
       invalid_type_error: 'stripeData must be an object',
     })
   }),
