@@ -280,6 +280,8 @@ export class FertieController extends GenericController<
     const userId = req.user.userId;
     const monthQuery: any = req.query.month; // mandatory
 
+    let currentMonthData: any = null; 
+
     const user = await User.findById(userId);
 
     const journey = await PersonalizeJourney.findById(
@@ -347,6 +349,21 @@ export class FertieController extends GenericController<
 
       const fertileEnd = new Date(ovulation);
       fertileEnd.setDate(fertileEnd.getDate() + 1);
+
+
+
+
+      // Modified portion of getPredictionsByMonthV2 function
+      // Add this after calculating the fertile window
+
+      // Calculate implantation window (6-12 days after ovulation)
+      const implantationStart = new Date(ovulation);
+      implantationStart.setDate(implantationStart.getDate() + 6);
+
+      const implantationEnd = new Date(ovulation);
+      implantationEnd.setDate(implantationEnd.getDate() + 12);
+
+
       
       // Initialize this month's prediction if it doesn't exist
       if (!predictionsByMonth[monthKey]) {
@@ -356,14 +373,51 @@ export class FertieController extends GenericController<
           dailyLogs: {}
         };
       }
+
+
+      // Inside your loop that builds predictionsByMonth
+      const currentDate = new Date(); // Replace with the actual current date
+      const isCurrentMonth = predictionYear === currentDate.getFullYear() && 
+                            predictionMonth === currentDate.getMonth();
+
+      if (isCurrentMonth) {
+        // Add this cycle's prediction to the appropriate month
+         currentMonthData = {
+          predictedPeriodStart: predictedStart,
+          predictedPeriodEnd: predictedEnd,
+          predictedOvulationDate: ovulation,
+          fertileWindow: [fertileStart, fertileEnd],
+          implantationWindow: [implantationStart, implantationEnd], // Added this line
+          currentMonth: true // Add this line
+        }
+
+        predictionsByMonth[monthKey].events.push({
+          predictedPeriodStart: predictedStart,
+          predictedPeriodEnd: predictedEnd,
+          predictedOvulationDate: ovulation,
+          fertileWindow: [fertileStart, fertileEnd],
+          implantationWindow: [implantationStart, implantationEnd] // Added this line
+        });
+
+      }else{
+        // // Add this cycle's prediction to the appropriate month
+        predictionsByMonth[monthKey].events.push({
+          predictedPeriodStart: predictedStart,
+          predictedPeriodEnd: predictedEnd,
+          predictedOvulationDate: ovulation,
+          fertileWindow: [fertileStart, fertileEnd],
+          implantationWindow: [implantationStart, implantationEnd] // Added this line
+        });
+      }
       
-      // Add this cycle's prediction to the appropriate month
-      predictionsByMonth[monthKey].events.push({
-        predictedPeriodStart: predictedStart,
-        predictedPeriodEnd: predictedEnd,
-        predictedOvulationDate: ovulation,
-        fertileWindow: [fertileStart, fertileEnd]
-      });
+      // // Add this cycle's prediction to the appropriate month
+      // predictionsByMonth[monthKey].events.push({
+      //   predictedPeriodStart: predictedStart,
+      //   predictedPeriodEnd: predictedEnd,
+      //   predictedOvulationDate: ovulation,
+      //   fertileWindow: [fertileStart, fertileEnd],
+      //   implantationWindow: [implantationStart, implantationEnd] // Added this line
+      // });
     }
     
     // Now fetch daily insights for each month we have predictions for
@@ -372,7 +426,8 @@ export class FertieController extends GenericController<
       
       const startDate = new Date(year, month - 1, 1);
       const endDate = new Date(year, month, 0); // Last day of month
-      
+      /*
+      ///////////// 🟢🟢🟢🟢🟢🟢 
       // Fetch DailyCycleInsights for this month
       const insights = await DailyCycleInsights.find({
         userId,
@@ -400,7 +455,12 @@ export class FertieController extends GenericController<
       });
       
       predictionsByMonth[monthKey].dailyLogs = formattedData;
+
+
+      */
     }
+
+
     
     // Convert the predictions map to an array sorted by month
     const predictions = Object.values(predictionsByMonth)
@@ -410,7 +470,7 @@ export class FertieController extends GenericController<
     res.status(StatusCodes.OK).json({
       success: true,
       code: StatusCodes.OK,
-      data: predictions,
+      data: {predictions,currentMonthData},
       message: 'Predictions fetched successfully',
     });
   }
