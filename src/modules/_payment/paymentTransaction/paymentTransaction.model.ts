@@ -136,7 +136,7 @@ paymentTransactionSchema.pre('save', function(next) {
 // Use transform to rename _id to _projectId
 paymentTransactionSchema.set('toJSON', {
   transform: function (doc, ret, options) {
-    ret._subscriptionId = ret._id;  // Rename _id to _subscriptionId
+    ret._paymentTransactionId = ret._id;  // Rename _id to _subscriptionId
     delete ret._id;  // Remove the original _id field
     return ret;
   }

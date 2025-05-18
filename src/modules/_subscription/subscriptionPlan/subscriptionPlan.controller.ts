@@ -17,6 +17,8 @@ import { UserSubscription } from '../userSubscription/userSubscription.model';
 import { PaymentTransaction } from '../../_payment/paymentTransaction/paymentTransaction.model';
 import { TPaymentStatus } from '../../_payment/paymentTransaction/paymentTransaction.constant';
 import { UserSubscriptionStatusType } from '../userSubscription/userSubscription.constant';
+import { addMonths } from 'date-fns';
+import { IUserSubscription } from '../userSubscription/userSubscription.interface';
 
 const subscriptionPlanService = new SubscriptionPlanService();
 const userCustomService = new UserCustomService();
@@ -41,6 +43,11 @@ export class SubscriptionController extends GenericController<
   );
   }
 
+  /**
+   * // FIXME : Error faced while creating subscription from front end
+   * 🚨 globalErrorHandler ~~  MongoServerError: Caused by :: Write conflict during plan execution and yielding is disabled. 
+   * :: Please retry your operation or multi-document transaction.
+   */
   subscribeFromFrontEnd = catchAsync(async (req: Request, res: Response) => {
     const {
       subscriptionPlanId,
@@ -115,6 +122,13 @@ export class SubscriptionController extends GenericController<
 
     let newUserSubscription;
     let updatedUserSubscription;
+
+    let expirationDate;
+    if(subscriptionPlan.initialDuration == InitialDurationType.month){
+      expirationDate = addMonths(new Date(), 1);
+    }
+     
+
     if (!userSubscription) {
 
       /// Create new user subscription
@@ -123,10 +137,10 @@ export class SubscriptionController extends GenericController<
         subscriptionPlanId,
         subscriptionStartDate:  new Date(),
         currentPeriodStartDate: new Date(),
-        expirationDate: new Date(currentPeriodEnd * 1000) || null,
-        renewalDate: new Date(currentPeriodEnd * 1000) || null,
+        expirationDate: expirationDate,
+        renewalDate: expirationDate,
         billingCycle: 1,
-        isAutoRenewed: true,
+        isAutoRenewed: false,
         status: UserSubscriptionStatusType.active,
         stripe_subscription_id
       }], { session });
@@ -148,10 +162,10 @@ export class SubscriptionController extends GenericController<
         {
           subscriptionStartDate:  new Date(),
           currentPeriodStartDate: new Date(),
-          expirationDate: new Date(currentPeriodEnd * 1000) || null,
-          renewalDate: new Date(currentPeriodEnd * 1000) || null,
+          expirationDate: expirationDate,
+          renewalDate: expirationDate,
           billingCycle: Number(userSubscription.billingCycle) + 1,
-          isAutoRenewed: true,
+          isAutoRenewed: false,
           status: UserSubscriptionStatusType.active,
           stripe_subscription_id
         },
@@ -159,11 +173,14 @@ export class SubscriptionController extends GenericController<
       );
     }
 
+    console.log('newUserSubscription 🔥🔥🔥', newUserSubscription);
+    console.log('updatedUserSubscription 🔥🔥🔥', updatedUserSubscription); 
+
     // Create payment transaction record
     const newPaymentTransaction = await PaymentTransaction.create([{
       userId,
       type: 'subscription',
-      userSubscriptionId: newUserSubscription[0]._id ? newUserSubscription[0]._id : updatedUserSubscription._id,
+      userSubscriptionId: newUserSubscription._id ? newUserSubscription._id : updatedUserSubscription._id,
       subscriptionPlanId,
       paymentMethodOrProcessorOrGateway: 'stripe',
       stripe_payment_intent_id,
@@ -230,6 +247,196 @@ export class SubscriptionController extends GenericController<
   // }
 
   })
+
+  subscribeFromFrontEndV2 = catchAsync(async (req: Request, res: Response) => {
+    const {
+      subscriptionPlanId,
+      stripeData
+    } = req.body;
+
+    req.body.userId = req.user.userId;
+    let userId = req.body.userId;
+
+    // Validate required fields
+    if (!subscriptionPlanId || !stripeData) {
+      return res.status(400).json({
+        success: false,
+        message: 'Required data missing in req.body, subscriptionPlanId and stripeData object are required',
+        data: null,
+      });
+    }
+
+    let subscriptionPlan: ISubscriptionPlan | null = await SubscriptionPlan.findById(subscriptionPlanId);
+
+    if (!subscriptionPlan) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `Subscription plan not found`
+      );
+    }
+
+    // Validate Stripe data contains necessary information
+    if (!stripeData.stripe_subscription_id || !stripeData.stripe_payment_intent_id) {
+      return res.status(400).json({
+        success: false,
+        message: 'Required Stripe data missing',
+        data: null,
+      });
+    }
+
+    // Extract stripe data
+    const { 
+      stripe_subscription_id, 
+      stripe_payment_intent_id
+    } = stripeData;
+
+    /**
+     * Calculate dates based on subscription plan
+     */
+    let expirationDate = new Date();
+    if (subscriptionPlan.initialDuration === InitialDurationType.month) {
+      // Use date-fns for proper date calculation
+      expirationDate = addMonths(new Date(), 1);
+    }
+    // Add more duration types as needed
+
+    try {
+      const session = await mongoose.startSession();
+      
+      let result;
+      
+      // Use a retry mechanism with the transaction
+      const maxRetries = 3;
+      let retryCount = 0;
+      
+      while (retryCount < maxRetries) {
+        try {
+          result = await session.withTransaction(async () => {
+            /// find user subscription by userId
+            const userSubscription :IUserSubscription | null = await UserSubscription.findOne({
+              userId,
+              subscriptionPlanId,
+            }).session(session);
+
+            let newUserSubscription;
+            let updatedUserSubscription;
+
+            if (!userSubscription) {
+              // Create new user subscription
+              newUserSubscription = await UserSubscription.create([{
+                userId,
+                subscriptionPlanId,
+                subscriptionStartDate: new Date(),
+                currentPeriodStartDate: new Date(),
+                expirationDate: expirationDate,
+                renewalDate: expirationDate,
+                billingCycle: 1,
+                isAutoRenewed: false,
+                status: UserSubscriptionStatusType.active,
+                stripe_subscription_id
+              }], { session });
+
+              if (!newUserSubscription || newUserSubscription.length === 0) {
+                throw new Error('Failed to create user subscription');
+              }
+            } else {
+
+              // Update the existing user subscription
+              updatedUserSubscription = await UserSubscription.findByIdAndUpdate(
+                userSubscription._id,
+                {
+                  subscriptionStartDate: new Date(),
+                  currentPeriodStartDate: new Date(),
+                  expirationDate: expirationDate,
+                  renewalDate: expirationDate,
+                  billingCycle: Number(userSubscription.billingCycle) + 1,
+                  isAutoRenewed: false,
+                  status: UserSubscriptionStatusType.active,
+                  stripe_subscription_id
+                },
+                { new: true, session }
+              );
+
+              if (!updatedUserSubscription) {
+                throw new Error('Failed to update user subscription');
+              }
+            }
+
+            // Get the ID of the subscription document (either new or updated)
+            const userSubscriptionId = newUserSubscription?.[0]?._id || updatedUserSubscription?._id;
+
+            // Create payment transaction record
+            const newPaymentTransaction = await PaymentTransaction.create([{
+              userId,
+              type: 'subscription',
+              userSubscriptionId,
+              subscriptionPlanId,
+              paymentMethodOrProcessorOrGateway: 'stripe',
+              stripe_payment_intent_id,
+              externalTransactionOrPaymentId: stripe_payment_intent_id,
+              amount: subscriptionPlan.amount || 0,
+              currency: subscriptionPlan.currency || CurrencyType.USD,
+              paymentStatus: TPaymentStatus.succeeded,
+              description: `Subscription payment for user ${userId}`,
+            }], { session });
+
+            if (!newPaymentTransaction || newPaymentTransaction.length === 0) {
+              throw new Error('Failed to create payment transaction');
+            }
+
+            // Update user's subscription type
+            const updateUsersSubscriptionType = await User.findByIdAndUpdate(
+              userId,
+              { subscriptionType: SubscriptionType.premium },
+              { new: true, session }
+            );
+
+            if (!updateUsersSubscriptionType) {
+              throw new Error('Failed to update user subscription type');
+            }
+
+            return { 
+              userSubscription: newUserSubscription?.[0] || updatedUserSubscription,
+              paymentTransaction: newPaymentTransaction[0] 
+            };
+          });
+          
+          // If we got here, the transaction was successful
+          break;
+        } catch (error) {
+          retryCount++;
+          
+          // If this was the last retry attempt and it failed, throw the error
+          if (retryCount >= maxRetries) {
+            throw error;
+          }
+          
+          // Wait a bit before retrying (exponential backoff)
+          const delay = 100 * Math.pow(2, retryCount);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          
+          console.log(`Transaction failed, retrying (${retryCount}/${maxRetries})...`);
+        }
+      }
+
+      session.endSession();
+
+      // Send successful response
+      sendResponse(res, {
+        code: StatusCodes.CREATED,
+        data: result,
+        message: `Subscription created successfully`,
+        success: true,
+      });
+    } catch (error) {
+      console.error('Subscription error:', error);
+      return res.status(500).json({
+        success: false,
+        message: error.message || 'Failed to process subscription',
+        data: null,
+      });
+    }
+  });
 
   subscribeFromBackEnd = catchAsync(async (req: Request, res: Response) => {
     // get product price by the plan parameter

@@ -32,6 +32,12 @@ router.route('/subscribe-from-back-end').get(
   controller.subscribeFromBackEnd 
 );
 
+router.route('/subscribe-from-front-end').get(
+  auth('common'), // FIXME: authentication lagbe .. 
+  // controller.subscribeFromFrontEnd // 🔴🔴 
+  controller.subscribeFromFrontEndV2 // 🟢
+);
+
 router.route("/confirm-payment").get(
   controller.confirmPayment
 )
@@ -89,10 +95,6 @@ router
  ////////////
  
 
-router.route('/subscribe-from-front-end').get(
-  //auth('common'), // FIXME: authentication lagbe .. 
-  controller.subscribeFromFrontEnd 
-);
 
 router.route('/customerPortal/:customerId').get(
   auth('common'), 
