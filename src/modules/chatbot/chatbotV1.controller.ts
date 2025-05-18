@@ -21,6 +21,7 @@ import { IPersonalizeJourney } from '../_personalizeJourney/personalizeJourney/p
 import { IUser } from '../user/user.interface';
 import { Message } from '../_chatting/message/message.model';
 import { Conversation } from '../_chatting/conversation/conversation.model';
+import { json } from 'body-parser';
 
 let dailyCycleInsightService = new DailyCycleInsightsService();
 let personalizeJourneyService = new PersonalizedJourneyService();
@@ -317,8 +318,6 @@ const getCycleInsight = async (req: Request, res: Response) => {
   //     userId
   //   );
 
-
-
   // Fetch user data
   const [insights, allInsights, personalizedJourney, userProfileData] 
   : [IDailyCycleInsights, IDailyCycleInsights[], IPersonalizeJourney, any]
@@ -558,6 +557,7 @@ const getCycleInsight = async (req: Request, res: Response) => {
       try {
         // First, try to parse the response directly
         jsonResponse = JSON.parse(responseText);
+        jsonResponse.cycleDay = cycleDay;
 
         console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
       } catch (parseError) {
@@ -569,6 +569,7 @@ const getCycleInsight = async (req: Request, res: Response) => {
         if (jsonMatch) {
           try {
             jsonResponse = JSON.parse(jsonMatch[0]);
+              
           } catch (extractError) {
             console.error('Failed to extract valid JSON:', extractError);
             jsonResponse = {
@@ -580,6 +581,7 @@ const getCycleInsight = async (req: Request, res: Response) => {
         } else {
           // Fallback to a structured response if parsing fails
           jsonResponse = {
+            cycleDay : cycleDay,
             suggestion: responseText.substring(0, 200) + "...",
             patternFertieNoticed: "Unable to parse the complete response",
             whatToKeepInMindInThisCycle: "Please try again later"
