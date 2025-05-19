@@ -587,7 +587,6 @@ const getCycleInsight = async (req: Request, res: Response) => {
         }
       }
      
-
       // Send end of stream marker
       // res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n `); // 🟢
 
