@@ -43,8 +43,6 @@ export const sendNotificationByChatGpt = async (): Promise<void> => {
 
      let data = await new FertieService().predictAllDates(userId);
 
-
-    
   }catch(error){
      console.error('Error in cron job sendNotificationByChatGpt from :', error);
   }

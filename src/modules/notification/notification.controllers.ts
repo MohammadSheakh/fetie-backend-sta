@@ -22,6 +22,19 @@ const getALLNotification = catchAsync(async (req, res) => {
   });
 });
 
+const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsync(
+  async (req, res) => {
+
+    const generateTodaysNotification = await NotificationService.sendNotificationByChatGpt(req.user.userId);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: null,
+      message: 'Notifications fetched successfully',
+      success: true,
+    });
+  })
+
 /*
 const getAdminNotifications = catchAsync(async (req, res) => {
   const filters = pick(req.query, notificationFilters);
@@ -85,6 +98,7 @@ const clearAllNotification = catchAsync(async (req, res) => {
 
 export const NotificationController = {
   getALLNotification,
+  getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt
   // getAdminNotifications,
   // getSingleNotification,
   // viewNotification,

@@ -11,6 +11,7 @@ import { HelpMessageRoute } from '../modules/helpMessage/helpMessage.route';
 import { LabRoute } from '../modules/lab/lab.route';
 import { ConversationRoute } from '../modules/_chatting/conversation/conversation.route';
 import { SubscriptionPlanRoute } from '../modules/_subscription/subscriptionPlan/subscriptionPlan.route';
+import { NotificationRoutes } from '../modules/notification/notification.routes';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -72,7 +73,11 @@ const apiRoutes = [
     path: '/subscription',
     route: SubscriptionPlanRoute,
   },
-
+  {
+    // 🌀
+    path: '/notification',
+    route: NotificationRoutes,
+  },
 ];
 
 apiRoutes.forEach(route => router.use(route.path, route.route));

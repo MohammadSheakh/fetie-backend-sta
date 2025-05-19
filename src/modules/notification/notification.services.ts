@@ -1,9 +1,19 @@
+// import { ChatOpenAI } from '@langchain/openai';
+import OpenAI from 'openai';
 import { StatusCodes } from 'http-status-codes';
 import { INotification } from './notification.interface';
 import { Notification } from './notification.model';
 import { User } from '../user/user.model';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
 import ApiError from '../../errors/ApiError';
+import { FertieService } from '../fertie/fertie.service';
+import { differenceInDays } from 'date-fns';
+
+const model = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
+  // baseURL: 'https://openrouter.ai/api/v1',
+  baseURL: 'https://api.openai.com/v1'
+});
 
 const addNotification = async (
   payload: INotification
@@ -12,6 +22,263 @@ const addNotification = async (
   const result = await Notification.create(payload);
   return result;
 };
+
+/**
+ * 
+ * may be we dont need send notification by cron job..  
+ */
+ const sendNotificationByChatGpt = async (userId : string): Promise<void> => {
+  try{
+
+    console.log('Running cron job: sendNotificationByChatGpt');
+    
+    // Get the current date
+    const currentDate = new Date();
+    
+    // Generate notification from chatgpt ... 
+
+    // first we need to get the users current months all information .. 
+    // like ⚡predictedPeriodStart ⚡ predictedPeriodEnd
+    // ⚡ predictedOvulationDate ⚡ fertileWindow
+
+     let data:any = await new FertieService().predictAllDates(userId);
+
+    //  const [year, month] = req.body.date.split('-');
+     const [year, month] = new Date().toISOString().split('T')[0].split('-');
+    const targetYearMonth = `${year}-${month}`;
+
+    // Find the month object that matches the target year-month
+    const monthData = data.find(item => item.month === targetYearMonth);
+
+    if (!monthData) {
+      console.error(`No data found for month: ${targetYearMonth}`);
+      return;
+    }
+
+    // Extract period start date for the found month
+    const periodEvent : {
+      predictedPeriodStart: Date;
+      predictedPeriodEnd: Date;
+      predictedOvulationDate: Date;
+      fertileWindow: [Date, Date];
+    } = monthData.events.find(event => event.predictedPeriodStart);
+  
+    console.log('periodEvent :::::::::::: ', periodEvent);
+
+    
+    const periodStartDate = periodEvent.predictedPeriodStart//.split('T')[0];
+
+    let cycleDay =
+              differenceInDays(currentDate, periodStartDate) + 1; // 🔰 req.body.date e hocche current date
+  
+    /**
+     * now we have information like 
+     * periodEvent {
+     *   predictedPeriodStart
+     *   predictedPeriodEnd
+     *   predictedOvulationDate 
+     *   fertileWindow [ Date , Date ]
+     * }
+     * 
+     * and cycleDay .. 
+     */
+
+    // Build system prompt
+    const systemPrompt = `You are a friendly reproductive health assistant Named Fertie.
+      Based on current months different dates like predictedPeriodStart, predictedPeriodEnd, 
+      predictedOvulationDate, fertileWindow, cycleDay
+      provide notification if current date matched with any of those date.
+
+      Data available: 
+
+      - predictedPeriodStart: ${periodEvent.predictedPeriodStart || 'N/A'}
+      - predictedPeriodEnd: ${periodEvent.predictedPeriodEnd || 'N/A'}
+      - predictedOvulationDate: ${periodEvent.predictedOvulationDate || 'N/A'}
+      - fertileWindow: ${periodEvent.fertileWindow || 'N/A'}
+      - cycleDay: ${cycleDay || 'N/A'}
+      - currentDate: ${currentDate || 'N/A'} 
+  
+      ---------------------------
+      if any date matched give me notification response like {
+        "title" : "notification title here",
+        "subTitle" : "notification subTitle here",
+      }
+
+      -------------------------
+      if no date matched give me response like {
+        "title" : "No notification",
+        "subTitle" : "No notification",
+      }
+    `;
+
+
+
+    ////////////////////////////////////////////////////
+    
+    
+    
+        // Initialize response string
+        let responseText = '';
+    
+        // Retry logic for API rate limits
+        const maxRetries = 3;
+        let retries = 0;
+        let delay = 1000; // Start with 1 second delay
+        let stream;
+    
+    
+    
+        while (retries <= maxRetries) {
+          try {
+            stream = await model.chat.completions.create({
+              model: 'gpt-3.5-turbo', // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
+              messages: [
+                { role: 'system', content: systemPrompt },
+                // { role: 'user', content: userMessage },
+              ],
+              temperature: 0.7,
+              stream: true,
+            });
+    
+            // If we get here, the request was successful
+            break;
+          } catch (error) {
+            // Check if it's a rate limit error (429)
+            if (error.status === 429) {
+              if (
+                error.message &&
+                (error.message.includes('quota') ||
+                  error.message.includes('billing'))
+              ) {
+                // This is a quota/billing issue - try fallback if we haven't already
+                if (retries === 0) {
+                  console.log('Quota or billing issue. Trying fallback model...');
+                  try {
+                    // Try a different model as fallback
+                    stream = await model.chat.completions.create({
+                      model: 'gpt-3.5-turbo', // Using the same model as a placeholder, replace with actual fallback
+                      messages: [
+                        { role: 'system', content: systemPrompt },
+                        // { role: 'user', content: userMessage },
+                      ],
+                      temperature: 0.7,
+                      stream: true,
+                    });
+                    break; // If fallback succeeds, exit the retry loop
+                  } catch (fallbackError) {
+                    console.error('Fallback model failed:', fallbackError);
+                    // Continue with retries
+                  }
+                } else {
+                  console.log(
+                    'Quota or billing issue. No more fallbacks available.'
+                  );
+                  throw error; // Give up after fallback attempts
+                }
+              }
+    
+              // Regular rate limit - apply exponential backoff
+              retries++;
+              if (retries > maxRetries) {
+                // Send error message to client before throwing
+                res.write(
+                  `data: ${JSON.stringify({
+                    error: 'Rate limit exceeded. Please try again later.',
+                  })}\n\n`
+                );
+                res.end();
+                throw error; // Give up after max retries
+              }
+    
+              console.log(
+                `Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`
+              );
+              await new Promise(resolve => setTimeout(resolve, delay));
+    
+              // Exponential backoff with jitter
+              delay = delay * 2 * (0.5 + Math.random()); // Multiply by random factor between 1 and 1.5
+            } else {
+              // Not a rate limit error
+              console.error('OpenAI API error:', error);
+              res.write(
+                `data: ${JSON.stringify({
+                  error: 'An error occurred while processing your request.',
+                })}\n\n`
+              );
+              res.end();
+              return; // Exit the function
+            }
+          }
+        }
+    
+        if (!stream) {
+          res.write(
+            `data: ${JSON.stringify({
+              error: 'Failed to generate a response. Please try again.',
+            })}\n\n`
+          );
+          res.end();
+          return;
+        }
+    
+        try {
+            // Process each chunk as it arrives
+     
+          for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content || '';
+            if (content) {
+              responseText += content;
+            }
+          }
+    
+          // Parse the JSON string into an object
+          let jsonResponse;
+          try {
+            // First, try to parse the response directly
+            jsonResponse = JSON.parse(responseText);
+            jsonResponse.cycleDay = cycleDay;
+    
+            console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
+          } catch (parseError) {
+            // If direct parsing fails, try to extract JSON from the response
+            console.log("Failed to parse direct response, attempting to extract JSON");
+            
+            // Try to extract JSON using regex
+            const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+              try {
+                jsonResponse = JSON.parse(jsonMatch[0]);
+                  
+              } catch (extractError) {
+                console.error('Failed to extract valid JSON:', extractError);
+                jsonResponse = {
+                  suggestion: "Failed to parse AI response. Please try again.",
+                  patternFertieNoticed: "",
+                  whatToKeepInMindInThisCycle: ""
+                };
+              }
+            } else {
+              // Fallback to a structured response if parsing fails
+              jsonResponse = {
+                cycleDay : cycleDay,
+                suggestion: responseText.substring(0, 200) + "...",
+                patternFertieNoticed: "Unable to parse the complete response",
+                whatToKeepInMindInThisCycle: "Please try again later"
+              };
+            }
+          }
+
+
+      
+
+
+
+  }catch(error){
+     console.error('Error in cron job sendNotificationByChatGpt from :', error);
+  }
+}
+
+
 
 const getALLNotification = async (
   filters: Partial<INotification>,
@@ -111,6 +378,7 @@ const clearAllNotification = async (userId: string) => {
 export const NotificationService = {
   addNotification,
   getALLNotification,
+  sendNotificationByChatGpt
   // getAdminNotifications,
   // getSingleNotification,
   // addCustomNotification,

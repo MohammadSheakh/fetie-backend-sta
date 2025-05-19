@@ -367,9 +367,7 @@ const getCycleInsight = async (req: Request, res: Response) => {
       fertilityLevel = 'Unknown';
     }
 
-    
-    
-
+  
     // Build system prompt
     const systemPrompt = `You are a friendly reproductive health assistant Named Fertie.
       Based on user's cycle, lab tests, Pattern you noticed and daily logs, provide helpful Suggestion.
