@@ -273,8 +273,7 @@ export class FertieController extends GenericController<
       });
     }
   );
-
-
+  
   getPredictionsByMonthV2 = catchAsync(
   async (req: Request, res: Response) => {
     const userId = req.user.userId;
@@ -349,9 +348,6 @@ export class FertieController extends GenericController<
 
       const fertileEnd = new Date(ovulation);
       fertileEnd.setDate(fertileEnd.getDate() + 1);
-
-
-
 
       // Modified portion of getPredictionsByMonthV2 function
       // Add this after calculating the fertile window
@@ -474,9 +470,7 @@ export class FertieController extends GenericController<
       message: 'Predictions fetched successfully',
     });
   }
-);
-
-
+  );
 
   getMonthlyDailyCycleInsightsByMonth = catchAsync(
     async (req: Request, res: Response) => {

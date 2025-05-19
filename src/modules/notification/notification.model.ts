@@ -33,7 +33,10 @@ const notificationModel = new Schema<INotification>(
     linkId: {
       type: String,
     },
-    viewStatus: { type: Boolean, default: false },
+    viewStatus: { 
+      type: Boolean, 
+      default: false
+    },
   },
   { timestamps: true }
 );

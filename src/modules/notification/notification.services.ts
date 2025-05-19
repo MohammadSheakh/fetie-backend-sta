@@ -27,7 +27,7 @@ const getALLNotification = async (
   const result = await Notification.paginate(filters, options);
   return { ...result, unViewNotificationCount };
 };
-
+/*
 const getAdminNotifications = async (
   filters: Partial<INotification>,
   options: PaginateOptions
@@ -83,6 +83,9 @@ const viewNotification = async (notificationId: string) => {
   }
   return result;
 };
+*/
+
+/* /// Written by Sheakh
 
 // Test korte hobe .. 
 const deleteNotification = async (notificationId: string) => {
@@ -103,13 +106,15 @@ const clearAllNotification = async (userId: string) => {
   const result = await Notification.deleteMany({ receiverId: userId });
   return result;
 };
+
+*/
 export const NotificationService = {
   addNotification,
   getALLNotification,
-  getAdminNotifications,
-  getSingleNotification,
-  addCustomNotification,
-  viewNotification,
-  deleteNotification,
-  clearAllNotification,
+  // getAdminNotifications,
+  // getSingleNotification,
+  // addCustomNotification,
+  // viewNotification,
+  // deleteNotification,
+  // clearAllNotification,
 };

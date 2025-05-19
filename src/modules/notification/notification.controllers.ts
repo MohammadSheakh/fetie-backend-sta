@@ -22,6 +22,7 @@ const getALLNotification = catchAsync(async (req, res) => {
   });
 });
 
+/*
 const getAdminNotifications = catchAsync(async (req, res) => {
   const filters = pick(req.query, notificationFilters);
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
@@ -80,11 +81,13 @@ const clearAllNotification = catchAsync(async (req, res) => {
   });
 });
 
+*/
+
 export const NotificationController = {
   getALLNotification,
-  getAdminNotifications,
-  getSingleNotification,
-  viewNotification,
-  deleteNotification,
-  clearAllNotification,
+  // getAdminNotifications,
+  // getSingleNotification,
+  // viewNotification,
+  // deleteNotification,
+  // clearAllNotification,
 };

@@ -112,14 +112,12 @@ export class DailyCycleInsightsController extends GenericController<
     console.log("periodStartDate 🧪", personalizeJourney?.periodStartDate);
     console.log("req.body.date 🧪", req.body.date);
 
-
     ///////// Predict Period Start Date based on 12 months of predicted Data ..  ///////////////// START
 
     let data = await this.fertieService.predictAllDates(userId);
 
 
     console.log("data 🧪🧪🧪🧪🧪🧪 predicAllDates", data);
-
 
     // Extract year and month from the target date
   const [year, month] = req.body.date.split('-');
@@ -145,9 +143,6 @@ export class DailyCycleInsightsController extends GenericController<
   
   // Format the date to YYYY-MM-DD
   const periodStartDate = periodEvent.predictedPeriodStart//.split('T')[0];
-
-
-
 
     ///////// Predict Period Start Date based on 12 months of predicted Data ..  ///////////////// END
 
