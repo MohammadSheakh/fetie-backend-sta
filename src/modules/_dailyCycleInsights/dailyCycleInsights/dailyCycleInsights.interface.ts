@@ -45,13 +45,15 @@ export interface IDailyCycleInsights {
     | TPhase.menstrual
     | TPhase.follicular
     | TPhase.ovulatory
-    | TPhase.luteal;
+    | TPhase.luteal
+    | TPhase.Unknown;
 
   fertilityLevel:
     | TFertilityLevel.veryHigh
     | TFertilityLevel.medium
     | TFertilityLevel.low
-    | TFertilityLevel.veryLow;
+    | TFertilityLevel.veryLow
+    | TFertilityLevel.Unknown;
   cycleDay: Number;
 
   cervicalMucus: TCervicalMucus.eggWhite | TCervicalMucus.creamy;

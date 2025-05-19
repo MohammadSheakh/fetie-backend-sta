@@ -8,17 +8,18 @@ export interface IConversation {
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   creatorId : Types.ObjectId;
   type: ConversationType.direct | ConversationType.group;
-  attachedToId? : String,
-  attachedToCategory? : 'TrainingProgram' | ''; // 🔗
+  //attachedToId? : String,
+  //attachedToCategory? : 'TrainingProgram' | ''; // 🔗
   ///////////////////////////////////////
   month: string;
   year: number;
   title?: string;
+  lastMessageSenderRole? : RoleType.bot | RoleType.user; //  Types.ObjectId 🔗
+  
   ///////////////////////////////////////
   isDeleted? : boolean;
   createdAt?: Date;
   updatedAt?: Date;
-  lastMessageSenderRole? : RoleType.bot | RoleType.user; //  Types.ObjectId 🔗
   // isGroup : boolean;  
 }
 

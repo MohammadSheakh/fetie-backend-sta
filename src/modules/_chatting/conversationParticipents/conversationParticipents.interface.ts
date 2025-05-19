@@ -8,7 +8,7 @@ export interface IConversationParticipents {
   userId : Types.ObjectId;
   conversationId: Types.ObjectId;
   joinedAt : Date;
-  role :  RoleType.admin | RoleType.member; // user shoray dite hobe  🔥 Fix korte hobe
+  role :  RoleType.bot | RoleType.user;
   isDeleted : boolean;
   createdAt?: Date;
   updatedAt?: Date;

@@ -85,8 +85,6 @@ const conversationSchema = new Schema<IConversation>(
             ).join(', ')}`,
           ],
         },
-
-
     isDeleted: {
       type: Boolean,
       required: [false, 'isDeleted is not required'],

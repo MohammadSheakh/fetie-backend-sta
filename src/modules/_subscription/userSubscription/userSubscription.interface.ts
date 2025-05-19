@@ -10,8 +10,6 @@ export interface IUserSubscription {
   _id?: Types.ObjectId; // undefined |  Types.ObjectId |
   userId :  Types.ObjectId; //🔗
   subscriptionPlanId: Types.ObjectId; //🔗
-
-
   subscriptionStartDate : Date;
   currentPeriodStartDate : Date;
   expirationDate : Date;

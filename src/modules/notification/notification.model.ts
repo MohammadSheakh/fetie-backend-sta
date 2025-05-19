@@ -9,6 +9,10 @@ const notificationModel = new Schema<INotification>(
       type: String,
       required: [true, 'Title is required'],
     },
+    subTitle: {
+      type: String,
+      required: [false, 'SubTitle is required'],
+    },
     // message: {
     //   type: String,
     //   required: [true, 'Message is required'],
@@ -18,11 +22,11 @@ const notificationModel = new Schema<INotification>(
       ref: 'User',
       required: [false, 'User is required'],
     },
-    role: {
-      type: String,
-      enum: Roles,
-      required: true,
-    },
+    // role: {
+    //   type: String,
+    //   enum: Roles,
+    //   required: true,
+    // },
     // image: {
     //   type: String,
     // },

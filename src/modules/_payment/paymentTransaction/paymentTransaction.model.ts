@@ -13,14 +13,14 @@ const paymentTransactionSchema = new Schema<IPaymentTransaction>(
       ref: 'User',
       required: true
     },
-    paymentMethodId: {
+    paymentMethodId: { // for this project we dont need any paymentMethodId
       type: Schema.Types.ObjectId,
       ref: 'PaymentMethod',
       required: false
     },
     type: {
       type: String,
-      enum: ['subscription'], // , 'order'
+      enum: ['subscription'], // , 'order' // for this project we dont have anything to order .. 
       required: true
     },
     userSubscriptionId : {
