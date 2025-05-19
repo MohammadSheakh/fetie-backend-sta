@@ -15,6 +15,7 @@ const myFormat = printf(
     label: string;
     timestamp: Date;
   }) => {
+
     const date = new Date(timestamp);
     const hour = date.getHours();
     const minutes = date.getMinutes();
@@ -26,7 +27,7 @@ const myFormat = printf(
 
 const logger = createLogger({
   level: 'info',
-  format: combine(label({ label: 'SERVER-NAME' }), timestamp(), myFormat),
+  format: combine(label({ label: 'Fertie-Backend' }), timestamp(), myFormat),
   transports: [
     new transports.Console(),
     new DailyRotateFile({

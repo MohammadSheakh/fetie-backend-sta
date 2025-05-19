@@ -10,7 +10,7 @@ morgan.token(
 
 const getIpFormat = () =>
   config.environment === 'development' ? ':remote-addr - ' : '';
-const successResponseFormat = `${getIpFormat()}:method :url :status - :response-time ms`;
+const successResponseFormat = `${getIpFormat()}:method :url :status - :response-time ms | :remote-addr | `; // :remote-user not working .. 
 const errorResponseFormat = `${getIpFormat()}:method :url :status - :response-time ms`;
 
 const successHandler = morgan(successResponseFormat, {
