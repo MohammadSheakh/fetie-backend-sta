@@ -19,7 +19,7 @@ export interface IUserSubscription {
   cancelledAt :  Date ;
   cancelledAtPeriodEnd : Boolean;
   status :
-  UserSubscriptionStatusType.active | 
+          UserSubscriptionStatusType.active | 
           UserSubscriptionStatusType.past_due | 
           UserSubscriptionStatusType.cancelled | 
           UserSubscriptionStatusType.unpaid | 
@@ -27,16 +27,15 @@ export interface IUserSubscription {
           UserSubscriptionStatusType.incomplete_expired | 
           UserSubscriptionStatusType.trialing;
   
-  stripe_subscription_id : String;
-  stripe_customer_id : String;
-  
+  stripe_subscription_id : String; // 🟢🟢 for recurring payment 
+  stripe_transaction_id : String; // 🟢🟢 for one time payment
+  // stripe_customer_id : String; // main user collection e rakhte hobe .. 
 
   // isFreeTrial : Boolean;
   // freeTrialStartDate : Date;
   // freeTrialEndDate : Date;
   // trialConvertedToPaid : Boolean;
 
-  trxId : String; // 📢 sure na 
   isActive : Boolean
   
   isDeleted : boolean;

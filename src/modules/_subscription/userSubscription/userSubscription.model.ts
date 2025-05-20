@@ -119,6 +119,12 @@ const userSubscriptionSchema = new Schema<IUserSubscription>(
       required: [false, 'stripe_subscription_id is not required'], // 🟢🟢 for recurring payment 
       default: null,
     },
+
+    stripe_transaction_id : {
+      type: String,
+      required: [false, 'stripe_transaction_id is not required'], // 🟢🟢 for one time payment
+    },
+
     /*
     /////////////////////// stripe_customer_id  i think main user collection e rakha better 
     stripe_customer_id: {

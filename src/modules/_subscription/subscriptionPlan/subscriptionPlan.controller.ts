@@ -276,7 +276,7 @@ export class SubscriptionController extends GenericController<
     }
 
     // Validate Stripe data contains necessary information
-    if (!stripeData.stripe_subscription_id || !stripeData.stripe_payment_intent_id) {
+    if (!stripeData.stripe_transaction_id || !stripeData.stripe_payment_intent_id) {
       return res.status(400).json({
         success: false,
         message: 'Required Stripe data missing',
@@ -286,7 +286,7 @@ export class SubscriptionController extends GenericController<
 
     // Extract stripe data
     const { 
-      stripe_subscription_id, 
+      stripe_transaction_id, 
       stripe_payment_intent_id
     } = stripeData;
 
@@ -333,14 +333,14 @@ export class SubscriptionController extends GenericController<
                 billingCycle: 1,
                 isAutoRenewed: false,
                 status: UserSubscriptionStatusType.active,
-                stripe_subscription_id
+                stripe_subscription_id // 🟢🟢 for recurring payment
+                 // stripe_transaction_id
               }], { session });
 
               if (!newUserSubscription || newUserSubscription.length === 0) {
                 throw new Error('Failed to create user subscription');
               }
             } else {
-
               // Update the existing user subscription
               updatedUserSubscription = await UserSubscription.findByIdAndUpdate(
                 userSubscription._id,
@@ -352,7 +352,8 @@ export class SubscriptionController extends GenericController<
                   billingCycle: Number(userSubscription.billingCycle) + 1,
                   isAutoRenewed: false,
                   status: UserSubscriptionStatusType.active,
-                  stripe_subscription_id
+                  stripe_subscription_id  // 🟢🟢 for recurring payment
+                   // stripe_transaction_id
                 },
                 { new: true, session }
               );
