@@ -37,7 +37,6 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
   async (req, res) => {
 
     // const generateTodaysNotification = await NotificationService.sendNotificationByChatGpt(req.user.userId);
-    
     // Get the current date
     const currentDate = new Date();
 
@@ -82,7 +81,7 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
     // like ⚡predictedPeriodStart ⚡ predictedPeriodEnd
     // ⚡ predictedOvulationDate ⚡ fertileWindow
 
-     let data:any = await new FertieService().predictAllDates(req.user.userId);
+    let data:any = await new FertieService().predictAllDates(req.user.userId);
 
     //  const [year, month] = req.body.date.split('-');
      const [year, month] = new Date().toISOString().split('T')[0].split('-');
@@ -325,10 +324,6 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
 
 
                 console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
-
-
-
-
 
                 //----------------------------------------------------------------------------------
               } catch (extractError) {

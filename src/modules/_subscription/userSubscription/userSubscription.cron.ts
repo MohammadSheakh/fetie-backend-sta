@@ -25,7 +25,7 @@ export const initUserSubscriptionCron = ():void => {
    cronService.schedule(
     'expire-user-subscription',
     // '0 0 * * *', // At 00:00 AM every day'
-     '*/1 * * * *', // every minute for testing
+     '*/60 * * * *', // every minute for testing
     "This will run every minute for testing", // additional message
     checkAndExpireUserSubscription
   );  

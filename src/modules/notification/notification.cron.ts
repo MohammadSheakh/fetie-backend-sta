@@ -1,6 +1,8 @@
 import { cronService } from "../cron/cron.service";
 import { FertieService } from "../fertie/fertie.service";
+import { IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
+import { NotificationService } from "./notification.services";
 
 export const initNotificationCron = ():void => {
   /**
@@ -19,7 +21,7 @@ export const initNotificationCron = ():void => {
   cronService.schedule(
     'notification',
     // '0 0 * * *', // At 00:00 AM every day'
-     '*/2 * * * *', // every minute for testing
+     '*/10 * * * *', // every minute for testing
     "This will run every minute for testing", // additional message
     sendNotificationByChatGpt
   )}
@@ -64,12 +66,11 @@ export const sendNotificationByChatGpt = async (): Promise<void> => {
 
     for (const user of usersToNotify) {
       // Send notification to each user
-      
+      console.log(`Sending notification to user: 🔕🔕 ${user.id}`);
+      await NotificationService.sendNotificationByChatGpt(user.id, currentDate);
     }
 
-
-
-     let data = await new FertieService().predictAllDates(userId);
+    // let data = await new FertieService().predictAllDates(userId);
 
   }catch(error){
      console.error('Error in cron job sendNotificationByChatGpt from :', error);
