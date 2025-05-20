@@ -20,6 +20,7 @@ export type TUser = {
   subscriptionType : TSubscriptionType.free | TSubscriptionType.premium;
   status : TStatusType.active | TStatusType.inactive;
   accessPinCode: string;
+  lastProvideAccessPinCode : Date;
   name: string;
   email: string;
   password: string;

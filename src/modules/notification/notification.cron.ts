@@ -1,5 +1,6 @@
 import { cronService } from "../cron/cron.service";
 import { FertieService } from "../fertie/fertie.service";
+import { User } from "../user/user.model";
 
 export const initNotificationCron = ():void => {
   /**
@@ -40,6 +41,33 @@ export const sendNotificationByChatGpt = async (): Promise<void> => {
     // first we need to get the users current months all information .. 
     // like ⚡predictedPeriodStart ⚡ predictedPeriodEnd
     // ⚡ predictedOvulationDate ⚡ fertileWindow
+
+    /**
+     * we need to check all users lastProvideAccessPinCode date .. 
+     * 
+     * if that date  and present dates difference is greater than 30 days
+     * then we dont send notification to the user .. 
+     */
+    // Calculate the date 30 days ago from now
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    // Find users who ARE ACTIVE (have used pin code within last 30 days)
+    // These are the users who SHOULD receive notifications
+    const usersToNotify = await User.find({
+      lastProvideAccessPinCode: {
+        $exists: true,
+        $ne: null,
+        $gte: thirtyDaysAgo
+      }
+    });
+
+    for (const user of usersToNotify) {
+      // Send notification to each user
+      
+    }
+
+
 
      let data = await new FertieService().predictAllDates(userId);
 

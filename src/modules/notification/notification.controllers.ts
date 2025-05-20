@@ -41,7 +41,6 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
     // Get the current date
     const currentDate = new Date();
 
-
     let notificationFromDbForToday = await Notification.find({
       receiverId: req.user.userId,
       createdAt: {
@@ -275,7 +274,6 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
             // First, try to parse the response directly
             jsonResponse = JSON.parse(responseText);
 
-
             //-------------- we have to save this response to notification database .. 
                 // and first we have to check if todays notification already generated or not
                 // and if todays notification is not found in database .. then ai will generate new notification
@@ -304,7 +302,35 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
             const jsonMatch = responseText.match(/\{[\s\S]*\}/);
             if (jsonMatch) {
               try {
+                // ---------------------------------------------------------------------------------
                 jsonResponse = JSON.parse(jsonMatch[0]); 
+
+                //-------------- we have to save this response to notification database .. 
+                // and first we have to check if todays notification already generated or not
+                // and if todays notification is not found in database .. then ai will generate new notification
+                // for today and save it to database ..
+
+
+                console.log("🟢 No AI Generated Notification found for today ... Lets generate ... 🤖");
+
+                newAIGeneratedNotification = await Notification.create({
+                  title: jsonResponse.title,
+                  subTitle: jsonResponse.subTitle,
+                  receiverId: req.user.userId,
+                })
+
+                allNotificaiton = await Notification.find({
+                  receiverId: req.user.userId,
+                });
+
+
+                console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
+
+
+
+
+
+                //----------------------------------------------------------------------------------
               } catch (extractError) {
                 console.error('Failed to extract valid JSON:', extractError);
                 jsonResponse = {

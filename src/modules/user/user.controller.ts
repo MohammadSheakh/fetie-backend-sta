@@ -313,10 +313,18 @@ const matchAccessPin = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin Code is required');
   }
 
+  
+
   const result = await UserService.matchAccessPin(userId , req.body.accessPinCode);
   if (!result) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin can not be matched');
   }
+
+  const updateUserlastProvideAccessPinCode = await User.findByIdAndUpdate(
+    userId,
+    { lastProvideAccessPinCode: new Date() },
+    { new: true }
+  );
 
   sendResponse(res, {
     code: StatusCodes.OK,

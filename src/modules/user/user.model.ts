@@ -57,6 +57,11 @@ const userSchema = new Schema<TUser, UserModal>(
       required: [false, 'Access Pin Code is not required']
     },
 
+    lastProvideAccessPinCode:{
+      type : Date,
+      required: [false, 'Last Access Pin Code is not required']
+    },
+
     role: {
       type: String,
       enum: {
