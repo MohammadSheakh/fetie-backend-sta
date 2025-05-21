@@ -7,9 +7,7 @@ const {
   S3Client,
 } = require("@aws-sdk/client-s3");
 const { Readable } = require("stream");
-
 const { Upload } = require("@aws-sdk/lib-storage");
-
 
 // Initialize the S3 client with DigitalOcean Spaces config
 const s3 = new S3Client({
@@ -53,7 +51,6 @@ export const uploadFileToSpace = async (
     throw new Error("Failed to upload file to DigitalOcean Space");
   }
 };
-
 
 // Helper function to get the content length of a stream
 const getStreamLength = (stream) => {

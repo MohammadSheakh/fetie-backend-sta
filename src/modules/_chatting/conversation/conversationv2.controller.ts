@@ -17,6 +17,7 @@ import { User } from '../../user/user.model';
 import { format } from 'date-fns';
 import mongoose from 'mongoose';
 import { sendDailyMessageToAllConversations } from './conversation.cron';
+import { Message } from '../message/message.model';
 
 let conversationParticipantsService = new ConversationParticipentsService();
 let messageService = new MessagerService();
@@ -100,6 +101,7 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
             conversationId: result?._id,
             role: user?.role === RoleType.user ? RoleType.user : RoleType.bot, // 🔴 ekhane jhamela ase .. 
           });
+
           if (!res1) {
             throw new ApiError(
               StatusCodes.BAD_REQUEST,
@@ -191,5 +193,29 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
   }
 });
 
+
+  getAllMessagesOfAConversation = catchAsync(
+  async (req: Request, res: Response) => {
+    const { conversationId } = req.params;
+
+    if (!conversationId) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'Conversation ID is required'
+      );
+    }
+
+    const previousMessageHistory: IMessage[] | null =
+          await Message.find({
+            conversationId
+    }).select('-conversationId -__v -updatedAt') /*.populate("text senderRole conversationId") */;
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: previousMessageHistory,
+      message: 'Messages retrieved successfully',
+      success: true,
+    });
+  })
   // add more methods here if needed or override the existing ones
 }

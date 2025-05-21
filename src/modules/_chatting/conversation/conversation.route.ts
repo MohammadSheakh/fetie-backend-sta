@@ -92,8 +92,16 @@ router.route('/participants/all').get(
   controller.showParticipantsOfExistingConversation
 );
 
+//[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('trigger-cron').get(
   controllerV2.triggerCronJob
 );
+
+router.route('/get-all-message/:conversationId').get(
+  
+  controllerV2.getAllMessagesOfAConversation
+)
+
+
 
 export const ConversationRoute = router;
