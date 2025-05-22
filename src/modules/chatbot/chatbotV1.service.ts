@@ -133,12 +133,7 @@ const dateParse = async (userMessage: string, userId: string) => {
     return systemPrompt;
 }
 
-const sendMessageToChatGPTAndGetResponse = async (message: string) => {
-
-}
-
 export const ChatBotService = {
   dummyServiceToHitAnotherApi,
-  sendMessageToChatGPTAndGetResponse,
   dateParse
 }

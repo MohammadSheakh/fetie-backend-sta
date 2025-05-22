@@ -97,10 +97,10 @@ router.route('trigger-cron').get(
   controllerV2.triggerCronJob
 );
 
-router.route('/get-all-message/:conversationId').get(
-  
-  controllerV2.getAllMessagesOfAConversation
-)
+// 🟢 this route is already available at messsage route
+// router.route('/get-all-message/:conversationId').get(
+//   controllerV2.getAllMessagesOfAConversation
+// )
 
 
 

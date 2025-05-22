@@ -78,7 +78,8 @@ export class MessageController extends GenericController<typeof Message, IMessag
         });
     });
    
-
+    // 🟢 i think we dont need this .. because we need pagination in this case .. and pagination 
+    // is already implemented ..  
     getAllMessageByConversationId = catchAsync(
         async (req: Request, res: Response) => {
             const { conversationId } = req.query;
@@ -89,6 +90,7 @@ export class MessageController extends GenericController<typeof Message, IMessag
                     success: false,
                 });
             }
+
             const result = await this.messageService.getAllByConversationId(
                 conversationId.toString()
             );
@@ -99,7 +101,9 @@ export class MessageController extends GenericController<typeof Message, IMessag
                 message: `${this.modelName} fetched successfully`,
                 success: true,
             });
-        })
+        }
+    );
+
 
     // add more methods here if needed or override the existing ones    
 }

@@ -163,9 +163,10 @@ export class FertieService extends GenericService<typeof Fertie, IFertie>{
           
         Response Example (must be valid JSON string) : 
         {
-          "title" : "You're on Cycle Day 10- this is a key time 🪴" 
+          "title" : "You're on Cycle Day ${cycleDay || 'N/A'}- this is a key time 🪴" 
         }  
       `
+      
 
       // Initialize response string
       let responseText = '';

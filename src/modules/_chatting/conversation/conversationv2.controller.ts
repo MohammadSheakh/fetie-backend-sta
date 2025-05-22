@@ -191,9 +191,10 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
       'Failed to trigger cron job'
     );
   }
-});
+  });
 
 
+  // 🟢 this is already available in message module 
   getAllMessagesOfAConversation = catchAsync(
   async (req: Request, res: Response) => {
     const { conversationId } = req.params;

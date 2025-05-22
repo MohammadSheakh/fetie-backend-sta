@@ -12,6 +12,7 @@ import { LabRoute } from '../modules/lab/lab.route';
 import { ConversationRoute } from '../modules/_chatting/conversation/conversation.route';
 import { SubscriptionPlanRoute } from '../modules/_subscription/subscriptionPlan/subscriptionPlan.route';
 import { NotificationRoutes } from '../modules/notification/notification.routes';
+import { MessageRoute } from '../modules/_chatting/message/message.route';
 
 // import { ChatRoutes } from '../modules/chat/chat.routes';
 // import { MessageRoutes } from '../modules/message/message.routes';
@@ -67,6 +68,11 @@ const apiRoutes = [
     // 🌀
     path: '/conversation',
     route: ConversationRoute,
+  },
+  {
+    // 🌀
+    path: '/message',
+    route : MessageRoute
   },
   {
     // 🌀
