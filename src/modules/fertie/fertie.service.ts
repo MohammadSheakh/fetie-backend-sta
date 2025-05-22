@@ -1,9 +1,16 @@
+import OpenAI from 'openai';
 import { GenericService } from "../__Generic/generic.services";
 import { DailyCycleInsights } from "../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.model";
 import { PersonalizeJourney } from "../_personalizeJourney/personalizeJourney/personalizeJourney.model";
 import { User } from "../user/user.model";
 import { IFertie } from "./fertie.interface";
 import { Fertie } from "./fertie.model";
+
+const model = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
+  // baseURL: 'https://openrouter.ai/api/v1',
+  baseURL: 'https://api.openai.com/v1'
+});
 
 export class FertieService extends GenericService<typeof Fertie, IFertie>{
     constructor(){
@@ -141,6 +148,219 @@ export class FertieService extends GenericService<typeof Fertie, IFertie>{
         .slice(0, 12); // Ensure we only return 12 months
       
       return predictions;
+    }
+
+    fixToJson(text: string) {
+      // Add double quotes around keys (basic regex, may fail on nested objects)
+      return text.replace(/([{,]\s*)([a-zA-Z0-9_]+)\s*:/g, '$1"$2":');
+    }
+
+
+    getChatBotsFeedbackAboutCurrentDailyCycle = async (cycleDay: number) : Promise<void> => {
+      const systemPrompt = `Generate a title  based on cycleDay on max 55 character
+        Data available: 
+          - cycleDay: ${cycleDay || 'N/A'}
+          
+        Response Example (must be valid JSON string) : 
+        {
+          "title" : "You're on Cycle Day 10- this is a key time 🪴" 
+        }  
+      `
+
+      // Initialize response string
+      let responseText = '';
+  
+      // Retry logic for API rate limits
+      const maxRetries = 3;
+      let retries = 0;
+      let delay = 1000; // Start with 1 second delay
+      let stream;
+  
+      while (retries <= maxRetries) {
+        try {
+          stream = await model.chat.completions.create({
+            model: 'gpt-4o', // qwen/qwen3-30b-a3b:free <- is give wrong result   // gpt-3.5-turbo <- give perfect result
+            messages: [
+              { role: 'system', content: systemPrompt },
+              // { role: 'user', content: userMessage },
+            ],
+            temperature: 0.7,
+            stream: true,
+          });
+  
+          // If we get here, the request was successful
+          break;
+        } catch (error) {
+          // Check if it's a rate limit error (429)
+          if (error.status === 429) {
+            if (
+              error.message &&
+              (error.message.includes('quota') ||
+                error.message.includes('billing'))
+            ) {
+              // This is a quota/billing issue - try fallback if we haven't already
+              if (retries === 0) {
+                console.log('Quota or billing issue. Trying fallback model...');
+                try {
+                  // Try a different model as fallback
+                  stream = await model.chat.completions.create({
+                    model: 'gpt-3.5-turbo', // Using the same model as a placeholder, replace with actual fallback
+                    messages: [
+                      { role: 'system', content: systemPrompt },
+                      // { role: 'user', content: userMessage },
+                    ],
+                    temperature: 0.7,
+                    stream: true,
+                  });
+                  break; // If fallback succeeds, exit the retry loop
+                } catch (fallbackError) {
+                  console.error('Fallback model failed:', fallbackError);
+                  // Continue with retries
+                }
+              } else {
+                console.log(
+                  'Quota or billing issue. No more fallbacks available.'
+                );
+                throw error; // Give up after fallback attempts
+              }
+            }
+  
+            // Regular rate limit - apply exponential backoff
+            retries++;
+            if (retries > maxRetries) {
+              // Send error message to client before throwing
+              // 🔴
+              /*
+                res.write(
+                  `data: ${JSON.stringify({
+                    error: 'Rate limit exceeded. Please try again later.',
+                  })}\n\n`
+                );
+              */
+              // res.end();
+              throw error; // Give up after max retries
+            }
+  
+            console.log(
+              `Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`
+            );
+            await new Promise(resolve => setTimeout(resolve, delay));
+  
+            // Exponential backoff with jitter
+            delay = delay * 2 * (0.5 + Math.random()); // Multiply by random factor between 1 and 1.5
+          } else {
+            // Not a rate limit error
+            console.error('OpenAI API error:', error);
+            // 🔴
+            /*
+            res.write(
+              `data: ${JSON.stringify({
+                error: 'An error occurred while processing your request.',
+              })}\n\n`
+            );
+            */
+            // res.end();
+            return; // Exit the function
+          }
+        }
+      }
+  
+      if (!stream) {
+        // 🔴
+        /*
+        res.write(
+          `data: ${JSON.stringify({
+            error: 'Failed to generate a response. Please try again.',
+          })}\n\n`
+        );
+        */
+        // res.end();
+        return;
+      }
+  
+      try {
+          // Process each chunk as it arrives
+    
+        for await (const chunk of stream) {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            responseText += content;
+          }
+        }
+  
+        // Parse the JSON string into an object
+        
+        let jsonResponse;
+        try {
+          // First, try to parse the response directly
+          jsonResponse = JSON.parse(responseText);
+
+          console.log("🟢 No AI Generated Notification found for today ... Lets generate ... 🤖");
+
+          console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
+        
+          return jsonResponse;
+        } catch (parseError) {
+          // If direct parsing fails, try to extract JSON from the response
+          console.log("Failed to parse direct response, attempting to extract JSON");
+          
+          // Try to extract JSON using regex
+          const jsonMatch = responseText.match(/\{[\s\S]*\}/);
+          if (jsonMatch) {
+            try {
+              // ---------------------------------------------------------------------------------
+              console.log("jsonMatch 🔴🔴 : ", jsonMatch); // [0]
+              jsonResponse = JSON.parse(jsonMatch[0]); 
+
+              console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
+
+              return jsonResponse;
+              //----------------------------------------------------------------------------------
+            } catch (extractError) {
+              console.error('Failed to extract valid JSON:', extractError);
+              jsonResponse = {
+                title: "Failed to parse AI response. Please try again.",
+              };
+            }
+          } else {
+            // Fallback to a structured response if parsing fails
+            jsonResponse = {
+              title: responseText ? responseText.substring(0, 200) + "..."  : "Hello, I am Fertie Bot",
+            };
+          }
+        }
+        
+        // Send end of stream marker
+        // res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n `); // 🟢
+  
+        /*
+          // 🔴
+          sendResponse(res, {
+            code: StatusCodes.OK,
+            data: {jsonResponse,newAIGeneratedNotification, allNotificaiton} ,  //   jsonResponse  //session.url,
+            message: `Notification generated successfully..`,
+            success: true,
+          });
+        */
+  
+        /**
+         *
+         * save bots response in the database ..
+        */
+  
+        // res.end(); // 🟢🟢🟢 end korte hobe
+      } catch (streamError) {
+        console.error('Error processing stream:', streamError);
+        /*
+          // 🔴
+          res.write(
+            `data: ${JSON.stringify({
+              error: 'Stream processing error. Please try again.',
+            })}\n\n`
+          );
+        */
+        //  res.end();
+      }
     }
 
 /**

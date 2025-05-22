@@ -23,10 +23,7 @@ const addNotification = async (
   return result;
 };
 
-/**
- * 
- * may be we dont need send notification by cron job..  
- */
+
  const sendNotificationByChatGpt = async (userId : string, currentDate: Date): Promise<void> => {
     // Generate notification from chatgpt ... 
 

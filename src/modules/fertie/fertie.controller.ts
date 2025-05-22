@@ -306,6 +306,9 @@ export class FertieController extends GenericController<
     // We'll generate more than 12 months of predictions to ensure we have data for all requested months
     const cyclesToGenerate = 12; // Generate enough cycles to ensure coverage
     
+    let cycleDay;
+
+
     for (let i = 0; i < cyclesToGenerate; i++) {
       // Calculate this cycle's predicted start date
       const predictedStart = new Date(baseDate);
@@ -359,8 +362,6 @@ export class FertieController extends GenericController<
       const implantationEnd = new Date(ovulation);
       implantationEnd.setDate(implantationEnd.getDate() + 12);
 
-
-      
       // Initialize this month's prediction if it doesn't exist
       if (!predictionsByMonth[monthKey]) {
         predictionsByMonth[monthKey] = {
@@ -370,11 +371,11 @@ export class FertieController extends GenericController<
         };
       }
 
-
       // Inside your loop that builds predictionsByMonth
       const currentDate = new Date(); // Replace with the actual current date
       const isCurrentMonth = predictionYear === currentDate.getFullYear() && 
                             predictionMonth === currentDate.getMonth();
+
 
       if (isCurrentMonth) {
         // Add this cycle's prediction to the appropriate month
@@ -395,6 +396,8 @@ export class FertieController extends GenericController<
           implantationWindow: [implantationStart, implantationEnd] // Added this line
         });
 
+        cycleDay = differenceInDays(currentDate, predictedStart) + 1;
+        console.log("cycle day 🔥", cycleDay);
       }else{
         // // Add this cycle's prediction to the appropriate month
         predictionsByMonth[monthKey].events.push({
@@ -415,7 +418,15 @@ export class FertieController extends GenericController<
       //   implantationWindow: [implantationStart, implantationEnd] // Added this line
       // });
     }
+
+    // 🟢🟢🟢🟢 
+
+    // now we got the cycle day .. we have to generate response from chatgpt based on cycle day
+    console.log("cycle day 🔥", cycleDay);
+    const gptResponseForCycleDay = await this.fertieService.getChatBotsFeedbackAboutCurrentDailyCycle(cycleDay ? cycleDay : 0); // FIX ME : ekhane 0 send kora jabe na .. 
     
+    currentMonthData.gptResponse = gptResponseForCycleDay;
+
     // Now fetch daily insights for each month we have predictions for
     for (const monthKey of Object.keys(predictionsByMonth)) {
       const [year, month] = monthKey.split('-').map(Number);
@@ -456,8 +467,6 @@ export class FertieController extends GenericController<
       */
     }
 
-
-    
     // Convert the predictions map to an array sorted by month
     const predictions = Object.values(predictionsByMonth)
       .sort((a: any, b: any) => a.month.localeCompare(b.month))
@@ -614,7 +623,6 @@ export class FertieController extends GenericController<
 
   // add more methods here if needed or override the existing ones
 }
-
 
   /*
   
