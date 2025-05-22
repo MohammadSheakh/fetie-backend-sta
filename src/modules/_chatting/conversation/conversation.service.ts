@@ -3,7 +3,7 @@ import { GenericService } from "../../__Generic/generic.services";
 import { IConversation } from "./conversation.interface";
 import { Conversation } from "./conversation.model";
 import ApiError from "../../../errors/ApiError";
-import { StatusCodes } from "http-status-codes";
+import { StatusCodes } from "http-status-codes";// 
 
 export class ConversationService extends GenericService<typeof Conversation , IConversation>{
     constructor(){
