@@ -121,8 +121,10 @@ const chatbotResponseLongPollingWithHistory = async (
     // Add conversation history
     if (previousMessageHistory && previousMessageHistory.length > 0) {
       // We may want to limit the number of messages to avoid token limits
-      const maxHistoryMessages = 10; // Adjust based on your needs
+      const maxHistoryMessages = 300; // Adjust based on your needs
       const recentMessages = previousMessageHistory.slice(-maxHistoryMessages);
+
+      console.log("recentMessages 🟢🟢🟢", recentMessages);
       
       recentMessages.forEach(msg => {
         const role = msg.senderRole === RoleType.user ? 'user' : 'assistant';
@@ -142,6 +144,8 @@ const chatbotResponseLongPollingWithHistory = async (
     let retries = 0;
     let delay = 1000; // Start with 1 second delay
     let stream;
+
+    console.log("formattedMessages 🟢🟢🟢", formattedMessages);
 
     while (retries <= maxRetries) {
       try {
