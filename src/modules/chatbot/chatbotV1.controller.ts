@@ -22,6 +22,7 @@ import { IUser } from '../user/user.interface';
 import { Message } from '../_chatting/message/message.model';
 import { Conversation } from '../_chatting/conversation/conversation.model';
 import { json } from 'body-parser';
+import { FertieService } from '../fertie/fertie.service';
 
 let dailyCycleInsightService = new DailyCycleInsightsService();
 let personalizeJourneyService = new PersonalizedJourneyService();
@@ -322,11 +323,14 @@ const getCycleInsight = async (req: Request, res: Response) => {
   //   );
 
   // Fetch user data
-  const [insights, allInsights, personalizedJourney, userProfileData] 
-  : [IDailyCycleInsights, IDailyCycleInsights[], IPersonalizeJourney, any]
+  const [/*insights, allInsights,*/ personalizedJourney, userProfileData] 
+  : [IPersonalizeJourney, any]
   = await Promise.all([
+    /*
+    // 🤖🤖🤖 client bad dise 
     dailyCycleInsightService.getByDateAndUserId(new Date(), userId),
     dailyCycleInsightService.getByUserId(userId),
+    */
     personalizeJourneyService.getByUserId(userId),
     UserService.getMyProfile(userId),
   ]);
@@ -346,8 +350,40 @@ const getCycleInsight = async (req: Request, res: Response) => {
   //     });
   // }
 
+
+  // first we need to get the users current months all information .. 
+      // like ⚡predictedPeriodStart ⚡ predictedPeriodEnd
+      // ⚡ predictedOvulationDate ⚡ fertileWindow
+  
+      let data:any = await new FertieService().predictAllDates(req.user.userId);
+  
+      //  const [year, month] = req.body.date.split('-');
+       const [year, month] = new Date().toISOString().split('T')[0].split('-');
+      const targetYearMonth = `${year}-${month}`;
+  
+      // Find the month object that matches the target year-month
+      const monthData = data.find(item => item.month === targetYearMonth);
+  
+      if (!monthData) {
+        console.error(`No data found for month: ${targetYearMonth}`);
+        return;
+      }
+  
+      // Extract period start date for the found month
+      const periodEvent : {
+        predictedPeriodStart: Date;
+        predictedPeriodEnd: Date;
+        predictedOvulationDate: Date;
+        fertileWindow: [Date, Date];
+      } = monthData.events.find(event => event.predictedPeriodStart);
+    
+      console.log('periodEvent :::::::::::: ', periodEvent);
+  
+      
+      const periodStartDate = periodEvent.predictedPeriodStart//.split('T')[0];
+
   let cycleDay =
-        differenceInDays(currentDate, personalizedJourney?.periodStartDate) + 1;
+        differenceInDays(currentDate, periodStartDate) + 1;
 
   let phase = '';
     let fertilityLevel = '';
@@ -402,14 +438,7 @@ const getCycleInsight = async (req: Request, res: Response) => {
       - expectedNextPeriodStartDate: ${personalizedJourney?.expectedPeriodStartDate || 'N/A'}
       - predictedOvulationDate: ${personalizedJourney?.predictedOvulationDate || 'N/A'}
 
-      ----- in Daily cycle Insights Collection
-      - menstrualFlow: ${insights?.menstrualFlow || 'N/A'}
-      - mood: ${insights?.mood || 'N/A'}
-      - activity: ${insights?.activity || 'N/A'}
-      - symptoms: ${insights?.symptoms || 'N/A'}
-      
-      - cervicalMucus: ${insights?.cervicalMucus || 'N/A'}
-
+    
       ----- User Data 
       - name: ${userProfileData?.name || 'N/A'}
       - email: ${userProfileData?.email || 'N/A'}
@@ -417,9 +446,6 @@ const getCycleInsight = async (req: Request, res: Response) => {
       - subscriptionType: ${userProfileData?.subscriptionType || 'N/A'}
       - phoneNumber: ${userProfileData?.phoneNumber || 'N/A'}
       - lastPasswordChangeDate: ${userProfileData?.lastPasswordChange || 'N/A'}
-
-      - labTestLog: ${JSON.stringify(insights?.labTestLogId) || 'N/A'}
-      - allInsights: ${JSON.stringify(allInsights) || 'N/A'}
 
       ---------------------------
       give me response like {
@@ -430,14 +456,28 @@ const getCycleInsight = async (req: Request, res: Response) => {
       }
     `;
 
+    /*
+      // 🤖🤖🤖 client bad dise ..  
+    ----- in Daily cycle Insights Collection
+      - menstrualFlow: ${insights?.menstrualFlow || 'N/A'}
+      - mood: ${insights?.mood || 'N/A'}
+      - activity: ${insights?.activity || 'N/A'}
+      - symptoms: ${insights?.symptoms || 'N/A'}
+      
+      - cervicalMucus: ${insights?.cervicalMucus || 'N/A'}
+
+      
+      - labTestLog: ${JSON.stringify(insights?.labTestLogId) || 'N/A'}
+      - allInsights: ${JSON.stringify(allInsights) || 'N/A'}
+
+      */
+
     //  - phase: ${insights?.phase || 'N/A'}
     //   - fertilityLevel: ${insights?.fertilityLevel || 'N/A'}
     //   - cycleDay: ${insights?.cycleDay || 'N/A'}
 
 
     ////////////////////////////////////////////////////
-
-
 
     // Initialize response string
     let responseText = '';
