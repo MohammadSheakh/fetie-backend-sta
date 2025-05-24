@@ -63,7 +63,18 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
 
       let allNotifications = await Notification.find({
         receiverId: req.user.userId,
-      })
+      }).updateMany(
+        { $set: { viewStatus : true } },
+        { new: true }
+      )
+      //.sort({ createdAt: -1 }) // sort by createdAt descending
+      //.limit(10);
+      
+
+      // let allNotifications = await Notification.find({
+      //   receiverId: req.user.userId,
+      // }).sort({ createdAt: -1 }) // sort by createdAt descending
+      // .limit(10);
 
       sendResponse(res, {
         code: StatusCodes.OK,
@@ -289,8 +300,8 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
 
             allNotificaiton = await Notification.find({
               receiverId: req.user.userId,
-            });
-
+            }).sort({ createdAt: -1 }) // sort by createdAt descending
+            .limit(10);
 
             console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
           } catch (parseError) {
@@ -320,7 +331,8 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
 
                 allNotificaiton = await Notification.find({
                   receiverId: req.user.userId,
-                });
+                }).sort({ createdAt: -1 }) // sort by createdAt descending
+                .limit(10);
 
 
                 console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
@@ -347,7 +359,9 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
     
           sendResponse(res, {
             code: StatusCodes.OK,
-            data: {jsonResponse,newAIGeneratedNotification, allNotificaiton} ,  //   jsonResponse  //session.url,
+            // jsonResponse,newAIGeneratedNotification,
+             data: {jsonResponse,newAIGeneratedNotification, allNotificaiton} ,  //   jsonResponse  //session.url,
+            //data: allNotificaiton ,
             message: `Notification generated successfully..`,
             success: true,
           });

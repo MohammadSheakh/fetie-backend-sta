@@ -106,41 +106,45 @@ export class FertieService extends GenericService<typeof Fertie, IFertie>{
         });
       }
       
-      // Now fetch daily insights for each month we have predictions for
-      for (const monthKey of Object.keys(predictionsByMonth)) {
-        const [year, month] = monthKey.split('-').map(Number);
-        
-        const startDate = new Date(year, month - 1, 1);
-        const endDate = new Date(year, month, 0); // Last day of month
-        
-        // Fetch DailyCycleInsights for this month
-        const insights = await DailyCycleInsights.find({
-          userId,
-          date: { $gte: startDate, $lte: endDate },
-        }).lean();
-        
-        const formattedData:any = {};
-        
-        insights.forEach(entry => {
-          const dateKey = entry.date
-            .toISOString()
-            .slice(0, 10)
-            .split('-')
-            .reverse()
-            .join('-'); // DD-MM-YYYY
+      /*
+
+        // Now fetch daily insights for each month we have predictions for
+        for (const monthKey of Object.keys(predictionsByMonth)) {
+          const [year, month] = monthKey.split('-').map(Number);
           
-          const { menstrualFlow, phase } = entry;
+          const startDate = new Date(year, month - 1, 1);
+          const endDate = new Date(year, month, 0); // Last day of month
           
-          formattedData[dateKey] = {};
+          // Fetch DailyCycleInsights for this month
+          const insights = await DailyCycleInsights.find({
+            userId,
+            date: { $gte: startDate, $lte: endDate },
+          }).lean();
           
-          if (menstrualFlow)
-            formattedData[dateKey].menstrualFlow = menstrualFlow;
-          if (phase) 
-            formattedData[dateKey].phase = phase;
-        });
-        
-        predictionsByMonth[monthKey].dailyLogs = formattedData;
-      }
+          const formattedData:any = {};
+          
+          insights.forEach(entry => {
+            const dateKey = entry.date
+              .toISOString()
+              .slice(0, 10)
+              .split('-')
+              .reverse()
+              .join('-'); // DD-MM-YYYY
+            
+            const { menstrualFlow, phase } = entry;
+            
+            formattedData[dateKey] = {};
+            
+            if (menstrualFlow)
+              formattedData[dateKey].menstrualFlow = menstrualFlow;
+            if (phase) 
+              formattedData[dateKey].phase = phase;
+          });
+          
+          predictionsByMonth[monthKey].dailyLogs = formattedData;
+        }
+
+      */
       
       // Convert the predictions map to an array sorted by month
       const predictions = Object.values(predictionsByMonth)

@@ -13,7 +13,7 @@ router.route('/today-notification')
 .get(
   auth('common'),
   NotificationController.getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt);
-  
+
 /*
 router
   .route('/clear-all-notifications')

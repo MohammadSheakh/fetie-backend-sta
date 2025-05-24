@@ -15,6 +15,8 @@ export class DailyCycleInsightsService extends GenericService<
     super(DailyCycleInsights);
   }
 
+ /* 
+  // 🤖🤖🤖 client bad dise .. 
   //[🚧][🧑‍💻✅][🧪] // 🆗
   createByDateAndUserId = async (data: Partial<TDailyCycleInsights>) => {
     const res = await this.model.create(data);
@@ -84,6 +86,8 @@ export class DailyCycleInsightsService extends GenericService<
     // }
     return res;
   };
+
+  */
 
   // Add more service here ..
 }

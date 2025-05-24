@@ -35,6 +35,8 @@ export class DailyCycleInsightsController extends GenericController<
     // this.stripe = new Stripe('your_stripe_secret_key');
   }
 
+  // 🤖🤖🤖 client bad dise .. 
+
   //[🚧][🧑‍💻✅][🧪] // 🆗
   create = catchAsync(async (req: Request, res: Response) => {
     const {
@@ -330,6 +332,7 @@ export class DailyCycleInsightsController extends GenericController<
     }
   });
 
+  // 🤖🤖🤖 client bad dise .. 
   updateByDate = catchAsync(async (req: Request, res: Response) => {
     const { date } = req.body;
     const userId = req.user.userId;
@@ -357,6 +360,8 @@ export class DailyCycleInsightsController extends GenericController<
     });
   });
 
+
+  // 🤖🤖🤖 client bad dise .. 
   //[🚧][🧑‍💻][🧪] // ✅ 🆗  // 🔴🔴 not working ..  
   getByDateAndUserId = catchAsync(async (req: Request, res: Response) => {
     const { date } = req.query;
