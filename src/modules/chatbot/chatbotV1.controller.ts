@@ -640,7 +640,7 @@ const getCycleInsight = async (req: Request, res: Response) => {
       sendResponse(res, {
         code: StatusCodes.OK,
         data: jsonResponse, //session.url,
-        message: `not created successfully`,
+        message: `Todays Cycle Insights Generated successfully`,
         success: true,
       });
 
