@@ -422,10 +422,11 @@ export class FertieController extends GenericController<
     // 🟢🟢🟢🟢 
 
     // now we got the cycle day .. we have to generate response from chatgpt based on cycle day
-    console.log("cycle day 🔥", cycleDay);
+    console.log("cycle day 🔥", cycleDay); 
     const gptResponseForCycleDay = await this.fertieService.getChatBotsFeedbackAboutCurrentDailyCycle(cycleDay ? cycleDay : 0); // FIX ME : ekhane 0 send kora jabe na .. 
     
     currentMonthData.gptResponse = gptResponseForCycleDay;
+    currentMonthData.cycleDay = cycleDay; // Add cycle day to current month data
 
     // Now fetch daily insights for each month we have predictions for
     for (const monthKey of Object.keys(predictionsByMonth)) {

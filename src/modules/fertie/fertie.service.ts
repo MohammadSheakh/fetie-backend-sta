@@ -167,9 +167,12 @@ export class FertieService extends GenericService<typeof Fertie, IFertie>{
           
         Response Example (must be valid JSON string) : 
         {
-          "title" : "You're on Cycle Day ${cycleDay || 'N/A'}- this is a key time 🪴" 
+          "title" : "provide a title based on cycleDay without mentioning cycleDay"  
         }  
+
       `
+      // this is a key time 🪴
+      // You're on Cycle Day ${cycleDay || 'N/A'}
       
 
       // Initialize response string
