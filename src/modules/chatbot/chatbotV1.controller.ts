@@ -103,7 +103,7 @@ const chatbotResponseLongPollingWithHistory = async (
         conversationId
       }).populate("text senderRole conversationId"); // conversationId
 
-    console.log("previousMessageHistory 🟢🟢🟢", previousMessageHistory);
+    // console.log("previousMessageHistory 🟢🟢🟢", previousMessageHistory);
 
 
     // Set up headers for streaming
@@ -124,7 +124,7 @@ const chatbotResponseLongPollingWithHistory = async (
       const maxHistoryMessages = 300; // Adjust based on your needs
       const recentMessages = previousMessageHistory.slice(-maxHistoryMessages);
 
-      console.log("recentMessages 🟢🟢🟢", recentMessages);
+      // console.log("recentMessages 🟢🟢🟢", recentMessages);
       
       recentMessages.forEach(msg => {
         const role = msg.senderRole === RoleType.user ? 'user' : 'assistant';
@@ -145,7 +145,7 @@ const chatbotResponseLongPollingWithHistory = async (
     let delay = 1000; // Start with 1 second delay
     let stream;
 
-    console.log("formattedMessages 🟢🟢🟢", formattedMessages);
+    // console.log("formattedMessages 🟢🟢🟢", formattedMessages);
 
     while (retries <= maxRetries) {
       try {
@@ -381,7 +381,7 @@ const getCycleInsight = async (req: Request, res: Response) => {
         fertileWindow: [Date, Date];
       } = monthData.events.find(event => event.predictedPeriodStart);
     
-      console.log('periodEvent :::::::::::: ', periodEvent);
+      // console.log('periodEvent :::::::::::: ', periodEvent);
   
       
       const periodStartDate = periodEvent.predictedPeriodStart//.split('T')[0];
@@ -604,7 +604,7 @@ const getCycleInsight = async (req: Request, res: Response) => {
         jsonResponse = JSON.parse(responseText);
         jsonResponse.cycleDay = cycleDay;
 
-        console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
+        // console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
       } catch (parseError) {
         // If direct parsing fails, try to extract JSON from the response
         console.log("Failed to parse direct response, attempting to extract JSON");
