@@ -16,6 +16,8 @@ const sendPushNotification = async (
     token: user.fcmToken, // Ensure the user has a valid FCM token
   };
 
+  console.log('Sending push notification to: 🫸🔔', user.email);
+
   try {
     const response = await admin.messaging().send(message);
     console.log('Successfully sent  push notification:', response);
