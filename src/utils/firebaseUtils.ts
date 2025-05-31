@@ -1,3 +1,4 @@
+// We dont need this utils file  in this Fertie Backend 
 import * as admin from 'firebase-admin';
 
 import { Schema } from 'mongoose';
@@ -21,6 +22,7 @@ const initializeFirebase = () => {
   }
 };
 
+// We dont need this function in this Fertie Backend 
 // This function can now be reused in your services or utils as needed
 export const sendPushNotification = async (
   fcmToken: string,

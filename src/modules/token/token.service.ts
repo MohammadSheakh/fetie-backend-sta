@@ -51,7 +51,7 @@ const verifyToken = async (
 };
 
 const createVerifyEmailToken = async (user: TUser) => {
-  const payload = { userId: user._id, email: user.email, role: user.role };
+  const payload = { userId: user._id, email: user.email, fcmToken: user.fcmToken, role: user.role };
   await Token.deleteMany({ user: user._id });
   const verifyEmailToken = createToken(
     payload,

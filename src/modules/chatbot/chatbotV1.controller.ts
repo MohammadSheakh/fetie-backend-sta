@@ -315,7 +315,7 @@ const chatbotResponseLongPollingWithHistory = async (
 
 // TODO : // 🤖🤖🤖 client er kotha moto change korte hobe ... 
 
-const getCycleInsight = async (req: Request, res: Response) => {
+const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
   const userId = req?.user?.userId;
 
   const currentDate = new Date();
@@ -670,7 +670,284 @@ const getCycleInsight = async (req: Request, res: Response) => {
 
 }
 
+/**
+ * for cycle insights .. we are calling Stream False from route .. 
+ * 
+ * Key Changes Made:
+    1. Removed Streaming
+
+    Changed stream: false to get complete response at once
+    Eliminated complex streaming logic that might confuse Flutter
+
+    2. Improved JSON Parsing
+
+    Added multiple fallback strategies for parsing AI response
+    Better error handling for malformed JSON
+    Ensures all required fields are present
+
+    3. Better Error Handling
+
+    Wrapped everything in try-catch
+    Proper error responses for Flutter
+    Added Content-Type headers
+
+    4. Enhanced AI Prompt
+
+    Made it clearer that only JSON should be returned
+    Specified exact format requirements
+ */
+
+  const getCycleInsightWithStramFalse = async (req: Request, res: Response) => {
+  const userId = req?.user?.userId;
+
+  try {
+    const currentDate = new Date();
+    
+    const personalizedJourneyService = new PersonalizedJourneyService();
+
+    // Fetch user data
+    const [personalizedJourney, userProfileData] 
+    : [IPersonalizeJourney, any]
+    = await Promise.all([
+      personalizeJourneyService.getByUserId(userId),
+      UserService.getMyProfile(userId),
+    ]);
+
+    // Get fertility data
+    let data: any = await new FertieService().predictAllDates(req.user.userId);
+    
+    const [year, month] = new Date().toISOString().split('T')[0].split('-');
+    const targetYearMonth = `${year}-${month}`;
+
+    // Find the month object that matches the target year-month
+    const monthData = data.find(item => item.month === targetYearMonth);
+
+    if (!monthData) {
+      console.error(`No data found for month: ${targetYearMonth}`);
+      return sendResponse(res, {
+        code: StatusCodes.BAD_REQUEST,
+        data: null,
+        message: `No data found for current month`,
+        success: false,
+      });
+    }
+
+    // Extract period start date for the found month
+    const periodEvent: {
+      predictedPeriodStart: Date;
+      predictedPeriodEnd: Date;
+      predictedOvulationDate: Date;
+      fertileWindow: [Date, Date];
+    } = monthData.events.find(event => event.predictedPeriodStart);
+  
+    const periodStartDate = periodEvent.predictedPeriodStart;
+
+    let cycleDay = differenceInDays(currentDate, periodStartDate) + 1;
+
+    let phase = '';
+    let fertilityLevel = '';
+    if (cycleDay <= 5) {
+      phase = 'Menstrual';
+      fertilityLevel = 'Very Low';
+    } else if (cycleDay <= 13) {
+      phase = 'Follicular';
+      fertilityLevel = 'Low to Medium';
+    } else if (cycleDay === 14) {
+      phase = 'Ovulatory';
+      fertilityLevel = 'Very High';
+    } else if (
+      cycleDay <= Number(personalizedJourney?.avgMenstrualCycleLength)
+    ) {
+      phase = 'Luteal';
+      fertilityLevel = 'Low';
+    } else {
+      phase = 'Unknown';
+      fertilityLevel = 'Unknown';
+    }
+
+    // Build system prompt
+    const systemPrompt = `You are a friendly reproductive health assistant Named Fertie.
+      Based on user's cycle, lab tests, Pattern you noticed and daily logs, provide helpful Suggestion.
+  
+      Be Statistic.
+
+      Data available: 
+
+      - phase: ${phase || 'N/A'}
+      - fertilityLevel: ${fertilityLevel || 'N/A'}
+      - cycleDay: ${cycleDay || 'N/A'}
+
+      ----- in Personalized Journey Collection
+      - dateOfBirth: ${personalizedJourney?.dateOfBirth || 'N/A'}
+      - age: ${personalizedJourney?.age || 'N/A'}
+      - height: ${personalizedJourney?.height || 'N/A'}
+      - heightUnit: ${personalizedJourney?.heightUnit || 'N/A'}
+      - weight: ${personalizedJourney?.weight || 'N/A'}
+      - weightUnit: ${personalizedJourney?.weightUnit || 'N/A'}
+      - tryingToConceive: ${personalizedJourney?.tryingToConceive || 'N/A'}
+      - areCyclesRegular: ${personalizedJourney?.areCyclesRegular || 'N/A'}
+      - describeFlow: ${personalizedJourney?.describeFlow || 'N/A'}
+      - periodStartData: ${personalizedJourney?.periodStartDate || 'N/A'}
+      - periodLength: ${personalizedJourney?.periodLength || 'N/A'}
+      - periodEndDate: ${personalizedJourney?.periodEndDate || 'N/A'}
+      - averageMenstrualCycleLength: ${personalizedJourney?.avgMenstrualCycleLength || 'N/A'}
+      - trackOvulationBy: ${personalizedJourney?.trackOvulationBy || 'N/A'}
+      - doYouHavePain: ${personalizedJourney?.doYouHavePain || 'N/A'}
+      - expectedNextPeriodStartDate: ${personalizedJourney?.expectedPeriodStartDate || 'N/A'}
+      - predictedOvulationDate: ${personalizedJourney?.predictedOvulationDate || 'N/A'}
+
+      ----- User Data 
+      - name: ${userProfileData?.name || 'N/A'}
+      - email: ${userProfileData?.email || 'N/A'}
+      - role: ${userProfileData?.role || 'N/A'}
+      - subscriptionType: ${userProfileData?.subscriptionType || 'N/A'}
+      - phoneNumber: ${userProfileData?.phoneNumber || 'N/A'}
+      - lastPasswordChangeDate: ${userProfileData?.lastPasswordChange || 'N/A'}
+
+      ---------------------------
+      IMPORTANT: Respond ONLY with valid JSON in exactly this format (no extra text, no markdown, no code blocks):
+      {
+        "currentCycleInfo": "Current cycle info here",
+        "suggestion": "Your suggestion here",
+        "patternFertieNoticed": "Pattern you noticed here",
+        "whatToKeepInMindInThisCycle": "What to keep in mind in this cycle"
+      }
+    `;
+
+    // Initialize response string
+    let responseText = '';
+
+    // Retry logic for API rate limits
+    const maxRetries = 3;
+    let retries = 0;
+    let delay = 1000;
+    let stream;
+
+    while (retries <= maxRetries) {
+      try {
+        // FIXED: Use stream: false for simpler response handling
+        const completion = await model.chat.completions.create({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: systemPrompt },
+          ],
+          temperature: 0.7,
+          stream: false, // Changed to false for easier handling
+        });
+
+        responseText = completion.choices[0]?.message?.content || '';
+        break;
+
+      } catch (error) {
+        // Handle rate limit errors
+        if (error.status === 429) {
+          retries++;
+          if (retries > maxRetries) {
+            throw new Error('Rate limit exceeded. Please try again later.');
+          }
+
+          console.log(`Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          delay = delay * 2 * (0.5 + Math.random());
+        } else {
+          console.error('OpenAI API error:', error);
+          throw error;
+        }
+      }
+    }
+
+    if (!responseText) {
+      throw new Error('Failed to generate a response from AI');
+    }
+
+    // IMPROVED: Better JSON parsing with multiple fallback strategies
+    let jsonResponse;
+    
+    try {
+      // Strategy 1: Direct parsing
+      jsonResponse = JSON.parse(responseText.trim());
+    } catch (parseError) {
+      console.log("Strategy 1 failed, trying strategy 2...");
+      
+      try {
+        // Strategy 2: Extract JSON from markdown code blocks
+        const codeBlockMatch = responseText.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+        if (codeBlockMatch) {
+          jsonResponse = JSON.parse(codeBlockMatch[1]);
+        } else {
+          throw new Error("No code block found");
+        }
+      } catch (codeBlockError) {
+        console.log("Strategy 2 failed, trying strategy 3...");
+        
+        try {
+          // Strategy 3: Extract first JSON object found
+          const jsonMatch = responseText.match(/\{[\s\S]*?\}/);
+          if (jsonMatch) {
+            jsonResponse = JSON.parse(jsonMatch[0]);
+          } else {
+            throw new Error("No JSON object found");
+          }
+        } catch (extractError) {
+          console.log("Strategy 3 failed, using fallback response");
+          
+          // Strategy 4: Fallback response
+          jsonResponse = {
+            currentCycleInfo: `You are currently in the ${phase} phase on day ${cycleDay} with ${fertilityLevel.toLowerCase()} fertility level.`,
+            suggestion: "Focus on maintaining a healthy lifestyle and tracking your symptoms.",
+            patternFertieNoticed: "Fertie is analyzing your cycle patterns.",
+            whatToKeepInMindInThisCycle: "Track your symptoms and maintain regular health habits."
+          };
+        }
+      }
+    }
+
+    // Ensure all required fields are present
+    if (!jsonResponse.currentCycleInfo || !jsonResponse.suggestion || 
+        !jsonResponse.patternFertieNoticed || !jsonResponse.whatToKeepInMindInThisCycle) {
+      
+      // Fill missing fields with defaults
+      jsonResponse = {
+        currentCycleInfo: jsonResponse.currentCycleInfo || `You are currently in the ${phase} phase on day ${cycleDay}.`,
+        suggestion: jsonResponse.suggestion || "Continue tracking your cycle and maintaining healthy habits.",
+        patternFertieNoticed: jsonResponse.patternFertieNoticed || "Fertie is learning your cycle patterns.",
+        whatToKeepInMindInThisCycle: jsonResponse.whatToKeepInMindInThisCycle || "Focus on consistent tracking and self-care.",
+        ...jsonResponse // Keep any other fields that might be present
+      };
+    }
+
+    // Add cycle day to response
+    jsonResponse.cycleDay = cycleDay;
+
+    console.log("Final JSON Response:", jsonResponse);
+
+    // FIXED: Ensure proper headers for JSON response
+    res.setHeader('Content-Type', 'application/json');
+    
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: jsonResponse,
+      message: `Today's Cycle Insights Generated successfully`,
+      success: true,
+    });
+
+  } catch (error) {
+    console.error('Error in getCycleInsight:', error);
+    
+    // FIXED: Ensure error response is also properly formatted
+    res.setHeader('Content-Type', 'application/json');
+    
+    sendResponse(res, {
+      code: StatusCodes.INTERNAL_SERVER_ERROR,
+      data: null,
+      message: error.message || 'An error occurred while generating cycle insights',
+      success: false,
+    });
+  }
+};
+
 export const ChatBotV1Controller = {
-  getCycleInsight,
+  getCycleInsightWithStreamTrue,
+  getCycleInsightWithStramFalse,
   chatbotResponseLongPollingWithHistory
 };

@@ -20,6 +20,6 @@ router
 
 router
   .route('/bot/cycleInsight')
-  .get(auth('common'), ChatBotV1Controller.getCycleInsight);
+  .get(auth('common'), ChatBotV1Controller.getCycleInsightWithStramFalse);
 
 export const ChatBotRoute = router;

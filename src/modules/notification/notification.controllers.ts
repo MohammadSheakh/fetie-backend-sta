@@ -9,7 +9,7 @@ import { notificationFilters } from './notification.constants';
 import { differenceInDays } from 'date-fns';
 import { FertieService } from '../fertie/fertie.service';
 import { Notification } from './notification.model';
-
+import sendPushNotification from '../../utils/sendPushNotification'
 const model = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
   // baseURL: 'https://openrouter.ai/api/v1',
@@ -59,6 +59,11 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
               subTitle: 'Remainder',
               receiverId: req.user.userId,
           })
+
+          await sendPushNotification(req.user.fcmToken, {
+            title: 'Hey! Don’t forget to check your cycle insights today!',
+            content: 'Remainder',
+          });
       }
 
       let allNotifications = await Notification.find({
@@ -297,6 +302,11 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
               subTitle: jsonResponse.subTitle,
               receiverId: req.user.userId,
             })
+
+            await sendPushNotification(req.user.fcmToken, {
+              title: jsonResponse.title,
+              content: jsonResponse.subTitle,
+            });
 
             allNotificaiton = await Notification.find({
               receiverId: req.user.userId,
