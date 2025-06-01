@@ -168,8 +168,8 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
 
       sendResponse(res, {
         code: StatusCodes.OK,
-        data: result ? result : res1,
-        message: `${this.modelName} created successfully`,
+        data: existingConversation ? existingConversation : res1,
+        message: existingConversation ?  `${this.modelName} already exist` : `${this.modelName} created successfully`,
         success: true,
       });
     }
