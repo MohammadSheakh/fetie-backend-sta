@@ -9,6 +9,12 @@ const messageSchema = new Schema<IMessage>(
       type: String,
       required: [true, 'text is required'],
     },
+    // Add these fields for vector search and RAG 
+    embedding: {
+      type: [Number], // This will hold the vector embedding
+      required: false,
+      //index: '2dsphere' // Optional: for geospatial queries; not needed for vector search
+    },
     attachments: [
       {
         type: Schema.Types.ObjectId,

@@ -6,6 +6,7 @@ export interface IMessage {
   // _taskId: undefined | Types.ObjectId;
   _id?: Types.ObjectId; // undefined |  Types.ObjectId | // 
   text : String;
+  embedding?: number[]; // This will hold the vector embedding
   attachments?: Types.ObjectId[];
   senderId :  Types.ObjectId; // 🔗
   conversationId : Types.ObjectId; // 🔗
