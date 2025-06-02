@@ -32,6 +32,7 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
   // override  // 2️⃣
   create = catchAsync(async (req: Request, res: Response) => {
     let type;
+    let result: IConversation;
     // creatorId ta req.user theke ashbe
     //req.body.creatorId = req.user.userId;
     let { participants, message } = req.body; // type, attachedToId, attachedToCategory
@@ -48,7 +49,7 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
 
     participants = [...participants, req.user.userId]; // add yourself to the participants list
 
-    let result: IConversation;
+    
     if (participants.length > 0) {
       type =
         participants.length > 2
@@ -168,7 +169,7 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
 
       sendResponse(res, {
         code: StatusCodes.OK,
-        data: existingConversation ? existingConversation : res1,
+        data: existingConversation ? existingConversation : result,
         message: existingConversation ?  `${this.modelName} already exist` : `${this.modelName} created successfully`,
         success: true,
       });

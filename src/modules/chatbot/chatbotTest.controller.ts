@@ -28,19 +28,17 @@ import { StatusCodes } from "http-status-codes";
   let dailyCycleInsightService = new DailyCycleInsightsService();
   let personalizeJourneyService = new PersonalizedJourneyService();
   
-
 //******** Not working  
 // import { OpenAIEmbeddings } from '@langchain/embeddings/openai';
 // import { MongoDBAtlasVectorSearch } from '@langchain/vectorstores/mongodb_atlas';
 
 // OpenAI URL and Headers 
 
-
 const model = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
     // baseURL: 'https://openrouter.ai/api/v1',
     baseURL: 'https://api.openai.com/v1'
-  });
+});
 
 interface OpenAIEmbeddingResponse {
   object: string;
@@ -123,6 +121,13 @@ export class ChatBotTestController {
       })
     }
   })
+
+  /****************
+   * 
+   * we would like to create embedding this way 
+   * but it is not working .. so we comment out this code
+   * 
+   * *************** */
 
   /*
   createEmbeddingV3 = catchAsync(async (req: Request, res: Response) => {
@@ -290,7 +295,14 @@ export class ChatBotTestController {
   }
 
 
-chatbotV3 = async (
+  /****************
+   * 
+   *  This is updated demo version.. 
+   *  Now we have to implement this same logic in ChatbotV1.controller.ts 
+   * 
+   *  and function name is chatbotResponseLongPollingWithEmbeddingHistory
+   * **************** */
+  chatbotResponseLongPolHistoryVectorV2 = async (
     req: Request,
     res: Response
   ) => {
@@ -298,8 +310,6 @@ chatbotV3 = async (
       const userId = req?.user?.userId;
       const userMessage = req?.body?.message;
       const conversationId = req?.body?.conversationId;
-      const minAccuracy = req?.body?.minAccuracy || 0.1; // Default 80%, but can be adjusted
-      
       if (!conversationId) {
         throw new ApiError(
           StatusCodes.BAD_REQUEST,
@@ -316,15 +326,19 @@ chatbotV3 = async (
         console.error('No message provided in the request body.');
         return res.status(400).json({ error: 'Message is required' });
       }
-
       let messageService = new MessagerService();
 
-      // Create embedding for user message
+      /*****
+       * 
+       * before saving .. create embedding for user messsage .. 
+       * 
+       * ******/
+
       const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
         method: 'POST',
         headers: this.openAiHeaders,
         body: JSON.stringify({
-          model: "text-embedding-3-small",
+          model: "text-embedding-3-small", // // Updated model (ada-002 is deprecated)
           input: userMessage
         })
       });
@@ -338,200 +352,131 @@ chatbotV3 = async (
       const embeddingData: OpenAIEmbeddingResponse = await embeddingResponse.json();
       const embedding = embeddingData.data[0].embedding;
       
-      console.log(`Searching for messages with ${minAccuracy * 100}%+ accuracy`);
+      console.log("embedding : ⏳", embedding);
+      
+      /**
+       *
+       * save message in the database ..
+       */
+  
+      /*
+          const saveMessageToDbRes: IMessage | null = await messageService.create({
+            text: userMessage,
+            senderId: req.user.userId,
+            conversationId: conversationId,
+            senderRole:
+              req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
+            embedding: embedding // as OpenAIEmbeddingResponse
+          });
+      */
 
-      // Pipeline with configurable accuracy threshold
-      const pipeline = [
+    
+      // also update the last message of the conversation 
+      /*
+      await Conversation.findByIdAndUpdate(
+        conversationId,
+        { lastMessageSenderRole: RoleType.user},
+        { new: true }
+      );
+      */
+  
+      /**
+       *
+       * get all simmilar messages by conversationId
+       */
+
+      /*
+      const testPipeline = [
         {
           $vectorSearch: {
             index: "vector_index",
             path: "embedding", 
             queryVector: embedding,
-            numCandidates: 100, // High number for better recall
-            limit: 50
-          }
-        },
-        {
-          $addFields: {
-            score: { $meta: "vectorSearchScore" }
-          }
-        },
-        {
-          $match: {
-            conversationId: conversationId,
-            score: { $gte: minAccuracy } // Use configurable threshold
+            numCandidates: 10,
+            limit: 3
           }
         },
         {
           $project: {
             text: 1,
             conversationId: 1,
-            senderId: 1,
-            senderRole: 1,
-            createdAt: 1,
-            score: 1,
-            accuracyPercentage: { 
-              $multiply: ["$score", 100] // Convert to percentage
-            }
+            score: { $meta: "vectorSearchScore" }
+          }
+        }
+      ];
+      */
+
+      const testPipeline = [
+        {
+          $vectorSearch: {
+            index: "vector_index",
+            path: "embedding",
+            queryVector: embedding,
+            numCandidates: 10,
+            limit: 3
           }
         },
         {
-          $sort: { score: -1 }
+          $match: {
+            senderId: new mongoose.Types.ObjectId(userId)  // Add this stage to filter by senderId
+          }
         },
         {
-          $limit: 5
+          $project: {
+            text: 1,
+            conversationId: 1,
+            senderId: 1,  // Include senderId in the projection if needed
+            score: { $meta: "vectorSearchScore" }
+          }
         }
       ];
 
-      const similarMessages = await Message.aggregate(pipeline as any[]);
+      const similarMessages = await Message.aggregate(testPipeline);
 
-      console.log(`Found ${similarMessages.length} messages with ${minAccuracy * 100}%+ accuracy`);
-      
-      if (similarMessages.length > 0) {
-        console.log("Top result accuracy:", `${(similarMessages[0].score * 100).toFixed(1)}%`);
-      }
+      console.log("similarMessages : ⏳", similarMessages);
+
+      /****************************
+
+      const previousMessageHistory: IMessage[] | null =
+        await Message.find({
+          conversationId
+        }).populate("text senderRole conversationId"); // conversationId
+  
+      // console.log("previousMessageHistory 🟢🟢🟢", previousMessageHistory);
+  
+  
+       *************************/
 
       sendResponse(res, {
         code: StatusCodes.OK,
         data: {
-          similarMessages: similarMessages,
-          searchCriteria: {
-            minAccuracy: minAccuracy,
-            minAccuracyPercentage: `${minAccuracy * 100}%`,
-            conversationId: conversationId
-          }
+          similarMessages
         },
-        message: `Found ${similarMessages.length} messages with ${minAccuracy * 100}%+ accuracy.`,
+        message: `Message saved successfully and embedding created.`,
         success: true,
       });
       
-    } catch(error) {
+  }catch(error){
       console.error('Chatbot error:', error);
-      if (!res.headersSent) {
-        res.status(500).json({ 
-          error: `Something went wrong. ${error.message || error}` 
-        });
-      } else {
-        res.write(
-          `data: ${JSON.stringify({
-            error: `Something went wrong. ${error.message || error}`,
-          })}\n\n`
-        );
-        res.end();
-      }
-    }
-  }
-
-
-  chatbotV4 = async (req: Request, res: Response) => {
-  try {
-    const userId = req?.user?.userId;
-    const { message: userMessage, conversationId, minAccuracy = 0.1 } = req.body;
-
-    if (!conversationId) {
-      throw new ApiError(StatusCodes.BAD_REQUEST, `conversationId must be provided.`);
-    }
-    if (!userId) {
-      throw new ApiError(StatusCodes.UNAUTHORIZED, `User not authenticated.`);
-    }
-    if (!userMessage) {
-      return res.status(400).json({ error: 'Message is required' });
-    }
-
-    const openAiHeaders = {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-    };
-
-    const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
-      method: 'POST',
-      headers: openAiHeaders,
-      body: JSON.stringify({
-        model: "text-embedding-3-small",
-        input: userMessage,
-      }),
-    });
-
-    if (!embeddingResponse.ok) {
-      throw new ApiError(StatusCodes.INTERNAL_SERVER_ERROR, `OpenAI Error: ${embeddingResponse.statusText}`);
-    }
-
-    const embeddingData = await embeddingResponse.json();
-    const embedding = embeddingData.data[0].embedding;
-
-
-     // Save message with embedding
-    await Message.create({
-      text: userMessage,
-      conversationId: conversationId,
-      senderId: userId,
-      senderRole: RoleType.user,
-      embedding
-    });
-
-    const pipeline = [
-      {
-        $vectorSearch: {
-          index: "vector_index",
-          path: "embedding",
-          queryVector: embedding,
-          numCandidates: 100,
-          limit: 50,
-        },
-      },
-      {
-        $addFields: {
-          score: { $meta: "vectorSearchScore" },
-        },
-      },
-      {
-        $match: {
-          conversationId,
-          score: { $gte: minAccuracy },
-        },
-      },
-      {
-        $project: {
-          text: 1,
-          conversationId: 1,
-          senderId: 1,
-          senderRole: 1,
-          createdAt: 1,
-          score: 1,
-          accuracyPercentage: { $multiply: ["$score", 100] },
-        },
-      },
-      { $sort: { score: -1 } },
-      { $limit: 5 },
-    ];
-
-    const similarMessages = await Message.aggregate(pipeline);
-
-    sendResponse(res, {
-      code: StatusCodes.OK,
-      data: {
-        similarMessages,
-        searchCriteria: {
-          minAccuracy,
-          minAccuracyPercentage: `${minAccuracy * 100}%`,
-          conversationId,
-        },
-      },
-      message: `Found ${similarMessages.length} messages with ${minAccuracy * 100}%+ accuracy.`,
-      success: true,
-    });
-
-  } catch (error: any) {
-    console.error('Chatbot error:', error);
+    /// Make sure we haven't already started a response
     if (!res.headersSent) {
-      res.status(500).json({ error: `Something went wrong. ${error.message || error}` });
+      res
+        .status(500)
+        .json({ error: `Something went wrong. ${error.message || error}` });
     } else {
-      res.write(`data: ${JSON.stringify({ error: `Something went wrong. ${error.message || error}` })}\n\n`);
+      res.write(
+        `data: ${JSON.stringify({
+          error: `Something went wrong. ${error.message || error}`,
+        })}\n\n`
+      );
       res.end();
     }
   }
-};
- 
+  }
+
+
+
+
 }
 
 

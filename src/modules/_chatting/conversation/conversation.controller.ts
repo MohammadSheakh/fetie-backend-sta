@@ -28,6 +28,7 @@ export class ConversationController extends GenericController<typeof Conversatio
   // override // 1️⃣
   create = catchAsync(async (req: Request, res: Response) => {
     let type;
+    let result: IConversation;
     // creatorId ta req.user theke ashbe
     //req.body.creatorId = req.user.userId;
     let { participants, message } = req.body; // type, attachedToId, attachedToCategory
@@ -44,7 +45,7 @@ export class ConversationController extends GenericController<typeof Conversatio
 
     participants = [...participants, req.user.userId]; // add yourself to the participants list
 
-    let result: IConversation;
+    
     if (participants.length > 0) {
       type =
         participants.length > 2
@@ -143,7 +144,7 @@ export class ConversationController extends GenericController<typeof Conversatio
 
       sendResponse(res, {
         code: StatusCodes.OK,
-        data: result ? result : res1,
+        data: existingConversation ? existingConversation : result,
         message: `${this.modelName} created successfully`,
         success: true,
       });

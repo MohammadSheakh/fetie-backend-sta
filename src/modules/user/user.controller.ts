@@ -5,7 +5,7 @@ import sendResponse from '../../shared/sendResponse';
 import ApiError from '../../errors/ApiError';
 import { UserCustomService, UserService } from './user.service';
 import { User } from './user.model';
-import { Types } from 'mongoose';
+import mongoose, { Types } from 'mongoose';
 import { TokenService } from '../token/token.service';
 import { sendAdminOrSuperAdminCreationEmail } from '../../helpers/emailService';
 import { AuthService } from '../auth/auth.service';
@@ -335,6 +335,67 @@ const matchAccessPin = catchAsync(async (req, res) => {
 
 
 
+const deleteAllDataFromCollection = async (req: Request, res: Response) => {
+  try {
+    const { collectionName } = req.params; // or req.query
+
+    if (!collectionName) {
+
+      sendResponse(res, {
+      code: StatusCodes.BAD_REQUEST,
+      
+      message: `collectionName parameter is required`,
+    });
+      
+    }
+
+    // Validate collectionName - only allow known collections for safety
+    const allowedCollections = ['DailyCycleInsights', 'Users', 'Message']; // example allowed list
+    if (!allowedCollections.includes(collectionName)) {
+      
+       sendResponse(res, {
+      code: StatusCodes.FORBIDDEN,
+      
+      message: `Operation not allowed on this collection`,
+    });
+    }
+
+    // Get Mongoose model dynamically by collectionName
+    // WARNING: Mongoose model names are case-sensitive and usually singular
+    const Model = mongoose.models[collectionName];
+    console.log("Model 🌋🌋", Model);
+    if (!Model) {
+      
+      sendResponse(res, {
+     code: StatusCodes.BAD_REQUEST,
+      success: false,
+      message: `Model for collection '${collectionName}' not found`,
+    });
+    }
+
+    // Delete all documents
+    const result = await Model.deleteMany({});
+
+    
+    sendResponse(res, {
+     code: StatusCodes.BAD_REQUEST,
+      success: true,
+      message: `All documents deleted from ${collectionName}`,
+      data :  result.deletedCount,
+    });
+  } catch (error) {
+    console.error('Error deleting all data:', error);
+   
+
+    sendResponse(res, {
+      code: StatusCodes.BAD_REQUEST,
+      success: false,
+      message: `Internal server error`,
+    });
+  }
+};
+
+
 
 export const UserController = {
   createAdminOrSuperAdmin,
@@ -354,6 +415,7 @@ export const UserController = {
   setNewAccessPin,
   removeAccessPin,
   givePermissionToChangeCurrentPin,
-  matchAccessPin
+  matchAccessPin,
   ///////////////////////////////////////////////////
+  deleteAllDataFromCollection
 };

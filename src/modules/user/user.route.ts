@@ -91,6 +91,13 @@ router.post('/access-pin/match',
 
 // TODO:  Forgot Pin and Verify Email Develop korte hobe .. access Pin related 
 
+
+router.post('/delete/:collectionName',
+  UserController.deleteAllDataFromCollection
+) 
+
+
+
 ////////////////////////////////////////////////
 
 
