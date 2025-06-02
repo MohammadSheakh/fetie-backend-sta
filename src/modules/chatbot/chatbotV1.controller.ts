@@ -432,11 +432,7 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
 
      // Convert previous messages to the format expected by the API
     const formattedMessages = [
-      { role: 'system', content: systemPrompt },
-      {
-        role: 'user',
-        content: userMessage.toString(),
-      }
+      { role: 'system', content: systemPrompt }
     ];
 
     // formattedMessages.push({
@@ -473,7 +469,7 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
         path: "embedding",
         queryVector: embedding,
         numCandidates: 100,
-        limit: 50
+        limit: 30
       }
     },
     {
@@ -524,6 +520,14 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
 
     // console.log("formattedMessages 🟢🟢🟢", formattedMessages);
 
+
+    formattedMessages.push(
+      {
+        role: 'user',
+        content: userMessage.toString(),
+      }
+    )
+   
     while (retries <= maxRetries) {
       try {
         stream = await model.chat.completions.create({
