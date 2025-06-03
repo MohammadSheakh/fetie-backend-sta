@@ -89,7 +89,7 @@ router
 //   {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
 // ]
 
-/* // 🤖🤖🤖 client bad dise .. 
+
   // 🔥 jhamela ase .. logged in user er jonno develop korte hobe .. may be lagbeo na ei endpoint
 router
   .route('/daily-insights')
@@ -100,7 +100,6 @@ router
   .route('/daily-insights-daily')
   .get(auth('common'), controller.getDailyDailyCycleInsightsByDate); // ?date=YYYY-MM-DD
 
-*/  
 
 /*
 //[🚧][🧑‍💻✅][🧪] // 🆗

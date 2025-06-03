@@ -739,14 +739,11 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
   //   );
 
   // Fetch user data
-  const [/*insights, allInsights,*/ personalizedJourney, userProfileData] 
-  : [IPersonalizeJourney, any]
+  const [insights, allInsights, personalizedJourney, userProfileData] 
+  : [any, any, IPersonalizeJourney, any]
   = await Promise.all([
-    /*
-    // 🤖🤖🤖 client bad dise 
     dailyCycleInsightService.getByDateAndUserId(new Date(), userId),
     dailyCycleInsightService.getByUserId(userId),
-    */
     personalizeJourneyService.getByUserId(userId),
     UserService.getMyProfile(userId),
   ]);
@@ -854,6 +851,18 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
       - expectedNextPeriodStartDate: ${personalizedJourney?.expectedPeriodStartDate || 'N/A'}
       - predictedOvulationDate: ${personalizedJourney?.predictedOvulationDate || 'N/A'}
 
+
+      ----- in Daily cycle Insights Collection
+      - menstrualFlow: ${insights?.menstrualFlow || 'N/A'}
+      - mood: ${insights?.mood || 'N/A'}
+      - activity: ${insights?.activity || 'N/A'}
+      - symptoms: ${insights?.symptoms || 'N/A'}
+      
+      - cervicalMucus: ${insights?.cervicalMucus || 'N/A'}
+
+      
+      - labTestLog: ${JSON.stringify(insights?.labTestLogId) || 'N/A'}
+      - allInsights: ${JSON.stringify(allInsights) || 'N/A'}
     
       ----- User Data 
       - name: ${userProfileData?.name || 'N/A'}
@@ -871,22 +880,6 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
         "whatToKeepInMindInThisCycle" : "What to keep in mind in this cycle",
       }
     `;
-
-    /*
-      // 🤖🤖🤖 client bad dise ..  
-    ----- in Daily cycle Insights Collection
-      - menstrualFlow: ${insights?.menstrualFlow || 'N/A'}
-      - mood: ${insights?.mood || 'N/A'}
-      - activity: ${insights?.activity || 'N/A'}
-      - symptoms: ${insights?.symptoms || 'N/A'}
-      
-      - cervicalMucus: ${insights?.cervicalMucus || 'N/A'}
-
-      
-      - labTestLog: ${JSON.stringify(insights?.labTestLogId) || 'N/A'}
-      - allInsights: ${JSON.stringify(allInsights) || 'N/A'}
-
-      */
 
     //  - phase: ${insights?.phase || 'N/A'}
     //   - fertilityLevel: ${insights?.fertilityLevel || 'N/A'}

@@ -76,12 +76,11 @@ const dateParse = async (userMessage: string, userId: string) => {
     console.log('dateObj 📢', dateObj);
 
     // Fetch user data
-    const [/*insights, allInsights,*/ personalizedJourney, userProfileData] = await Promise.all([
-      // 🤖🤖🤖 client bad dise .. 
-      /*
+    const [insights, allInsights, personalizedJourney, userProfileData] = await Promise.all([
+     
       dailyCycleInsightService.getByDateAndUserId(dateObj, userId),
       dailyCycleInsightService.getByUserId(userId),
-      */
+      
       personalizeJourneyService.getByUserId(userId),
       UserService.getMyProfile(userId),
     ]);
@@ -111,23 +110,7 @@ const dateParse = async (userMessage: string, userId: string) => {
       - expectedNextPeriodStartDate: ${personalizedJourney?.expectedPeriodStartDate || 'N/A'}
       - predictedOvulationDate: ${personalizedJourney?.predictedOvulationDate || 'N/A'}
 
-      
-
-      ----- User Data 
-      - name: ${userProfileData?.name || 'N/A'}
-      - email: ${userProfileData?.email || 'N/A'}
-      - role: ${userProfileData?.role || 'N/A'}
-      - subscriptionType: ${userProfileData?.subscriptionType || 'N/A'}
-      - phoneNumber: ${userProfileData?.phoneNumber || 'N/A'}
-      - lastPasswordChangeDate: ${userProfileData?.lastPasswordChange || 'N/A'}
-
-      
-    `;
-
-/*
-    // 🤖🤖🤖 client bad dise ..
-     
-    ----- in Daily cycle Insights Collection
+      ----- in Daily cycle Insights Collection
       - menstrualFlow: ${insights?.menstrualFlow || 'N/A'}
       - mood: ${insights?.mood || 'N/A'}
       - activity: ${insights?.activity || 'N/A'}
@@ -139,7 +122,20 @@ const dateParse = async (userMessage: string, userId: string) => {
 
       - labTestLog: ${JSON.stringify(insights?.labTestLogId) || 'N/A'}
       - allInsights: ${JSON.stringify(allInsights) || 'N/A'}
-*/
+
+      ----- User Data 
+      - name: ${userProfileData?.name || 'N/A'}
+      - email: ${userProfileData?.email || 'N/A'}
+      - role: ${userProfileData?.role || 'N/A'}
+      - subscriptionType: ${userProfileData?.subscriptionType || 'N/A'}
+      - phoneNumber: ${userProfileData?.phoneNumber || 'N/A'}
+      - lastPasswordChangeDate: ${userProfileData?.lastPasswordChange || 'N/A'}
+
+    `;
+
+     
+    
+
     return systemPrompt;
 }
 

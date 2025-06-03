@@ -482,8 +482,6 @@ export class FertieController extends GenericController<
   }
   );
 
-
-  // 🤖🤖🤖 client bad dise .. 
   getMonthlyDailyCycleInsightsByMonth = catchAsync(
     async (req: Request, res: Response) => {
       const userId = req.user.userId;
@@ -551,7 +549,7 @@ export class FertieController extends GenericController<
     }
   );
 
-  // // 🤖🤖🤖 client bad dise .. 
+
   getDailyDailyCycleInsightsByDate = catchAsync(
     async (req: Request, res: Response) => {
       const userId = req.user.userId;
