@@ -120,7 +120,7 @@ const dateParse = async (userMessage: string, userId: string) => {
       - cycleDay: ${insights?.cycleDay || 'N/A'}
       - cervicalMucus: ${insights?.cervicalMucus || 'N/A'}
 
-      - labTestLog: ${JSON.stringify(insights?.labTestLogId) || 'N/A'}
+      
       - allInsights: ${JSON.stringify(allInsights) || 'N/A'}
 
       ----- User Data 
@@ -134,7 +134,7 @@ const dateParse = async (userMessage: string, userId: string) => {
     `;
 
      
-    
+    // - labTestLog: ${JSON.stringify(insights?.labTestLogId) || 'N/A'}
 
     return systemPrompt;
 }

@@ -176,6 +176,10 @@ export class DailyCycleInsightsController extends GenericController<
     req.body.date = dateInUtc;
 
     if (dailyCycleInsightFound) {
+
+      /************************** 
+       * // 🤖 client remove this
+
       let labTestLog = null;
       if (labTestName && labTestValue) {
         let possibleLabTestNames = [
@@ -227,14 +231,26 @@ export class DailyCycleInsightsController extends GenericController<
         req.body,
         'labTestLogId' // populateAnySpecificField
       );
+
+
       res.status(StatusCodes.OK).json({
         success: true,
         code: StatusCodes.OK,
         data: result,
         message: 'Daily Cycle Insights updated successfully',
       });
+
+
+      **************************************************/
+
     } else {
       let labTestLog = null;
+
+      
+
+      /************************************************** 
+       * // 🤖 client remove this 
+       * 
       if (labTestName && labTestValue) {
         let possibleLabTestNames = [
           'follicleStimulatingHormoneTest',
@@ -261,6 +277,9 @@ export class DailyCycleInsightsController extends GenericController<
         });
         req.body.labTestLogId = labTestLog._id;
       }
+
+      ********************************************************/
+
 
       /**
        * 

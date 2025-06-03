@@ -596,7 +596,8 @@ export class FertieController extends GenericController<
            cycleDay,
            cervicalMucus,
            date,
-           labTestLogId
+          // 🤖 client remove this 
+          //  labTestLogId
            } = entry;
 
         formattedData[dateKey] = {};
@@ -611,7 +612,9 @@ export class FertieController extends GenericController<
         if (cycleDay) formattedData[dateKey].cycleDay = cycleDay;
         if (cervicalMucus) formattedData[dateKey].cervicalMucus = cervicalMucus;
         if (date) formattedData[dateKey].date = date;
-        if (labTestLogId) formattedData[dateKey].labTestLogId = labTestLogId;
+
+        // 🤖 client remove this
+        // if (labTestLogId) formattedData[dateKey].labTestLogId = labTestLogId;
       });
 
       res.status(StatusCodes.OK).json({

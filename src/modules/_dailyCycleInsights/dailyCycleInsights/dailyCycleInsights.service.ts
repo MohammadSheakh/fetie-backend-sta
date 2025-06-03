@@ -74,7 +74,6 @@ export class DailyCycleInsightsService extends GenericService<
     return res;
   };
 
-
   // we need this in chatbot .. 
   getByUserId = async (userId: string) => {
     const res = await this.model.findOne({ userId }).populate('labTestLogId');
@@ -84,8 +83,6 @@ export class DailyCycleInsightsService extends GenericService<
     // }
     return res;
   };
-
-  
 
   // Add more service here ..
 }
