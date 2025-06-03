@@ -85,8 +85,9 @@ export class MessageController extends GenericController<typeof Message, IMessag
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
     
-    let dontWantToInclude = '-embedding -attachments -isDeleted -updatedAt -createdAt -__v'; // Specify fields to exclude from the result
-    
+    let dontWantToInclude = '-embedding -attachments -isDeleted -updatedAt -__v'; // Specify fields to exclude from the result
+    // -createdAt
+
     const result = await this.service.getAllWithPagination(filters, options, dontWantToInclude);
 
     sendResponse(res, {
