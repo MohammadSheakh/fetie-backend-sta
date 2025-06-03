@@ -519,8 +519,7 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
     let stream;
 
     // console.log("formattedMessages 🟢🟢🟢", formattedMessages);
-
-
+    
     formattedMessages.push(
       {
         role: 'user',
