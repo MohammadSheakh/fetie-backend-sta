@@ -70,7 +70,7 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
         creatorId: conversationData.creatorId,
         month: conversationData.month,
         year: conversationData.year,
-      });
+      }).select('-isDeleted -updatedAt -createdAt -__v');
 
       if (!existingConversation){
         ////////// Create a new conversation
@@ -144,7 +144,7 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
             result?._id,
             { lastMessageSenderRole: RoleType.bot},
             { new: true }
-          );
+          ).select('-isDeleted -updatedAt -createdAt -__v');
         }
       }
 

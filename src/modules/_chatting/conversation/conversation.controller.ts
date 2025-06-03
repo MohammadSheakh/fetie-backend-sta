@@ -14,6 +14,10 @@ import { MessagerService } from '../message/message.service';
 import { IMessage } from '../message/message.interface';
 import { RoleType } from '../conversationParticipents/conversationParticipents.constant';
 import { User } from '../../user/user.model';
+import omit from '../../../shared/omit';
+import pick from '../../../shared/pick';
+// import omit from '../../shared/omit';
+// import pick from '../../shared/pick';
 
 let conversationParticipantsService = new ConversationParticipentsService();
 let messageService = new MessagerService();
@@ -24,6 +28,24 @@ export class ConversationController extends GenericController<typeof Conversatio
   constructor() {
     super(new ConversationService(), 'Conversation');
   }
+
+  // override // 1️⃣
+  getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
+    //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+
+    let dontWantToInclude = '-embedding -isDeleted -updatedAt -createdAt -__v'; // Specify fields to exclude from the result
+    
+    const result = await this.service.getAllWithPagination(filters, options, dontWantToInclude);
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: `All ${this.modelName} with pagination`,
+      success: true,
+    });
+  });
 
   // override // 1️⃣
   create = catchAsync(async (req: Request, res: Response) => {

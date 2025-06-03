@@ -24,7 +24,7 @@ const controllerV2 = new ConversationV2Controller();
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'creatorId'])),
   controller.getAllWithPagination
 );
 
