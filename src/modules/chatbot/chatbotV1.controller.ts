@@ -469,7 +469,7 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
         path: "embedding",
         queryVector: embedding,
         numCandidates: 100,
-        limit: 30
+        limit: 20
       }
     },
     {
@@ -643,7 +643,7 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
       }
 
       // Send end of stream marker
-      // res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`);
+      res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`);
 
 
       /*****

@@ -47,11 +47,21 @@ export class GenericController<ModelType, InterfaceType> {
   getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     
+    
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
+    let dontWantToInclude = '-embedding'; // Specify fields to exclude from the result
+    const result = await this.service.getAllWithPagination(filters, options, dontWantToInclude);
 
-    const result = await this.service.getAllWithPagination(filters, options);
-
+    // Remove embedding from each item
+    if (result.data) {
+    result.data = result.data.map((item: any) => {
+      const itemObj = item.toObject ? item.toObject() : item;
+      delete itemObj.embedding;
+      return itemObj;
+    });
+    }
+    
     sendResponse(res, {
       code: StatusCodes.OK,
       data: result,

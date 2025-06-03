@@ -87,7 +87,7 @@ const dateParse = async (userMessage: string, userId: string) => {
 
     // Build system prompt
     const systemPrompt = `You are a friendly reproductive health assistant.
-      Based on user's cycle, lab tests, and daily logs, provide helpful responses.
+      Based on user's cycle, lab tests, and daily logs , messages history and message provide helpful responses.
       Be empathetic, short, and encouraging. and give answer strictly based on users last message
 
       Data available: 
@@ -133,7 +133,6 @@ const dateParse = async (userMessage: string, userId: string) => {
 
     `;
 
-     
     // - labTestLog: ${JSON.stringify(insights?.labTestLogId) || 'N/A'}
 
     return systemPrompt;

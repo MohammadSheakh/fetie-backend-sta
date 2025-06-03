@@ -22,13 +22,14 @@ export class GenericService<  ModelType , InterfaceType> {
   
   async getAllWithPagination(
     filters: any, // Partial<INotification> // FixMe : fix type
-    options: PaginateOptions
+    options: PaginateOptions,
+    dontWantToInclude ? : string | string[]
   ) {
 
     console.log('filters from generic service 🧪🧪', filters);
     console.log('options from generic service 🧪🧪', options);
 
-    const result = await this.model.paginate(filters, options);
+    const result = await this.model.paginate(filters, options, dontWantToInclude);
 
     /*
     const result = await this.model.paginate(
