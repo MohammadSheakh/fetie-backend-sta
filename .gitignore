@@ -3,4 +3,4 @@ dist
 /uploads
 /winston
 .env
-src/config/aim-construction-firebase-adminsdk-fbsvc-5fd17ceb32.json
+src/config/firebaseSDK.json
