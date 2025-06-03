@@ -851,7 +851,6 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
       - expectedNextPeriodStartDate: ${personalizedJourney?.expectedPeriodStartDate || 'N/A'}
       - predictedOvulationDate: ${personalizedJourney?.predictedOvulationDate || 'N/A'}
 
-
       ----- in Daily cycle Insights Collection
       - menstrualFlow: ${insights?.menstrualFlow || 'N/A'}
       - mood: ${insights?.mood || 'N/A'}
@@ -860,8 +859,6 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
       
       - cervicalMucus: ${insights?.cervicalMucus || 'N/A'}
 
-      
-      - labTestLog: ${JSON.stringify(insights?.labTestLogId) || 'N/A'}
       - allInsights: ${JSON.stringify(allInsights) || 'N/A'}
     
       ----- User Data 
@@ -881,6 +878,7 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
       }
     `;
 
+    // - labTestLog: ${JSON.stringify(insights?.labTestLogId) || 'N/A'}
     //  - phase: ${insights?.phase || 'N/A'}
     //   - fertilityLevel: ${insights?.fertilityLevel || 'N/A'}
     //   - cycleDay: ${insights?.cycleDay || 'N/A'}
