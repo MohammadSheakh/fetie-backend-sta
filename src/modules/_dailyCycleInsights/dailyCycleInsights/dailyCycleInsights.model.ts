@@ -30,7 +30,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
     labTestLogId: {
       type: Schema.Types.ObjectId,
       ref: 'LabTestLog',
-      required: [true, 'User Id is required'],
+      required: [false, 'labTestLogId is not required'],
     },
     menstrualFlow: {
       type: String,

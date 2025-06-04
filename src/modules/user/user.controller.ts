@@ -384,7 +384,7 @@ const deleteAllDataFromCollection = async (req: Request, res: Response) => {
     }
 
     // Validate collectionName - only allow known collections for safety
-    const allowedCollections = ['DailyCycleInsights', 'Users', 'Message']; // example allowed list
+    const allowedCollections = ['DailyCycleInsights', 'Users', 'Message', 'Notification']; // example allowed list
     if (!allowedCollections.includes(collectionName)) {
        sendResponse(res, {
         code: StatusCodes.FORBIDDEN,

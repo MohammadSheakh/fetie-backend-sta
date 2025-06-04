@@ -18,8 +18,8 @@ export const initNotificationCron = ():void => {
 
   cronService.schedule(
     'notification',
-    '0 0 * * *', // At 00:00 AM every day'
-    // '*/10 * * * *', // every minute for testing
+    //'0 0 * * *', // At 00:00 AM every day'
+    '*/60 * * * *', // every minute for testing
     "This will run every minute for testing", // additional message
     sendNotificationByChatGpt
   )}
@@ -31,7 +31,7 @@ export const initNotificationCron = ():void => {
 export const sendNotificationByChatGpt = async (): Promise<void> => {
   try{
 
-    console.log('Running cron job: sendNotificationByChatGpt');
+    console.log('Running cron job 🌀 sendNotificationByChatGpt 🌀');
     
     // Get the current date
     const currentDate = new Date();

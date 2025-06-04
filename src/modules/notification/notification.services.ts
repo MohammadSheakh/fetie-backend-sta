@@ -29,6 +29,8 @@ const addNotification = async (
 
     let data:any = await new FertieService().predictAllDates(userId);
 
+    console.log('data from predictAllDates 🟢in sendNotificationByChatGpt🟢 : ', data);
+
     //  const [year, month] = req.body.date.split('-');
      const [year, month] = new Date().toISOString().split('T')[0].split('-');
     const targetYearMonth = `${year}-${month}`;

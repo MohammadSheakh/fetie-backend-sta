@@ -301,9 +301,6 @@ export class FertieService extends GenericService<typeof Fertie, IFertie>{
         try {
           // First, try to parse the response directly
           jsonResponse = JSON.parse(responseText);
-
-          console.log("🟢 No AI Generated Notification found for today ... Lets generate ... 🤖");
-
           console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
         
           return jsonResponse;
