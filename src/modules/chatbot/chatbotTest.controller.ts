@@ -2,36 +2,19 @@ import catchAsync from "../../shared/catchAsync";
 import { Request, Response } from "express";
 import sendResponse from "../../shared/sendResponse";
 import { StatusCodes } from "http-status-codes";
-// import { ChatOpenAI } from '@langchain/openai';
+
   import OpenAI from 'openai';
-  import { HumanMessage, SystemMessage } from '@langchain/core/messages';
-  import { RunnableSequence } from '@langchain/core/runnables';
+
   import { DailyCycleInsightsService } from '../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.service';
   import { PersonalizedJourneyService } from '../_personalizeJourney/personalizeJourney/personalizeJourney.service';
-  import { UserService } from '../user/user.service';
-  import { differenceInDays } from 'date-fns';
-  import { isValid, parse } from 'date-fns';
   import ApiError from '../../errors/ApiError';
-  import { ChatBotService } from './chatbotV1.service';
-  import { IMessage } from '../_chatting/message/message.interface';
   import { MessagerService } from '../_chatting/message/message.service';
-  import { RoleType } from '../_chatting/conversationParticipents/conversationParticipents.constant';
   import mongoose from 'mongoose';
-  import { IDailyCycleInsights } from '../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.interface';
-  import { IPersonalizeJourney } from '../_personalizeJourney/personalizeJourney/personalizeJourney.interface';
-  import { IUser } from '../user/user.interface';
   import { Message } from '../_chatting/message/message.model';
-  import { Conversation } from '../_chatting/conversation/conversation.model';
-  import { json, text } from 'body-parser';
-  import { FertieService } from '../fertie/fertie.service';
   
   let dailyCycleInsightService = new DailyCycleInsightsService();
   let personalizeJourneyService = new PersonalizedJourneyService();
   
-//******** Not working  
-// import { OpenAIEmbeddings } from '@langchain/embeddings/openai';
-// import { MongoDBAtlasVectorSearch } from '@langchain/vectorstores/mongodb_atlas';
-
 // OpenAI URL and Headers 
 
 const model = new OpenAI({

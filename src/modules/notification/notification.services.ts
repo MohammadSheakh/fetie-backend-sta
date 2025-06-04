@@ -1,11 +1,7 @@
-// import { ChatOpenAI } from '@langchain/openai';
 import OpenAI from 'openai';
-import { StatusCodes } from 'http-status-codes';
 import { INotification } from './notification.interface';
 import { Notification } from './notification.model';
-import { User } from '../user/user.model';
-import { PaginateOptions, PaginateResult } from '../../types/paginate';
-import ApiError from '../../errors/ApiError';
+import { PaginateOptions } from '../../types/paginate';
 import { FertieService } from '../fertie/fertie.service';
 import { differenceInDays } from 'date-fns';
 
