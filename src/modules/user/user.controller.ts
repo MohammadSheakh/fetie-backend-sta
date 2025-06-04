@@ -119,6 +119,22 @@ const getMyProfile = catchAsync(async (req, res) => {
     message: 'User fetched successfully',
   });
 });
+
+
+//get my profile //[🚧][🧑‍💻✅][🧪🆗]
+const getMyProfileOnlyRequiredField = catchAsync(async (req, res) => {
+  const userId = req.user.userId;
+  if (!userId) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
+  }
+  const result = await UserService.getMyProfileOnlyRequiredField(userId);
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    data: result,
+    message: 'User fetched successfully',
+  });
+});
+
 //delete user from database
 const deleteMyProfile = catchAsync(async (req, res) => {
   const userId = req.user.userId;
@@ -490,12 +506,16 @@ export const UserController = {
   //////////////// For Admin Change User Status and Subscription Type .. 
   changeUserStatus,
   changeUserSubscriptionType,
-  
+
   ////////////// Access Pin Related Controller ////////
   setNewAccessPin,
   removeAccessPin,
   givePermissionToChangeCurrentPin,
   matchAccessPin,
   ///////////////////////////////////////////////////
-  deleteAllDataFromCollection
+  deleteAllDataFromCollection,
+
+  ///////////////////////////////////////////
+
+  getMyProfileOnlyRequiredField
 };

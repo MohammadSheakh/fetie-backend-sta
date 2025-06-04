@@ -38,10 +38,11 @@ router.route('/paginate/admin').get(
   UserController.getAllAdminForAdminDashboard
 );
 
+//[🚧][🧑‍💻][🧪] // ✅ 🆗
 router.post(
   "/send-invitation-link-to-admin-email",
   auth('superAdmin'),
-  // validate(authValidation.register),
+  validateRequest(UserValidation.sendInvitationToBeAdminValidationSchema),
   UserController.sendInvitationLinkToAdminEmail
 );
 
@@ -138,6 +139,8 @@ router
     UserController.updateMyProfile
   )
   .delete(auth('common'), UserController.deleteMyProfile);
+
+router.route('/profile/requiredField').get(auth('common'), UserController.getMyProfileOnlyRequiredField);
 
 router
   .route('/:userId')

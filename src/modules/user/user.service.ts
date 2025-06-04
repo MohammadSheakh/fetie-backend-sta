@@ -19,7 +19,7 @@ export class UserCustomService extends GenericService<typeof User, IUser> {
     super(User);
   }
 
-  
+
 }
 
 //[🚧][🧑‍💻][🧪] // ✅ 🆗
@@ -133,6 +133,16 @@ const getMyProfile = async (userId: string): Promise<TUser | null> => {
   }
   return result;
 };
+
+//[🚧][🧑‍💻✅][🧪🆗]
+const getMyProfileOnlyRequiredField = async (userId: string): Promise<TUser | null> => {
+  const result = await User.findById(userId).select('name subscriptionType profileImage userId');
+  if (!result) {
+    throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
+  }
+  return result;
+};
+
 const deleteMyProfile = async (userId: string): Promise<TUser | null> => {
   const result = await User.findById(userId);
   if (!result) {
@@ -231,5 +241,8 @@ export const UserService = {
   setNewAccessPin,
   removeAccessPin,
   givePermissionToChangeCurrentPin,
-  matchAccessPin
+  matchAccessPin,
+
+  //////////////////////////////////////
+  getMyProfileOnlyRequiredField
 };

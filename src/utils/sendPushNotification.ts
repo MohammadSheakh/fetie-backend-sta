@@ -8,6 +8,8 @@ const sendPushNotification = async (
     content: string;
   }
 ) => {
+
+  console.log('user :', user);
   const message = {
     notification: {
       title: data.title,
