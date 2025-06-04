@@ -3,7 +3,7 @@ import { TProfileImage, TUser, UserModal } from './user.interface';
 import paginate from '../../common/plugins/paginate';
 import bcryptjs from 'bcryptjs';
 import { config } from '../../config';
-import { Gender, MaritalStatus, TAuthProvider, TStatusType, TSubscriptionType, UserStatus } from './user.constant';
+import {  TAuthProvider, TStatusType, TSubscriptionType } from './user.constant';
 import { Roles } from '../../middlewares/roles';
 
 // Profile Image Schema

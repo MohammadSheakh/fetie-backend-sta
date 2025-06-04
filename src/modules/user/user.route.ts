@@ -88,19 +88,31 @@ router.post('/access-pin/match',
   UserController.matchAccessPin
 ) 
 
-
 // TODO:  Forgot Pin and Verify Email Develop korte hobe .. access Pin related 
 
-
+/*************************
+ * 
+ * // Risky .. If you pass collectionName as a parameter, it will delete all data from that collection.
+ * 
+ * ********************* */
 router.post('/delete/:collectionName',
+  auth('superAdmin'),
   UserController.deleteAllDataFromCollection
 ) 
 
+//[🚧][🧑‍💻✅][🧪🆗] // query :: userId
+router.get('/status/change',
+  auth('commonAdmin'),
+  UserController.changeUserStatus
+)
 
+//[🚧][🧑‍💻✅][🧪🆗] // query :: userId
+router.get('/subscriptionType/change',
+  auth('commonAdmin'),
+  UserController.changeUserSubscriptionType
+)
 
 ////////////////////////////////////////////////
-
-
 
 //[🚧][🧑‍💻✅][🧪🆗] //  
 

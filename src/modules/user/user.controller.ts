@@ -9,6 +9,8 @@ import mongoose, { Types } from 'mongoose';
 import { TokenService } from '../token/token.service';
 import { sendAdminOrSuperAdminCreationEmail } from '../../helpers/emailService';
 import { AuthService } from '../auth/auth.service';
+import { Request, Response } from 'express';
+import { TStatusType, TSubscriptionType } from './user.constant';
 
 const userCustomService = new UserCustomService();
 
@@ -348,31 +350,30 @@ const matchAccessPin = catchAsync(async (req, res) => {
   });
 })
 
-
+/*************************
+ * 
+ * // Risky .. If you pass collectionName as a parameter, it will delete all data from that collection.
+ * 
+ * ********************* */
 
 const deleteAllDataFromCollection = async (req: Request, res: Response) => {
   try {
     const { collectionName } = req.params; // or req.query
 
     if (!collectionName) {
-
       sendResponse(res, {
-      code: StatusCodes.BAD_REQUEST,
-      
-      message: `collectionName parameter is required`,
-    });
-      
+        code: StatusCodes.BAD_REQUEST,
+        message: `collectionName parameter is required`,
+      });
     }
 
     // Validate collectionName - only allow known collections for safety
     const allowedCollections = ['DailyCycleInsights', 'Users', 'Message']; // example allowed list
     if (!allowedCollections.includes(collectionName)) {
-      
        sendResponse(res, {
-      code: StatusCodes.FORBIDDEN,
-      
-      message: `Operation not allowed on this collection`,
-    });
+        code: StatusCodes.FORBIDDEN,
+        message: `Operation not allowed on this collection`,
+      });
     }
 
     // Get Mongoose model dynamically by collectionName
@@ -411,6 +412,66 @@ const deleteAllDataFromCollection = async (req: Request, res: Response) => {
 };
 
 
+const changeUserStatus = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.query;
+  if (!userId) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'User ID is required in req.query');
+  }
+
+  const { status } = req.body;
+  console.log("status", status);
+  console.log("body", req.body)
+
+  // Validate if status is one of the enums
+  if (![TStatusType.active, TStatusType.inactive].includes(status)) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, `Invalid status value it can be ${Object.values(TStatusType).join(', ')}`);
+  }
+  
+  const result = await User.findByIdAndUpdate(
+    userId,
+    {
+      status
+    },
+    { new: true }
+  );
+
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    data: result,
+    message: 'User status changed successfully',
+  });
+
+})
+
+const changeUserSubscriptionType = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.query;
+  if (!userId) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, 'User ID is required in req.query');
+  }
+
+  const { subsciptionType } = req.body;
+  
+  // Validate if status is one of the enums
+  if (![TSubscriptionType.free, TSubscriptionType.premium].includes(subsciptionType)) {
+    throw new ApiError(StatusCodes.BAD_REQUEST, `Invalid subscription type value it can be ${Object.values(TSubscriptionType).join(', ')}`);
+  }
+  
+  const result = await User.findByIdAndUpdate(
+    userId,
+    {
+      subsciptionType
+    },
+    { new: true }
+  );
+
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    data: result,
+    message: 'User Subscription Type changed successfully',
+  });
+
+})
+
 
 export const UserController = {
   createAdminOrSuperAdmin,
@@ -426,6 +487,10 @@ export const UserController = {
   getAllAdminForAdminDashboard,
   sendInvitationLinkToAdminEmail,
 
+  //////////////// For Admin Change User Status and Subscription Type .. 
+  changeUserStatus,
+  changeUserSubscriptionType,
+  
   ////////////// Access Pin Related Controller ////////
   setNewAccessPin,
   removeAccessPin,
