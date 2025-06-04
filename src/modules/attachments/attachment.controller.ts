@@ -2,9 +2,7 @@ import catchAsync from '../../shared/catchAsync';
 import sendResponse from '../../shared/sendResponse';
 import { StatusCodes } from 'http-status-codes';
 import pick from '../../shared/pick';
-import { Attachment } from './attachment.model';
 import { AttachmentService } from './attachment.service';
-import { FolderName } from '../../enums/folderNames';
 import ApiError from '../../errors/ApiError';
 
 import { NotificationService } from '../notification/notification.services';

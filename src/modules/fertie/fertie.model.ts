@@ -2,7 +2,6 @@ import { model, Schema } from 'mongoose';
 import paginate from '../../common/plugins/paginate';
 import { IFertie, IFertieModel } from './fertie.interface';
 
-
 const fertieSchema = new Schema<IFertie>(
   {
     default : {

@@ -3,7 +3,6 @@ import { Model, Types } from 'mongoose';
 
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 import { UserSubscriptionStatusType } from './userSubscription.constant';
-import { RenewalFrequncyType } from '../subscriptionPlan/subscriptionPlan.constant';
 
 export interface IUserSubscription {
   // _taskId: undefined | Types.ObjectId;

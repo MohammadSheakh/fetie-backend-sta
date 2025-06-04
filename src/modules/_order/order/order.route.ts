@@ -1,5 +1,4 @@
 import express from 'express';
-
 import { validateFiltersForQuery } from '../../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import { OrderController } from './order.controller';
 import { IOrder } from './order.interface';

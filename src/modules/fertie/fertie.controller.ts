@@ -2,7 +2,6 @@ import { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { GenericController } from '../__Generic/generic.controller';
 import catchAsync from '../../shared/catchAsync';
-import ApiError from '../../errors/ApiError';
 import { differenceInDays } from 'date-fns';
 import { FertieService } from './fertie.service';
 import { Fertie } from './fertie.model';

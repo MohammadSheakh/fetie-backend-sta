@@ -5,7 +5,6 @@ import {
   IUserSubscription,
   IUserSubscriptionModel,
 } from './userSubscription.interface';
-import { RenewalFrequncyType } from '../subscriptionPlan/subscriptionPlan.constant';
 
 const userSubscriptionSchema = new Schema<IUserSubscription>(
   {

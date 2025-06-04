@@ -1,4 +1,3 @@
-import { Model } from "mongoose";
 import { GenericService } from "../../__Generic/generic.services";
 import { IConversation } from "./conversation.interface";
 import { Conversation } from "./conversation.model";

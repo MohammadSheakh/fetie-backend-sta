@@ -1,6 +1,4 @@
 import { cronService } from "../cron/cron.service";
-import { FertieService } from "../fertie/fertie.service";
-import { IUser } from "../user/user.interface";
 import { User } from "../user/user.model";
 import { NotificationService } from "./notification.services";
 

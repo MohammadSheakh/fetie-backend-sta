@@ -1,7 +1,7 @@
 import express from 'express';
 import auth from '../../middlewares/auth';
 import { ChatBotV1Controller } from './chatbotV1.controller';
-import { ChatBotTestController, createEmbedding } from './chatbotTest.controller';
+import { ChatBotTestController } from './chatbotTest.controller';
 
 const multer = require('multer');
 const storage = multer.memoryStorage();
@@ -23,7 +23,6 @@ router
 router
   .route('/bot/cycleInsight')
   .get(auth('common'), ChatBotV1Controller.getCycleInsightWithStramFalse);
-
 
 router
   .route('/bot/createEmbeddingForTesingPurpose')

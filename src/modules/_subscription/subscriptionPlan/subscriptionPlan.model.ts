@@ -1,6 +1,6 @@
 import { model, Schema } from 'mongoose';
-
 import paginate from '../../../common/plugins/paginate';
+
 import {
   CurrencyType,
   InitialDurationType,

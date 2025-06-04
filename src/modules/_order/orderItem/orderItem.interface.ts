@@ -1,6 +1,4 @@
 import { Model, Types } from 'mongoose';
-
-
 import { PaginateOptions, PaginateResult } from '../../../types/paginate';
 
 export interface IOrderItem {

@@ -1,9 +1,7 @@
 import { model, Schema } from 'mongoose';
-
 import paginate from '../../common/plugins/paginate';
 import { ILab, ILabModel } from './lab.interface';
 import { TStatus } from './lab.constant';
-
 
 const labSchema = new Schema<ILab>(
   {

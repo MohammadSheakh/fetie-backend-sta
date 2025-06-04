@@ -1,8 +1,6 @@
 import { model, Schema } from 'mongoose';
-
 import paginate from '../../../common/plugins/paginate';
 import { IPaymentMethod, IPaymentMethodModel } from './paymentMethod.interface';
-
 
 const paymentMethodSchema = new Schema<IPaymentMethod>(
   {

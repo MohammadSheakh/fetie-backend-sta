@@ -6,8 +6,6 @@ import {
 } from './order.constant';
 import { IOrder, IOrderModel } from './order.interface';
 
-
-
 const orderSchema = new Schema<IOrder>(
   {
     userId: { //🔗

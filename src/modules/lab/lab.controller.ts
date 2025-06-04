@@ -5,8 +5,6 @@ import { Lab } from './lab.model';
 import { ILab } from './lab.interface';
 import { LabService } from './lab.service';
 import catchAsync from '../../shared/catchAsync';
-import { AttachedToType } from '../attachments/attachment.constant';
-import { FolderName } from '../../enums/folderNames';
 import ApiError from '../../errors/ApiError';
 import { AttachmentService } from '../attachments/attachment.service';
 import { TStatus } from './lab.constant';

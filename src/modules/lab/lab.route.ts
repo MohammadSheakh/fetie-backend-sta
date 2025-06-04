@@ -1,6 +1,5 @@
 import express from 'express';
 import * as validation from './lab.validation';
-
 import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import validateRequest from '../../shared/validateRequest';
 import auth from '../../middlewares/auth';

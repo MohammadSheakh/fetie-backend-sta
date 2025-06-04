@@ -1,7 +1,6 @@
 import { model, Schema } from 'mongoose';
 import { INotification, INotificationModal } from './notification.interface';
 import paginate from '../../common/plugins/paginate';
-import { Roles } from '../../middlewares/roles';
 
 const notificationModel = new Schema<INotification>(
   {

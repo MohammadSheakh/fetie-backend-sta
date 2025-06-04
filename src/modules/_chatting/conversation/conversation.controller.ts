@@ -7,17 +7,14 @@ import { ConversationService } from './conversation.service';
 import { StatusCodes } from 'http-status-codes';
 import { ConversationParticipentsService } from '../conversationParticipents/conversationParticipents.service';
 import ApiError from '../../../errors/ApiError';
-import { IConversation, IConversationModel } from './conversation.interface';
+import { IConversation } from './conversation.interface';
 import { ConversationType } from './conversation.constant';
-import { IConversationParticipents } from '../conversationParticipents/conversationParticipents.interface';
 import { MessagerService } from '../message/message.service';
 import { IMessage } from '../message/message.interface';
 import { RoleType } from '../conversationParticipents/conversationParticipents.constant';
 import { User } from '../../user/user.model';
 import omit from '../../../shared/omit';
 import pick from '../../../shared/pick';
-// import omit from '../../shared/omit';
-// import pick from '../../shared/pick';
 
 let conversationParticipantsService = new ConversationParticipentsService();
 let messageService = new MessagerService();

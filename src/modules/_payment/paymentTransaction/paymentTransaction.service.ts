@@ -8,19 +8,15 @@ import { UserSubscriptionStatusType } from "../../_subscription/userSubscription
 import { TPaymentStatus } from "./paymentTransaction.constant";
 import { CurrencyType } from "../../_subscription/subscriptionPlan/subscriptionPlan.constant";
 
-
-
 export class PaymentTransactionService extends GenericService<typeof PaymentTransaction, IPaymentTransaction>
 {
     constructor(){
         super(PaymentTransaction)
     }
 
-
     // confirmPayment = async (subscriptionType: string) => {
     //     return await this.model.findOne({ subscriptionType });
     // }
-
 
     confirmPayment = async (data : IConfirmPayment) => {
       const {

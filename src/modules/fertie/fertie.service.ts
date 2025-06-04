@@ -1,6 +1,5 @@
 import OpenAI from 'openai';
 import { GenericService } from "../__Generic/generic.services";
-import { DailyCycleInsights } from "../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.model";
 import { PersonalizeJourney } from "../_personalizeJourney/personalizeJourney/personalizeJourney.model";
 import { User } from "../user/user.model";
 import { IFertie } from "./fertie.interface";

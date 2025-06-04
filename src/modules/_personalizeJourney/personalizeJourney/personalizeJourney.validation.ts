@@ -1,7 +1,6 @@
 import { z } from 'zod';
 import { TDescribeFlow, THeightUnit, TTrackOvulationBy, TWeightUnit } from './personalizeJourney.constant';
 
-
 export const createPersonalizeJourneyValidationSchema = z.object({
   body: z.object({
     dateOfBirth: z  

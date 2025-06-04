@@ -1,7 +1,6 @@
 import express from 'express';
 import { validateFiltersForQuery } from '../../middlewares/queryValidation/paginationQueryValidationMiddleware';
 import auth from '../../middlewares/auth';
-import validateRequest from '../../shared/validateRequest';
 import { FertieController } from './fertie.controller';
 import { IFertie } from './fertie.interface';
 

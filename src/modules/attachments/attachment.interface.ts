@@ -1,6 +1,5 @@
 import { Model, Types } from 'mongoose';
 import { PaginateOptions, PaginateResult } from '../../types/paginate';
-import { Roles } from '../../middlewares/roles';
 import {AttachmentType, AttachedToType } from './attachment.constant';
 
 // FIX  // TODO : joto jaygay role ase .. role gula check dite hobe .. 

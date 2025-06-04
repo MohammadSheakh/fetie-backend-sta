@@ -6,7 +6,6 @@ import { Message } from "./message.model";
 import {  MessagerService } from "./message.service";
 import { Request, Response } from 'express';
 import { AttachmentService } from "../../attachments/attachment.service";
-import { FolderName } from "../../../enums/folderNames";
 import { AttachedToType } from "../../attachments/attachment.constant";
 import { IMessage } from "./message.interface";
 import { ConversationService } from "../conversation/conversation.service";

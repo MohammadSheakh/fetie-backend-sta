@@ -6,7 +6,6 @@ import { IPersonalizeJourney } from './personalizeJourney.interface';
 import { IPregnancyHistory } from '../pregnancyHistory/pregnancyHistory.interface';
 import {
   IMedicalAndLifeStyle,
-  IMedicalAndLifeStyleModel,
 } from '../medicalAndLifeStyle/medicalAndLifeStyle.interface';
 import { User } from '../../user/user.model';
 import { PregnancyHistory } from '../pregnancyHistory/pregnancyHistory.model';

@@ -3,11 +3,6 @@ import { cronService } from '../../cron/cron.service';
 import { Conversation } from './conversation.model';
 import { MessagerService } from '../message/message.service';
 import { RoleType } from '../message/message.constant';
-import catchAsync from '../../../shared/catchAsync';
-import sendResponse from '../../../shared/sendResponse';
-import { StatusCodes } from 'http-status-codes';
-import ApiError from '../../../errors/ApiError';
-
 
 let messageService = new MessagerService();
 
