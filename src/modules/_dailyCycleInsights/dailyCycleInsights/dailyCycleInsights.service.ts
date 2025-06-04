@@ -19,10 +19,10 @@ export class DailyCycleInsightsService extends GenericService<
 
     if (!res) {
       throw new Error('Database error while creating Daily Cycle Insights');
-    }
+    } 
     return res;
   };
-
+ 
   updateByDateAndUserId = async (
     data: Partial<TDailyCycleInsights>,
     populateAnySpecificField?: string

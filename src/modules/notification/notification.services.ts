@@ -53,7 +53,6 @@ const addNotification = async (
   
     console.log('periodEvent :::::::::::: ', periodEvent);
 
-    
     const periodStartDate = periodEvent.predictedPeriodStart//.split('T')[0];
 
     let cycleDay = differenceInDays(currentDate, periodStartDate) + 1; // 🔰 req.body.date e hocche current date
