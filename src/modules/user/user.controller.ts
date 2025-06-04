@@ -138,7 +138,22 @@ const deleteMyProfile = catchAsync(async (req, res) => {
 const getAllUserForAdminDashboard = catchAsync(async (req, res) => {
   const filters = req.query;
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
-  const result = await userCustomService.getAllWithPagination(filters, options);
+  
+  const query = {};
+
+  // Create a copy of filter without isPreview to handle separately
+  const mainFilter = { ...filters };
+
+  // Loop through each filter field and add conditions if they exist
+  for (const key of Object.keys(mainFilter)) {
+    if (key === 'name' && mainFilter[key] !== '') {
+      query[key] = { $regex: mainFilter[key], $options: 'i' }; // Case-insensitive regex search for name
+    } else {
+      query[key] = mainFilter[key];
+    }
+  }
+  
+  const result = await userCustomService.getAllWithPagination(query, options);
 
   sendResponse(res, {
     code: StatusCodes.OK,

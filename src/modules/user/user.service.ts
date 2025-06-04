@@ -18,6 +18,8 @@ export class UserCustomService extends GenericService<typeof User, IUser> {
   constructor() {
     super(User);
   }
+
+  
 }
 
 //[🚧][🧑‍💻][🧪] // ✅ 🆗
