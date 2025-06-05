@@ -30,6 +30,9 @@ const addNotification = async (
     //>  We This Function Have Issue .. must have to test it properly 
     let data:any = await new FertieService().predictAllDates(userId);
 
+    if(!data){
+      return;
+    }
     console.log('data from predictAllDates 🟢in sendNotificationByChatGpt🟢 : ', data);
 
     //  const [year, month] = req.body.date.split('-');
@@ -51,9 +54,9 @@ const addNotification = async (
       predictedOvulationDate: Date;
       fertileWindow: [Date, Date];
     } = monthData.events.find(event => event.predictedPeriodStart);
-  
-    console.log('periodEvent :::::::::::: ', periodEvent);
 
+    console.log('periodEvent::::::: 🟢from notification.service.ts🟢sendNotificationByChatGpt🟢 : ', periodEvent);
+  
     const periodStartDate = periodEvent.predictedPeriodStart//.split('T')[0];
 
     let cycleDay = differenceInDays(currentDate, periodStartDate) + 1; // 🔰 req.body.date e hocche current date

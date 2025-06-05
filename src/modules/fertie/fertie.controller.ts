@@ -154,7 +154,7 @@ export class FertieController extends GenericController<
     });
   });
 
-  //>  We This Function May Have Issue .. must have to test it properly 
+  
   //[🚧][🧑‍💻✅][🧪] // 🆗
   getPredictionsByMonth = catchAsync(
     async (req: Request, res: Response) => {
@@ -274,8 +274,9 @@ export class FertieController extends GenericController<
     }
   );
   
+  //>  We This Function May Have Issue .. must have to test it properly 
   getPredictionsByMonthV2 = catchAsync(
-  async (req: Request, res: Response) => {
+  async (req: Request, res: Response)  : Promise<any> => {
     const userId = req.user.userId;
     const monthQuery: any = req.query.month; // mandatory
 
@@ -286,6 +287,8 @@ export class FertieController extends GenericController<
     const journey = await PersonalizeJourney.findById(
       user?.personalize_Journey_Id
     );
+
+    console.log("journey 🔥", journey);
     if (!journey) return res.status(404).json({ error: 'Journey not found' });
 
     const { periodStartDate, periodLength, avgMenstrualCycleLength } = journey;
@@ -300,7 +303,11 @@ export class FertieController extends GenericController<
     const startMonthNum = startMonth.getMonth();
     
     // Create a map to store predictions by month
-    const predictionsByMonth = {};
+    const predictionsByMonth: { [key: string]: 
+      { month: string;
+         events: any[];
+        dailyLogs: any }
+     } = {};
     
     // Calculate predictions for enough cycles to cover 12 months from the start month
     // We'll generate more than 12 months of predictions to ensure we have data for all requested months

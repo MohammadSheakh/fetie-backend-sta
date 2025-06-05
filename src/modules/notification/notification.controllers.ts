@@ -58,11 +58,15 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
               subTitle: 'Remainder',
               receiverId: req.user.userId,
           })
-
+          /****************************************
+          
           await sendPushNotification(req.user.fcmToken, {
             title: 'Hey! Don’t forget to check your cycle insights today!',
             content: 'Remainder',
-          });
+          }); 
+
+           *********************************** */
+          
       }
 
       let allNotifications = await Notification.find({
@@ -302,10 +306,14 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
               receiverId: req.user.userId,
             })
 
+            /*************************************
+             
             await sendPushNotification(req.user.fcmToken, {
               title: jsonResponse.title,
               content: jsonResponse.subTitle,
             });
+
+             *********************************** */
 
             allNotificaiton = await Notification.find({
               receiverId: req.user.userId,

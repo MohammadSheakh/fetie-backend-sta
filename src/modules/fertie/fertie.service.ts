@@ -20,10 +20,15 @@ export class FertieService extends GenericService<typeof Fertie, IFertie>{
     predictAllDates = async (userId: string) => {
       // , monthQuery:any
       const user = await User.findById(userId);
+
+
+      console.log("user 🟢🟢from predict all dates🟢 : ", user);
       
       const journey = await PersonalizeJourney.findById(
         user?.personalize_Journey_Id
       );
+
+      console.log("journey 🟢🟢from predict all dates🟢 : ", journey);
 
       if (!journey) return null;
   

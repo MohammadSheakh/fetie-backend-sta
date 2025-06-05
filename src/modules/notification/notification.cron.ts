@@ -19,7 +19,7 @@ export const initNotificationCron = ():void => {
   cronService.schedule(
     'notification',
     //'0 0 * * *', // At 00:00 AM every day'
-    '*/2 * * * *', // every minute for testing
+    '*/8 * * * *', // every minute for testing
     "This will run every minute for testing", // additional message
     sendNotificationByChatGpt
   )}
