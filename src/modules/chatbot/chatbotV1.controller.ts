@@ -1111,6 +1111,8 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
 
     // Get fertility data
     let data: any = await new FertieService().predictAllDates(req.user.userId);
+
+    console.log("data :🌀🌀🌀🌀 ", data);
     
     const [year, month] = new Date().toISOString().split('T')[0].split('-');
     const targetYearMonth = `${year}-${month}`;

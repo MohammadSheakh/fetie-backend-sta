@@ -27,6 +27,7 @@ const addNotification = async (
     // like ⚡predictedPeriodStart ⚡ predictedPeriodEnd
     // ⚡ predictedOvulationDate ⚡ fertileWindow
 
+    //>  We This Function Have Issue .. must have to test it properly 
     let data:any = await new FertieService().predictAllDates(userId);
 
     console.log('data from predictAllDates 🟢in sendNotificationByChatGpt🟢 : ', data);
