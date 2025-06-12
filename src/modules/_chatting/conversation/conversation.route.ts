@@ -109,6 +109,4 @@ router.route('trigger-cron').get(
 //   controllerV2.getAllMessagesOfAConversation
 // )
 
-
-
 export const ConversationRoute = router;

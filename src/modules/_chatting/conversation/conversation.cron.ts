@@ -15,8 +15,8 @@ export const initConversationCronJobs = (): void => {
   cronService.schedule(
     'daily-conversation-message',
     //'0 9 * * *', // At 9:00 AM every day
-    // '*/50 * * * *', // This will run every 50 minute for testing
-    '0 0/12 * * *',  // This will run every 12 hours 
+     '*/3 * * * *', // This will run every 3 minute for testing
+    //'0 0/12 * * *',  // This will run every 12 hours 
     "This will run every 12 hours", // additional message
     sendDailyMessageToAllConversations
   );

@@ -410,29 +410,6 @@ export class DailyCycleInsightsController extends GenericController<
       );
     }
 
-    /////////////////////////////////////////////////////////////////////////////
-
-
-    ////*********** calculate cycle day */
-
-    /*
-    // 1. Get today's date as milliseconds since the Unix Epoch using JavaScript's Date.now()
-    const today = Date.now(); // This gives the current timestamp in milliseconds
-    console.log("Today's timestamp:", today);
-
-    // 2. Ensure periodStartDate is a Date object and convert it to milliseconds
-    const periodStartDate = new Date(personalizeJourney.periodStartDate).getTime(); // Convert to milliseconds
-    console.log("Period start date timestamp:", periodStartDate);
-
-    // 3. Calculate the time difference in milliseconds
-    const timeDifference = today - periodStartDate;  // in milliseconds
-
-    // 4. Convert milliseconds to days
-    const cycleDay = Math.floor(timeDifference / (1000 * 60 * 60 * 24)) + 1; // Add 1 to include the first day of the period
-
-    console.log("Current cycle day:", cycleDay);
-    */
-
     const currentDate = new Date(); // Current date and time
 
     console.log("periodStartDate 🧪", personalizeJourney?.periodStartDate);
@@ -514,10 +491,28 @@ export class DailyCycleInsightsController extends GenericController<
 
     if (dailyCycleInsightFound) {
       //> ekhane dailyCycleInsight Update korar code likhte hobe .. eta baki ase .. 
+      const result = await this.dailyCycleInsightsService.updateById(
+        dailyCycleInsightFound._id,
+        req.body,
+      );
+
+      if (!result) {
+        throw new ApiError(
+          StatusCodes.BAD_REQUEST,
+          'Failed to update Daily Cycle Insights'
+        );
+      }
+      res.status(StatusCodes.OK).json({
+        success: true,
+        code: StatusCodes.OK,
+        data: result,
+        message: 'Daily Cycle Insights updated successfully',
+      });
+
     } else {
       let labTestLog = null;
 
-      req.body.cycleDay = cycleDay   //> 🌀🌀🌀🌀🌀🌀🌀 ekhane issue ase .. 
+      req.body.cycleDay = cycleDay  
 
       let phase = '';
       let fertilityLevel = '';
@@ -593,8 +588,6 @@ export class DailyCycleInsightsController extends GenericController<
     });
   });
 
-
-  
   //[🚧][🧑‍💻][🧪] // ✅ 🆗  // 🔴🔴 not working ..  
   getByDateAndUserId = catchAsync(async (req: Request, res: Response) => {
     const { date } = req.query;

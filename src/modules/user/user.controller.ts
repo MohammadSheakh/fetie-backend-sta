@@ -412,6 +412,13 @@ const deleteAllDataFromCollection = async (req: Request, res: Response) => {
 
     // Delete all documents
     const result = await Model.deleteMany({});
+    if(!result){
+      sendResponse(res, {
+        code: StatusCodes.BAD_REQUEST,
+        success: false,
+        message: `Failed to delete documents from ${collectionName}`,
+      });
+    }
 
     sendResponse(res, {
       code: StatusCodes.BAD_REQUEST,
