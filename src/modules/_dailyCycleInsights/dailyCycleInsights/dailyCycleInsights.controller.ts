@@ -477,9 +477,18 @@ export class DailyCycleInsightsController extends GenericController<
     ///////// Predict Period Start Date based on 12 months of predicted Data ..  ///////////////// END
 
 
+    /**********************
     let cycleDay =
           differenceInDays(req.body.date, periodStartDate) + 1; // 🔰 req.body.date e hocche current date
     
+    ********************/
+
+    let cycleDay =
+          calculateCurrentCycleDay(
+            new Date(req.body.date),
+            new Date(periodStartDate),
+            personalizeJourney?.avgMenstrualCycleLength
+          );
 
     console.log("cycleDay 🧪", cycleDay);
 
@@ -613,4 +622,26 @@ export class DailyCycleInsightsController extends GenericController<
   });
 
   // add more methods here if needed or override the existing ones
+}
+
+
+// Helper function to calculate current cycle day
+function calculateCurrentCycleDay(
+  currentDate: Date,
+  baseDate: Date ,
+  avgCycleLength: number
+): number {
+  const daysSinceBase = Math.floor(
+    (currentDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (daysSinceBase < 0) {
+    // Current date is before the base date
+    return 1;
+  }
+
+  // Calculate which cycle we're in and what day of that cycle
+  const cycleDay = (daysSinceBase % avgCycleLength) + 1;
+
+  return cycleDay;
 }
