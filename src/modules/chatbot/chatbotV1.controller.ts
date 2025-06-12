@@ -11,12 +11,12 @@ import { Request, Response } from 'express';
 import { ChatBotService } from './chatbotV1.service';
 import { IMessage } from '../_chatting/message/message.interface';
 import { MessagerService } from '../_chatting/message/message.service';
-import { RoleType } from '../_chatting/conversationParticipents/conversationParticipents.constant';
 import mongoose from 'mongoose';
 import { IPersonalizeJourney } from '../_personalizeJourney/personalizeJourney/personalizeJourney.interface';
 import { Message } from '../_chatting/message/message.model';
 import { Conversation } from '../_chatting/conversation/conversation.model';
 import { FertieService } from '../fertie/fertie.service';
+import { RoleType } from '../_chatting/message/message.constant';
 
 let dailyCycleInsightService = new DailyCycleInsightsService();
 let personalizeJourneyService = new PersonalizedJourneyService();
@@ -292,7 +292,7 @@ const chatbotResponseLongPollingWithHistory = async (
       // also update the last message of the conversation 
       await Conversation.findByIdAndUpdate(
         conversationId,
-        { lastMessageSenderRole: RoleType.bot},
+        { lastMessageSenderRole: RoleType.botReply},
         { new: true }
       );
 
@@ -680,7 +680,7 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
       // also update the last message of the conversation 
       await Conversation.findByIdAndUpdate(
         conversationId,
-        { lastMessageSenderRole: RoleType.bot},
+        { lastMessageSenderRole: RoleType.botReply},
         { new: true }
       );
 

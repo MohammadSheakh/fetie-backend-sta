@@ -28,6 +28,8 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
     super(new ConversationService(), 'Conversation');
   }
 
+
+  //  FIX : lastMessageSenderRole fix korte hobe .. 
   // override  // 2️⃣
   create = catchAsync(async (req: Request, res: Response) => {
     let type;
@@ -141,7 +143,7 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
           // also update the last message of the conversation 
           await Conversation.findByIdAndUpdate(
             result?._id,
-            { lastMessageSenderRole: RoleType.bot},
+            { lastMessageSenderRole: RoleType.bot}, // FIX ME : last message sender role fix korte hobe .. 
             { new: true }
           ).select('-isDeleted -updatedAt -createdAt -__v');
         }

@@ -3,6 +3,7 @@ import { cronService } from '../../cron/cron.service';
 import { Conversation } from './conversation.model';
 import { MessagerService } from '../message/message.service';
 import { RoleType } from '../message/message.constant';
+import { Roles } from '../../../middlewares/roles';
 
 let messageService = new MessagerService();
 
@@ -62,7 +63,7 @@ export const sendDailyMessageToAllConversations = async (): Promise<void> => {
 
         // if(lastMessageSenderRoleOfAConversation !== RoleType.bot  ) 
         
-        if(lastMessageSenderRoleOfAConversation?.lastMessageSenderRole !== RoleType.bot) {
+        if(lastMessageSenderRoleOfAConversation?.lastMessageSenderRole !== RoleType.botAuto) {
           await messageService.create({
             text: randomMessage,
             senderId: new mongoose.Types.ObjectId(botId),
@@ -72,7 +73,7 @@ export const sendDailyMessageToAllConversations = async (): Promise<void> => {
 
           await Conversation.findByIdAndUpdate(
             conversation._id,
-            { lastMessageSenderRole: RoleType.bot },
+            { lastMessageSenderRole: RoleType.botAuto },
             { new: true }
           );
         }

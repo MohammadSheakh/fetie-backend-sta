@@ -75,8 +75,10 @@ const conversationSchema = new Schema<IConversation>(
     lastMessageSenderRole: {
           type: String,
           enum: [
-            RoleType.bot,
+            RoleType.botReply,
+            RoleType.botAuto,
             RoleType.user,
+            
           ],
           required: [
             false,

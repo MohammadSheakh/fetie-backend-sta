@@ -14,7 +14,7 @@ export interface IConversation {
   month: string;
   year: number;
   title?: string;
-  lastMessageSenderRole? : RoleType.bot | RoleType.user; //  Types.ObjectId 🔗
+  lastMessageSenderRole? : RoleType.botAuto | RoleType.user | RoleType.botReply; //  Types.ObjectId 🔗
   
   ///////////////////////////////////////
   isDeleted? : boolean;
