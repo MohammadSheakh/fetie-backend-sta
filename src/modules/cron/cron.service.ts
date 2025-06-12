@@ -47,8 +47,6 @@ class CronService {
     });
     this.jobs.clear();
   }
-
-
 }
 
 export const cronService = new CronService();
