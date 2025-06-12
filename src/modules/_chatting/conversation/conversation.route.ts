@@ -11,7 +11,7 @@ import validateRequest from '../../../shared/validateRequest';
 import { ConversationV2Controller } from './conversationv2.controller';
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IConversation>(
+export const optionValidationChecking = <T extends keyof IConversation | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
   return filters;
@@ -21,10 +21,17 @@ export const optionValidationChecking = <T extends keyof IConversation>(
 const controller = new ConversationController();
 const controllerV2 = new ConversationV2Controller();
 
+const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
+  'sortBy',
+  'page',
+  'limit',
+  'populate',
+];
+
 //info : pagination route must be before the route with params
 router.route('/paginate').get(
   //auth('common'),
-  validateFiltersForQuery(optionValidationChecking(['_id', 'creatorId'])),
+  validateFiltersForQuery(optionValidationChecking(['_id', 'creatorId', ...paginationOptions])),
   controller.getAllWithPagination
 );
 

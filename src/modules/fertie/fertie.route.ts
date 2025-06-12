@@ -72,7 +72,9 @@ router.route('/get-home-page-data').get(
 //[🚧][🧑‍💻✅][🧪] // 🆗🆗🆗
 router
   .route('/predictions')
-  .get(auth('common'), controller.getPredictionsByMonthV2); // ?month=YYYY-MM
+  .get(auth('common'), controller.getPredictionsByMonth_Claude_V3); // ?month=YYYY-MM
+///////////////  getPredictionsByMonthV2  -> it has issue ... current cycle info is wrong .. 
+
 // [
 //   {
 //             "month": "2025-01",
