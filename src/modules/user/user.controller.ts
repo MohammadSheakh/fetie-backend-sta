@@ -14,8 +14,6 @@ import { TStatusType, TSubscriptionType } from './user.constant';
 
 const userCustomService = new UserCustomService();
 
-
-
 const createAdminOrSuperAdmin = catchAsync(async (req, res) => {
   const payload = req.body;
   const result = await UserService.createAdminOrSuperAdmin(payload);
@@ -27,9 +25,6 @@ const createAdminOrSuperAdmin = catchAsync(async (req, res) => {
     } created successfully`,
   });
 });
-
-
-
 
 //get single user from database
 const getSingleUser = catchAsync(async (req, res) => {
@@ -120,7 +115,6 @@ const getMyProfile = catchAsync(async (req, res) => {
   });
 });
 
-
 //get my profile //[🚧][🧑‍💻✅][🧪🆗]
 const getMyProfileOnlyRequiredField = catchAsync(async (req, res) => {
   const userId = req.user.userId;
@@ -149,14 +143,13 @@ const deleteMyProfile = catchAsync(async (req, res) => {
   });
 });
 
-
 //////////////////////////////////////////////////////////
 
 //[🚧][🧑‍💻][🧪] // ✅ 🆗
 const getAllUserForAdminDashboard = catchAsync(async (req, res) => {
   const filters = req.query;
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
-  
+
   const query = {};
 
   // Create a copy of filter without isPreview to handle separately
@@ -170,24 +163,23 @@ const getAllUserForAdminDashboard = catchAsync(async (req, res) => {
       query[key] = mainFilter[key];
     }
   }
-  
+
   const result = await userCustomService.getAllWithPagination(query, options);
 
   sendResponse(res, {
     code: StatusCodes.OK,
-    data: result, 
+    data: result,
 
     message: 'All users fetched successfully',
   });
-}
-);
+});
 
 //[🚧][🧑‍💻][🧪] // ✅ 🆗
 const getAllAdminForAdminDashboard = catchAsync(async (req, res) => {
   // const filters = req.query;
 
   const filters = { ...req.query };
-  
+
   // If role is not specified in query, set default to show both admin and superAdmin
   if (!filters.role) {
     filters.role = { $in: ['admin', 'superAdmin'] };
@@ -199,39 +191,35 @@ const getAllAdminForAdminDashboard = catchAsync(async (req, res) => {
 
   sendResponse(res, {
     code: StatusCodes.OK,
-    data: result, 
+    data: result,
     message: 'All admin fetched successfully',
   });
-}
-);
+});
 
-
-//[🚧][🧑‍💻][🧪] // ✅ 🆗 // 🧪🧪🧪🧪🧪🧪🧪🧪🧪 need test 
+//[🚧][🧑‍💻][🧪] // ✅ 🆗 // 🧪🧪🧪🧪🧪🧪🧪🧪🧪 need test
 // send Invitation Link for a admin
 const sendInvitationLinkToAdminEmail = catchAsync(async (req, res) => {
   const user = await UserService.getUserByEmail(req.body.email);
 
   /**
-   * 
-   * req.body.email er email jodi already taken 
+   *
+   * req.body.email er email jodi already taken
    * if ----
-   * then we check isEmailVerified .. if false .. we make that true 
-   * 
-   * if isDeleted true then we make it false 
-   * 
+   * then we check isEmailVerified .. if false .. we make that true
+   *
+   * if isDeleted true then we make it false
+   *
    * else ---
    *  we create new admin and send email
-   * 
+   *
    */
 
-  if(user && user.isEmailVerified === true){
+  if (user && user.isEmailVerified === true) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Email already taken');
-  }
-  else if(user && user.isDeleted === true){
+  } else if (user && user.isDeleted === true) {
     user.isDeleted = false;
     await user.save();
-  }
-  else if(user && user.isEmailVerified === false){
+  } else if (user && user.isEmailVerified === false) {
     user.isEmailVerified = true;
     await user.save();
     const token = await TokenService.createVerifyEmailToken(user);
@@ -239,33 +227,32 @@ const sendInvitationLinkToAdminEmail = catchAsync(async (req, res) => {
       req?.body?.email,
       req.body.role,
       req?.body?.password,
-      req.body.message ?? "welcome to the team"
+      req.body.message ?? 'welcome to the team'
     );
 
     return sendResponse(res, {
       code: StatusCodes.OK,
       data: null,
-      message: 'User already found and Invitation link sent successfully for admin',
+      message:
+        'User already found and Invitation link sent successfully for admin',
     });
-  }else{
-    // create new user 
-    if(req.body.role == "admin")
-      {
-        const newUser = await AuthService.createUser({
-          email: req.body.email,
-          password: req.body.password,
-          role: req.body.role,
-          isEmailVerified: true,
-        });
+  } else {
+    // create new user
+    if (req.body.role == 'admin') {
+      const newUser = await AuthService.createUser({
+        email: req.body.email,
+        password: req.body.password,
+        role: req.body.role,
+        isEmailVerified: true,
+      });
 
-        return sendResponse(res, {
-          code: StatusCodes.OK,
-          data: null,
-          message: 'New admin created and invitation link sent successfully',
-        });
-      } 
+      return sendResponse(res, {
+        code: StatusCodes.OK,
+        data: null,
+        message: 'New admin created and invitation link sent successfully',
+      });
+    }
   }
-
 });
 
 //////////////  Access Pin related controller ///////////
@@ -280,7 +267,7 @@ const setNewAccessPin = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin Code is required');
   }
 
-  // TODO :  We need to hash the access pin code before saving it to the database .. 
+  // TODO :  We need to hash the access pin code before saving it to the database ..
 
   const result = await UserService.setNewAccessPin(userId, accessPinCode);
 
@@ -304,7 +291,10 @@ const removeAccessPin = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin Code is required');
   }
 
-  const result = await UserService.removeAccessPin(userId , req.body.accessPinCode);
+  const result = await UserService.removeAccessPin(
+    userId,
+    req.body.accessPinCode
+  );
   if (!result) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Access Pin can not be removed');
   }
@@ -324,10 +314,16 @@ const givePermissionToChangeCurrentPin = catchAsync(async (req, res) => {
   if (!req.body.accessPinCode) {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin Code is required');
   }
-  
-  const result = await UserService.givePermissionToChangeCurrentPin(userId , req.body.accessPinCode);
+
+  const result = await UserService.givePermissionToChangeCurrentPin(
+    userId,
+    req.body.accessPinCode
+  );
   if (!result) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin can not be changed');
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Access Pin can not be changed'
+    );
   }
 
   sendResponse(res, {
@@ -346,11 +342,15 @@ const matchAccessPin = catchAsync(async (req, res) => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin Code is required');
   }
 
-  
-
-  const result = await UserService.matchAccessPin(userId , req.body.accessPinCode);
+  const result = await UserService.matchAccessPin(
+    userId,
+    req.body.accessPinCode
+  );
   if (!result) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'Access Pin can not be matched');
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'Access Pin can not be matched'
+    );
   }
 
   const updateUserlastProvideAccessPinCode = await User.findByIdAndUpdate(
@@ -364,12 +364,12 @@ const matchAccessPin = catchAsync(async (req, res) => {
     data: result,
     message: 'Access Pin Code matched successfully',
   });
-})
+});
 
 /*************************
- * 
+ *
  * // Risky .. If you pass collectionName as a parameter, it will delete all data from that collection.
- * 
+ *
  * ********************* */
 
 const deleteAllDataFromCollection = async (req: Request, res: Response) => {
@@ -384,9 +384,15 @@ const deleteAllDataFromCollection = async (req: Request, res: Response) => {
     }
 
     // Validate collectionName - only allow known collections for safety
-    const allowedCollections = ['DailyCycleInsights', 'Users', 'Message', 'Notification']; // example allowed list
+    const allowedCollections = [
+      'DailyCycleInsights',
+      'Users',
+      'Message',
+      'Notification',
+      'LabTestLog',
+    ]; // example allowed list
     if (!allowedCollections.includes(collectionName)) {
-       sendResponse(res, {
+      sendResponse(res, {
         code: StatusCodes.FORBIDDEN,
         message: `Operation not allowed on this collection`,
       });
@@ -395,29 +401,26 @@ const deleteAllDataFromCollection = async (req: Request, res: Response) => {
     // Get Mongoose model dynamically by collectionName
     // WARNING: Mongoose model names are case-sensitive and usually singular
     const Model = mongoose.models[collectionName];
-    console.log("Model 🌋🌋", Model);
+    console.log('Model 🌋🌋', Model);
     if (!Model) {
-      
       sendResponse(res, {
-     code: StatusCodes.BAD_REQUEST,
-      success: false,
-      message: `Model for collection '${collectionName}' not found`,
-    });
+        code: StatusCodes.BAD_REQUEST,
+        success: false,
+        message: `Model for collection '${collectionName}' not found`,
+      });
     }
 
     // Delete all documents
     const result = await Model.deleteMany({});
 
-    
     sendResponse(res, {
-     code: StatusCodes.BAD_REQUEST,
+      code: StatusCodes.BAD_REQUEST,
       success: true,
       message: `All documents deleted from ${collectionName}`,
-      data :  result.deletedCount,
+      data: result.deletedCount,
     });
   } catch (error) {
     console.error('Error deleting all data:', error);
-   
 
     sendResponse(res, {
       code: StatusCodes.BAD_REQUEST,
@@ -427,26 +430,31 @@ const deleteAllDataFromCollection = async (req: Request, res: Response) => {
   }
 };
 
-
 const changeUserStatus = catchAsync(async (req: Request, res: Response) => {
   const { userId } = req.query;
   if (!userId) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'User ID is required in req.query');
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      'User ID is required in req.query'
+    );
   }
 
   const { status } = req.body;
-  console.log("status", status);
-  console.log("body", req.body)
+  console.log('status', status);
+  console.log('body', req.body);
 
   // Validate if status is one of the enums
   if (![TStatusType.active, TStatusType.inactive].includes(status)) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, `Invalid status value it can be ${Object.values(TStatusType).join(', ')}`);
+    throw new ApiError(
+      StatusCodes.BAD_REQUEST,
+      `Invalid status value it can be ${Object.values(TStatusType).join(', ')}`
+    );
   }
-  
+
   const result = await User.findByIdAndUpdate(
     userId,
     {
-      status
+      status,
     },
     { new: true }
   );
@@ -456,38 +464,49 @@ const changeUserStatus = catchAsync(async (req: Request, res: Response) => {
     data: result,
     message: 'User status changed successfully',
   });
+});
 
-})
+const changeUserSubscriptionType = catchAsync(
+  async (req: Request, res: Response) => {
+    const { userId } = req.query;
+    if (!userId) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        'User ID is required in req.query'
+      );
+    }
 
-const changeUserSubscriptionType = catchAsync(async (req: Request, res: Response) => {
-  const { userId } = req.query;
-  if (!userId) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, 'User ID is required in req.query');
+    const { subsciptionType } = req.body;
+
+    // Validate if status is one of the enums
+    if (
+      ![TSubscriptionType.free, TSubscriptionType.premium].includes(
+        subsciptionType
+      )
+    ) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `Invalid subscription type value it can be ${Object.values(
+          TSubscriptionType
+        ).join(', ')}`
+      );
+    }
+
+    const result = await User.findByIdAndUpdate(
+      userId,
+      {
+        subsciptionType,
+      },
+      { new: true }
+    );
+
+    sendResponse(res, {
+      code: StatusCodes.OK,
+      data: result,
+      message: 'User Subscription Type changed successfully',
+    });
   }
-
-  const { subsciptionType } = req.body;
-  
-  // Validate if status is one of the enums
-  if (![TSubscriptionType.free, TSubscriptionType.premium].includes(subsciptionType)) {
-    throw new ApiError(StatusCodes.BAD_REQUEST, `Invalid subscription type value it can be ${Object.values(TSubscriptionType).join(', ')}`);
-  }
-  
-  const result = await User.findByIdAndUpdate(
-    userId,
-    {
-      subsciptionType
-    },
-    { new: true }
-  );
-
-  sendResponse(res, {
-    code: StatusCodes.OK,
-    data: result,
-    message: 'User Subscription Type changed successfully',
-  });
-
-})
-
+);
 
 export const UserController = {
   createAdminOrSuperAdmin,
@@ -503,7 +522,7 @@ export const UserController = {
   getAllAdminForAdminDashboard,
   sendInvitationLinkToAdminEmail,
 
-  //////////////// For Admin Change User Status and Subscription Type .. 
+  //////////////// For Admin Change User Status and Subscription Type ..
   changeUserStatus,
   changeUserSubscriptionType,
 
@@ -517,5 +536,5 @@ export const UserController = {
 
   ///////////////////////////////////////////
 
-  getMyProfileOnlyRequiredField
+  getMyProfileOnlyRequiredField,
 };
