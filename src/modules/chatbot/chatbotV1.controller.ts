@@ -491,7 +491,7 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
      
       similarMessagesHistory.forEach(msg => {
         if(msg.senderRole == 'user'){
-          console.log("msg.text.toString() 🟢🟢🟢", msg.text.toString());
+          // console.log("msg.text.toString() 🟢🟢🟢", msg.text.toString());
           const role = msg.senderRole === RoleType.user ? 'user' : 'assistant';
           formattedMessages.push({
             role: role,
@@ -501,7 +501,7 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
       });
     }
 
-    console.log("formattedMessages 🟢🟢🟢", formattedMessages);
+    // console.log("formattedMessages 🟢🟢🟢", formattedMessages);
     
     // Initialize response string
     let responseText = '';

@@ -17,8 +17,7 @@ export const createSubscriptionPlanValidationSchema = z.object({
       }),
       // .min(0, {
       // message: 'amount must be greater than zero.',
-
-
+      
       subscriptionType: z.string({
         required_error: 'subscriptionType is required, subscriptionType must be a string.',
         invalid_type_error: 'subscriptionType must be a string.',

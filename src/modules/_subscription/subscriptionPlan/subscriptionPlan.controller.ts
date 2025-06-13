@@ -173,8 +173,8 @@ export class SubscriptionController extends GenericController<
       );
     }
 
-    console.log('newUserSubscription 🔥🔥🔥', newUserSubscription);
-    console.log('updatedUserSubscription 🔥🔥🔥', updatedUserSubscription); 
+    // console.log('newUserSubscription 🔥🔥🔥', newUserSubscription);
+    // console.log('updatedUserSubscription 🔥🔥🔥', updatedUserSubscription); 
 
     // Create payment transaction record
     const newPaymentTransaction = await PaymentTransaction.create([{
@@ -445,8 +445,8 @@ export class SubscriptionController extends GenericController<
     const { subscriptionPlanId } = req.query;
     const { userId } = req.user;
 
-    console.log('userId 🔥🔥', userId);
-    console.log('subscriptionPlanId 🔥🔥', subscriptionPlanId);
+    // console.log('userId 🔥🔥', userId);
+    // console.log('subscriptionPlanId 🔥🔥', subscriptionPlanId);
 
     
     if (!userId) {
@@ -546,7 +546,7 @@ export class SubscriptionController extends GenericController<
       },
     });
 
-    console.log('session 🔥🔥', session);
+    // console.log('session 🔥🔥', session);
 
     if (!session.url) {
       throw new ApiError(
@@ -665,7 +665,7 @@ export class SubscriptionController extends GenericController<
 
     const paymentResult = await paymentTransactionService.confirmPayment(data);
 
-    console.log('paymentResult 🔥🔥', paymentResult);
+    // console.log('paymentResult 🔥🔥', paymentResult);
 
     if (paymentResult) {
     const subscription = await SubscriptionPlan.findOne({
@@ -679,7 +679,7 @@ export class SubscriptionController extends GenericController<
       );
     }
 
-    console.log('subscription 🔥🔥🔥🔥🔥🔥🔥🔥', subscription);
+    // console.log('subscription 🔥🔥🔥🔥🔥🔥🔥🔥', subscription);
 
     if (deviceType !== "Mobile") {
       /*
@@ -795,7 +795,7 @@ export class SubscriptionController extends GenericController<
     switch (event.type) {
       case 'checkout.session.completed': // 🟢
         // Handle successful subscription creation here
-        console.log('Subscription created successfully:', event.data.object);
+        // console.log('Subscription created successfully:', event.data.object);
         await this.handleCheckoutSessionCompleted(event.data.object);
         break;
       case 'invoice.payment_succeeded':  // 🟢

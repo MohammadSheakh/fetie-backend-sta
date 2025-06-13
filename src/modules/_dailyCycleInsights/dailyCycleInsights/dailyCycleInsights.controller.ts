@@ -57,7 +57,7 @@ export class DailyCycleInsightsController extends GenericController<
       labTestValue,
     }: TDailyCycleInsights = req.body;
     const userId = req.user.userId;
-    console.log('🚧 DailyCycleInsightsController -> create -> userId', userId);
+    // console.log('🚧 DailyCycleInsightsController -> create -> userId', userId);
     req.body.userId = userId;
 
     const user = await User.findById(userId).select('personalize_Journey_Id').lean();
@@ -81,7 +81,7 @@ export class DailyCycleInsightsController extends GenericController<
       "periodStartDate periodLength periodEndDate avgMenstrualCycleLength"
     ).lean();
 
-    console.log("personalizeJourney 🧪🧪🧪",personalizeJourney);
+    // console.log("personalizeJourney 🧪🧪🧪",personalizeJourney);
 
     if (!personalizeJourney) {
       throw new ApiError(
@@ -115,15 +115,15 @@ export class DailyCycleInsightsController extends GenericController<
 
     const currentDate = new Date(); // Current date and time
 
-    console.log("periodStartDate 🧪", personalizeJourney?.periodStartDate);
-    console.log("req.body.date 🧪", req.body.date);
+    // console.log("periodStartDate 🧪", personalizeJourney?.periodStartDate);
+    // console.log("req.body.date 🧪", req.body.date);
 
     ///////// Predict Period Start Date based on 12 months of predicted Data ..  ///////////////// START
 
     let data = await this.fertieService.predictAllDates(userId);
 
 
-    console.log("data 🧪🧪🧪🧪🧪🧪 predicAllDates", data);
+    // console.log("data 🧪🧪🧪🧪🧪🧪 predicAllDates", data);
 
     // Extract year and month from the target date
   const [year, month] = req.body.date.split('-');
@@ -132,7 +132,7 @@ export class DailyCycleInsightsController extends GenericController<
   // Find the month object that matches the target year-month
   const monthData = data.find(item => item.month === targetYearMonth);
 
-  console.log("monthData 🧪🧪🧪", monthData);
+  // console.log("monthData 🧪🧪🧪", monthData);
   
   if (!monthData) {
     return { error: `No data found for month: ${targetYearMonth}`};
@@ -142,7 +142,7 @@ export class DailyCycleInsightsController extends GenericController<
   const periodEvent = monthData.events.find(event => event.predictedPeriodStart);
   
 
-  console.log("periodEvent 🧪🧪🧪", periodEvent);
+  // console.log("periodEvent 🧪🧪🧪", periodEvent);
   if (!periodEvent) {
     // return { error: `No period data found for month: ${targetYearMonth}` };
     throw new ApiError(
@@ -161,7 +161,7 @@ export class DailyCycleInsightsController extends GenericController<
           differenceInDays(req.body.date, periodStartDate) + 1; // 🔰 req.body.date e hocche current date
     
 
-    console.log("cycleDay 🧪", cycleDay);
+    // console.log("cycleDay 🧪", cycleDay);
 
     /////////////////////////////////////////////////////////////////////////////
     const dailyCycleInsightFound =
@@ -377,7 +377,7 @@ export class DailyCycleInsightsController extends GenericController<
       symptoms,
     }: TDailyCycleInsights = req.body;
     const userId = req.user.userId;
-    console.log('🚧 DailyCycleInsightsController -> create -> userId', userId);
+    // console.log('🚧 DailyCycleInsightsController -> create -> userId', userId);
     req.body.userId = userId;
 
     const user = await User.findById(userId).select('personalize_Journey_Id').lean();
@@ -401,7 +401,7 @@ export class DailyCycleInsightsController extends GenericController<
       "periodStartDate periodLength periodEndDate avgMenstrualCycleLength"
     ).lean();
 
-    console.log("personalizeJourney 🧪🧪🧪",personalizeJourney);
+    // console.log("personalizeJourney 🧪🧪🧪",personalizeJourney);
 
     if (!personalizeJourney) {
       throw new ApiError(
@@ -412,15 +412,15 @@ export class DailyCycleInsightsController extends GenericController<
 
     const currentDate = new Date(); // Current date and time
 
-    console.log("periodStartDate 🧪", personalizeJourney?.periodStartDate);
-    console.log("req.body.date 🧪", req.body.date);
+    // console.log("periodStartDate 🧪", personalizeJourney?.periodStartDate);
+    // console.log("req.body.date 🧪", req.body.date);
 
     ///////// Predict Period Start Date based on 12 months of predicted Data ..  ///////////////// START
 
     let data = await this.fertieService.predictAllDates(userId);
 
 
-    console.log("data 🧪🧪🧪🧪🧪🧪 predicAllDates", data);
+    // console.log("data 🧪🧪🧪🧪🧪🧪 predicAllDates", data);
 
     // Extract year and month from the target date
   const [year, month] = req.body.date.split('-');
@@ -429,7 +429,7 @@ export class DailyCycleInsightsController extends GenericController<
   // Find the month object that matches the target year-month
   const monthData = data.find(item => item.month === targetYearMonth);
 
-  console.log("monthData 🧪🧪🧪", monthData);
+  // console.log("monthData 🧪🧪🧪", monthData);
   
   if (!monthData) {
     return { error: `No data found for month: ${targetYearMonth}`};
@@ -439,7 +439,7 @@ export class DailyCycleInsightsController extends GenericController<
   const periodEvent = monthData.events.find(event => event.predictedPeriodStart);
   
 
-  console.log("periodEvent 🧪🧪🧪", periodEvent);
+  // console.log("periodEvent 🧪🧪🧪", periodEvent);
   if (!periodEvent) {
     // return { error: `No period data found for month: ${targetYearMonth}` };
     throw new ApiError(
@@ -467,7 +467,7 @@ export class DailyCycleInsightsController extends GenericController<
             personalizeJourney?.avgMenstrualCycleLength
           );
 
-    console.log("cycleDay 🧪", cycleDay);
+    // console.log("cycleDay 🧪", cycleDay);
 
     /////////////////////////////////////////////////////////////////////////////
     const dailyCycleInsightFound =
@@ -564,10 +564,10 @@ export class DailyCycleInsightsController extends GenericController<
   updateByDate = catchAsync(async (req: Request, res: Response) => {
     const { date } = req.body;
     const userId = req.user.userId;
-    console.log(
-      '🚧 DailyCycleInsightsController -> updateByDate -> userId',
-      userId
-    );
+    // console.log(
+    //   '🚧 DailyCycleInsightsController -> updateByDate -> userId',
+    //   userId
+    // );
     req.body.userId = userId;
 
     const result = await this.dailyCycleInsightsService.updateByDateAndUserId(
@@ -592,7 +592,7 @@ export class DailyCycleInsightsController extends GenericController<
   getByDateAndUserId = catchAsync(async (req: Request, res: Response) => {
     const { date } = req.query;
     const userId = req.user.userId;
-    console.log("hit ")
+    // console.log("hit ")
 /*
     const result = await this.dailyCycleInsightsService.getByDateAndUserId(
       date,

@@ -176,8 +176,8 @@ const removeAccessPin = async (userId: string, accessPinCode : string) => {
     throw new ApiError(StatusCodes.NOT_FOUND, 'Access pin code not found');
   }
 
-  console.log("result.accessPinCode", result.accessPinCode, "type of ", typeof result.accessPinCode);
-  console.log("accessPinCode", accessPinCode , "type of ", typeof accessPinCode);
+  // console.log("result.accessPinCode", result.accessPinCode, "type of ", typeof result.accessPinCode);
+  // console.log("accessPinCode", accessPinCode , "type of ", typeof accessPinCode);
   
   if(result.accessPinCode !== accessPinCode){
     throw new ApiError(StatusCodes.NOT_FOUND, 'Access pin is not matched, You can not remove access pin code ');

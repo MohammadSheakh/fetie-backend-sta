@@ -59,7 +59,7 @@ export const sendDailyMessageToAllConversations = async (): Promise<void> => {
         
         let lastMessageSenderRoleOfAConversation = await Conversation.findById(conversation._id).select('lastMessageSenderRole');
 
-        console.log("lastMessageSenderRoleOfAConversation :: ", lastMessageSenderRoleOfAConversation, "type of ", typeof lastMessageSenderRoleOfAConversation);
+        // console.log("lastMessageSenderRoleOfAConversation :: ", lastMessageSenderRoleOfAConversation, "type of ", typeof lastMessageSenderRoleOfAConversation);
 
         // if(lastMessageSenderRoleOfAConversation !== RoleType.bot  ) 
         

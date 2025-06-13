@@ -97,7 +97,7 @@ export class PersonalizedJourneyService extends GenericService<
           personalizedJourneyData,
           { new: true }
         );
-        console.log('Data updated in primary collection.');
+        // console.log('Data updated in primary collection.');
       } else {
         // Create a new personalized journey
         const personalizedJourney = new PersonalizeJourney(
@@ -129,10 +129,10 @@ export class PersonalizedJourneyService extends GenericService<
         // create pregnancy history
         const pregHistory = await PregnancyHistory.create(pregnancyHistoryData);
         if (pregHistory) {
-          console.log(
-            'personalizedJourneyData 🧪test🧪',
-            personalizedJourneyData
-          );
+          // console.log(
+          //   'personalizedJourneyData 🧪test🧪',
+          //   personalizedJourneyData
+          // );
           await PersonalizeJourney.findByIdAndUpdate(
             existingJourney?._id,
             { pregnancy_History_Id: pregHistory._id },

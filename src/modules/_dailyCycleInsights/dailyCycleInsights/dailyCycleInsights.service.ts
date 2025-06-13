@@ -49,7 +49,7 @@ export class DailyCycleInsightsService extends GenericService<
   getByDateAndUserId = async (date: Date, userId: string) => {
 
     const dateObj = new Date(date);
-    console.log('date from getByDateAndUserId 📅📅', dateObj, typeof dateObj); // 2025-05-06T00:00:00.000Z
+    // console.log('date from getByDateAndUserId 📅📅', dateObj, typeof dateObj); // 2025-05-06T00:00:00.000Z
 
     // Check if parsed date is valid
     // if (isNaN(date.getTime())) {
@@ -62,10 +62,10 @@ export class DailyCycleInsightsService extends GenericService<
     // Set end of the day (23:59:59.999)
     const endOfDay = new Date(dateObj.setHours(23, 59, 59, 999));
 
-    console.log('startOfDay and endOfDay📅', startOfDay, '📅', endOfDay , '📅'); 
+    // console.log('startOfDay and endOfDay📅', startOfDay, '📅', endOfDay , '📅'); 
 
     const res = await this.model.findOne({ date: { $gte: startOfDay, $lte: endOfDay }, userId }).populate('labTestLogId');
-    console.log('res from 🟢 getByDateAndUserId 🟢', res);
+    // console.log('res from 🟢 getByDateAndUserId 🟢', res);
     // if (!res) {
     //     throw new Error('Database error while getting Daily Cycle Insights By date And userId');
     // }
@@ -75,7 +75,7 @@ export class DailyCycleInsightsService extends GenericService<
   // we need this in chatbot .. 
   getByUserId = async (userId: string) => {
     const res = await this.model.findOne({ userId }).populate('labTestLogId');
-    console.log('res from 🟢 getByDateAndUserId 🟢', res);
+    // console.log('res from 🟢 getByDateAndUserId 🟢', res);
     // if (!res) {
     //     throw new Error('Database error while getting Daily Cycle Insights By date And userId');
     // }

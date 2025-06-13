@@ -57,7 +57,7 @@ export class PersonalizedJourneyController extends GenericController<
   // Create
   create = catchAsync(async (req: Request, res: Response) => {
 
-    console.log('create method hit of personalized Journey Controller 🧪🧪 ', req.user);
+    // console.log('create method hit of personalized Journey Controller 🧪🧪 ', req.user);
     const data: IPersonalizeJourney = req.body;
     const user = await User.findById(req.user.userId);
 

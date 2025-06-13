@@ -69,7 +69,7 @@ export class ChatBotTestController {
 
     if(response.ok){
       response.json().then(data => {
-        console.log("embedding data : ⏳", data)
+        // console.log("embedding data : ⏳", data)
 
         sendResponse(res, {
           code: StatusCodes.OK,
@@ -182,7 +182,7 @@ export class ChatBotTestController {
       const embeddingData: OpenAIEmbeddingResponse = await embeddingResponse.json();
       const embedding = embeddingData.data[0].embedding;
       
-      console.log("embedding : ⏳", embedding);
+      // console.log("embedding : ⏳", embedding);
       
       /**
        *
@@ -236,7 +236,7 @@ export class ChatBotTestController {
 
       const similarMessages = await Message.aggregate(testPipeline);
 
-      console.log("similarMessages : ⏳", similarMessages);
+      // console.log("similarMessages : ⏳", similarMessages);
 
       /****************************
 
@@ -335,7 +335,7 @@ export class ChatBotTestController {
       const embeddingData: OpenAIEmbeddingResponse = await embeddingResponse.json();
       const embedding = embeddingData.data[0].embedding;
       
-      console.log("embedding : ⏳", embedding);
+      // console.log("embedding : ⏳", embedding);
       
       /**
        *
@@ -416,7 +416,7 @@ export class ChatBotTestController {
 
       const similarMessages = await Message.aggregate(testPipeline);
 
-      console.log("similarMessages : ⏳", similarMessages);
+      // console.log("similarMessages : ⏳", similarMessages);
 
       /****************************
 

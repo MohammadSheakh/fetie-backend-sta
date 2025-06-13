@@ -22,13 +22,13 @@ export class FertieService extends GenericService<typeof Fertie, IFertie>{
       const user = await User.findById(userId);
 
 
-      console.log("user 🟢🟢from predict all dates🟢 : ", user);
+      // console.log("user 🟢🟢from predict all dates🟢 : ", user);
       
       const journey = await PersonalizeJourney.findById(
         user?.personalize_Journey_Id
       );
 
-      console.log("journey 🟢🟢from predict all dates🟢 : ", journey);
+      // console.log("journey 🟢🟢from predict all dates🟢 : ", journey);
 
       if (!journey) return null;
   
@@ -307,7 +307,7 @@ export class FertieService extends GenericService<typeof Fertie, IFertie>{
         try {
           // First, try to parse the response directly
           jsonResponse = JSON.parse(responseText);
-          console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
+          // console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
         
           return jsonResponse;
         } catch (parseError) {
@@ -319,10 +319,10 @@ export class FertieService extends GenericService<typeof Fertie, IFertie>{
           if (jsonMatch) {
             try {
               // ---------------------------------------------------------------------------------
-              console.log("jsonMatch 🔴🔴 : ", jsonMatch); // [0]
+              // console.log("jsonMatch 🔴🔴 : ", jsonMatch); // [0]
               jsonResponse = JSON.parse(jsonMatch[0]); 
 
-              console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
+              // console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
 
               return jsonResponse;
               //----------------------------------------------------------------------------------

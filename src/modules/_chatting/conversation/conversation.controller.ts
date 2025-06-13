@@ -97,16 +97,16 @@ export class ConversationController extends GenericController<typeof Conversatio
 
         for (const participant of participants) {
           // try {
-          console.log('🔥🔥participants🔥', participants);
+          // console.log('🔥🔥participants🔥', participants);
 
           // as participants is just an id .. 
 
           let user = await User.findById(participant).select('role');
 
-          console.log(
-            '🔥🔥user role  🔥',
-            user,
-            user?.role,)
+          // console.log(
+          //   '🔥🔥user role  🔥',
+          //   user,
+          //   user?.role,)
 
           const res1 = await conversationParticipantsService.create({
             userId: participant,
@@ -120,7 +120,8 @@ export class ConversationController extends GenericController<typeof Conversatio
             );
           }
 
-          console.log('🔥🔥res1🔥', res1);
+          // console.log('🔥🔥res1🔥', res1);
+
           // } catch (error) {
           // console.error("Error creating conversation participant:", error);
           // }
@@ -172,9 +173,9 @@ export class ConversationController extends GenericController<typeof Conversatio
 
   addParticipantsToExistingConversation = catchAsync(
     async (req: Request, res: Response) => {
-      console.log(
-        '🧪------------' + new Date().toLocaleString() + '-----------////--🧪'
-      );
+      // console.log(
+      //   '🧪------------' + new Date().toLocaleString() + '-----------////--🧪'
+      // );
       const {
         participants,
         conversationId,
@@ -187,7 +188,7 @@ export class ConversationController extends GenericController<typeof Conversatio
 
       let result;
 
-      console.log('participants.length 🧪🧪🧪', participants.length);
+      // console.log('participants.length 🧪🧪🧪', participants.length);
       if (participants.length > 0) {
         for (const participantId of participants) {
           if (participantId !== req.user.userId) {
@@ -196,11 +197,13 @@ export class ConversationController extends GenericController<typeof Conversatio
                 participantId,
                 conversationId
               );
-            console.log(
-              'existingParticipant 🧪🧪',
-              existingParticipant,
-              existingParticipant.length
-            );
+              
+            // console.log(
+            //   'existingParticipant 🧪🧪',
+            //   existingParticipant,
+            //   existingParticipant.length
+            // );
+
             if (existingParticipant.length == 0) {
               await conversationParticipantsService.create({
                 userId: participantId,

@@ -64,8 +64,8 @@ export class FertieController extends GenericController<
     const dailyCycleInsights =
       await dailyCycleInsightsService.getByDateAndUserId(date, userId);
 
-    console.log('personalizedJourney 🔥', personalizedJourney);
-    console.log('dailyCycleInsights 🔥', dailyCycleInsights);
+    // console.log('personalizedJourney 🔥', personalizedJourney);
+    // console.log('dailyCycleInsights 🔥', dailyCycleInsights);
 
     // Step 1: Current Date
     const currentDate = new Date(); // Current date and time
@@ -83,10 +83,10 @@ export class FertieController extends GenericController<
       currentDate
     );
 
-    console.log(`daysLeftForNextPeriodStart: ${daysLeftForNextPeriodStart}`);
-    console.log(
-      `daysLeftForNextOvulationDate: ${daysLeftForNextOvulationDate}`
-    );
+    // console.log(`daysLeftForNextPeriodStart: ${daysLeftForNextPeriodStart}`);
+    // console.log(
+    //   `daysLeftForNextOvulationDate: ${daysLeftForNextOvulationDate}`
+    // );
 
     // phase , fertility , cycle day 🔥 egula niye chinta korte hobe ...
 
@@ -284,7 +284,7 @@ export class FertieController extends GenericController<
         user?.personalize_Journey_Id
       );
 
-      console.log('journey 🔥', journey);
+      // console.log('journey 🔥', journey);
       if (!journey) return res.status(404).json({ error: 'Journey not found' });
 
       const { periodStartDate, periodLength, avgMenstrualCycleLength } =
@@ -400,7 +400,7 @@ export class FertieController extends GenericController<
           });
 
           cycleDay = differenceInDays(currentDate, predictedStart) + 1;
-          console.log('cycle day 🔥', cycleDay);
+          // console.log('cycle day 🔥', cycleDay);
         } else {
           // // Add this cycle's prediction to the appropriate month
           predictionsByMonth[monthKey].events.push({
@@ -425,7 +425,7 @@ export class FertieController extends GenericController<
       // 🟢🟢🟢🟢
 
       // now we got the cycle day .. we have to generate response from chatgpt based on cycle day
-      console.log('cycle day 🔥', cycleDay);
+      // console.log('cycle day 🔥', cycleDay);
       const gptResponseForCycleDay =
         await this.fertieService.getChatBotsFeedbackAboutCurrentDailyCycle(
           cycleDay ? cycleDay : 0
@@ -500,7 +500,7 @@ export class FertieController extends GenericController<
         user?.personalize_Journey_Id
       );
 
-      console.log('journey 🔥', journey);
+      // console.log('journey 🔥', journey);
       if (!journey) return res.status(404).json({ error: 'Journey not found' });
 
       const { periodStartDate, periodLength, avgMenstrualCycleLength } =
@@ -514,7 +514,7 @@ export class FertieController extends GenericController<
         baseDate,
         Number(avgMenstrualCycleLength)
       );
-      console.log('calculated cycle day 🔥', cycleDay);
+      // console.log('calculated cycle day 🔥', cycleDay);
 
       // The month we want to start showing predictions from
       const startMonth = monthQuery ? new Date(`${monthQuery}-01`) : today;
@@ -629,7 +629,7 @@ export class FertieController extends GenericController<
       }
 
       // Generate GPT response based on cycle day
-      console.log('final cycle day for GPT 🔥', cycleDay);
+      // console.log('final cycle day for GPT 🔥', cycleDay);
 
       if (cycleDay <= 0 || cycleDay > Number(avgMenstrualCycleLength)) {
         console.warn(`Invalid cycle day: ${cycleDay}, using day 1 as fallback`);
@@ -781,7 +781,7 @@ export class FertieController extends GenericController<
 
         if (isCurrentMonth) {
           cycleDay = differenceInDays(today, predictedStart) + 1;
-          console.log('Cycle Day:', cycleDay);
+          // console.log('Cycle Day:', cycleDay);
 
           currentMonthData = {
             predictedPeriodStart: formatDate(predictedStart),
@@ -893,7 +893,7 @@ export class FertieController extends GenericController<
         .lean()
         .populate('labTestLogId');
 
-      console.log('insights', insights);
+      // console.log('insights', insights);
 
       const formattedData: any = {};
 
@@ -954,7 +954,7 @@ export class FertieController extends GenericController<
 
       let dateObj = new Date(date); // .toISOString()
 
-      console.log('dateObj 📅📅', dateObj);
+      // console.log('dateObj 📅📅', dateObj);
 
       // Set start of the day (00:00:00.000)
       const startOfDay = new Date(dateObj.setHours(0, 0, 0, 0));
@@ -969,7 +969,7 @@ export class FertieController extends GenericController<
         .lean()
         .populate('labTestLogId');
 
-      console.log('insights', insights);
+      // console.log('insights', insights);
 
       const formattedData: any = {};
 

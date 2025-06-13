@@ -47,24 +47,24 @@ export class PaymentTransactionService extends GenericService<typeof PaymentTran
 
         ////////////// Set Expiry Date ////////////
         const today = new Date();
-        console.log("today", today);
+        // console.log("today", today);
 
         // Reset time to midnight
         today.setHours(0, 0, 0, 0);
 
         const expiryDate = new Date(today);
-        console.log("expiryDate before adding month", expiryDate);
+        // console.log("expiryDate before adding month", expiryDate);
 
         // If duration is 'month', add 1 month to today's date
         if (duration === 'month') {
           expiryDate.setMonth(today.getMonth() + 1); // Adds 1 month
         }
 
-        console.log("expiryDate after adding month", expiryDate);
+        // console.log("expiryDate after adding month", expiryDate);
 
         // Store as a full ISO string (with time and timezone)
         const isoFormattedExpiryDate = expiryDate.toISOString();
-        console.log("ISO Formatted Expiry Date", isoFormattedExpiryDate);
+        // console.log("ISO Formatted Expiry Date", isoFormattedExpiryDate);
 
 
         // // Check if the user already has a subscription in MySubscription
@@ -73,7 +73,7 @@ export class PaymentTransactionService extends GenericService<typeof PaymentTran
         let savedUserSubscription;
         if (existingUserSubscription) {
 
-          console.log("🎯🎯 if block userSubscription")
+          // console.log("🎯🎯 if block userSubscription")
 
           existingUserSubscription.status = UserSubscriptionStatusType.active;
           // Update the existing subscription
@@ -92,7 +92,7 @@ export class PaymentTransactionService extends GenericService<typeof PaymentTran
           savedUserSubscription = await existingUserSubscription.save();
         } else {
 
-          console.log("🎯🎯 else block userSubscription")
+          // console.log("🎯🎯 else block userSubscription")
 
           // Create a new subscription
           const newSubscription = new UserSubscription({

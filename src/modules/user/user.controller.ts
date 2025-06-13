@@ -447,8 +447,8 @@ const changeUserStatus = catchAsync(async (req: Request, res: Response) => {
   }
 
   const { status } = req.body;
-  console.log('status', status);
-  console.log('body', req.body);
+  // console.log('status', status);
+  // console.log('body', req.body);
 
   // Validate if status is one of the enums
   if (![TStatusType.active, TStatusType.inactive].includes(status)) {

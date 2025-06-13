@@ -36,7 +36,7 @@ const addNotification = async (
       return;
     }
 
-    console.log('data from predictAllDates 🟢in sendNotificationByChatGpt🟢 : ', data);
+    // console.log('data from predictAllDates 🟢in sendNotificationByChatGpt🟢 : ', data);
 
     //  const [year, month] = req.body.date.split('-');
      const [year, month] = new Date().toISOString().split('T')[0].split('-');
@@ -58,7 +58,7 @@ const addNotification = async (
       fertileWindow: [Date, Date];
     } = monthData.events.find(event => event.predictedPeriodStart);
 
-    console.log('periodEvent::::::: 🟢from notification.service.ts🟢sendNotificationByChatGpt🟢 : ', periodEvent);
+    // console.log('periodEvent::::::: 🟢from notification.service.ts🟢sendNotificationByChatGpt🟢 : ', periodEvent);
   
     const periodStartDate = periodEvent.predictedPeriodStart//.split('T')[0];
 
@@ -86,7 +86,7 @@ const addNotification = async (
             user?.personalize_Journey_Id
     );
 
-    console.log('journey 🔥', journey);
+    // console.log('journey 🔥', journey);
 
     if (!journey) return;
 
@@ -294,7 +294,7 @@ const addNotification = async (
             });
 
 
-            console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
+            // console.log("jsonResponse 🟢🟢🟢 :", jsonResponse);
           } catch (parseError) {
             // If direct parsing fails, try to extract JSON from the response
             console.log("Failed to parse direct response, attempting to extract JSON");
@@ -304,7 +304,7 @@ const addNotification = async (
             if (jsonMatch) {
               try {
                 // ---------------------------------------------------------------------------------
-                console.log("jsonMatch 🔴🔴 : ", jsonMatch); // [0]
+                // console.log("jsonMatch 🔴🔴 : ", jsonMatch); // [0]
                 jsonResponse = JSON.parse(jsonMatch[0]); 
 
                 //-------------- we have to save this response to notification database .. 
@@ -313,6 +313,7 @@ const addNotification = async (
                 // for today and save it to database ..
 
 
+                // TODO : check korte hobe notification generate hocche kina .. 
                 console.log("🟢No AI Generated Notification found for today ... Lets generate ... 🤖");
 
                 newAIGeneratedNotification = await Notification.create({

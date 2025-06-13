@@ -114,7 +114,7 @@ const appleLogin = async (req, res) => {
 
 //[🚧][🧑‍💻✅][🧪]  // 🆗
 const verifyEmail = catchAsync(async (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   const { email, token, otp } = req.body;
   const result = await AuthService.verifyEmail(email, token, otp);
   sendResponse(res, {

@@ -34,6 +34,7 @@ const getALLNotification = catchAsync(async (req, res) => {
   });
 });
 
+//-------------- TODO : must check this function is working or not ..
 const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsync(
   async (req, res) => {
 
