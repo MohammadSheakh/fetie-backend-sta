@@ -4,6 +4,8 @@ import { Notification } from './notification.model';
 import { PaginateOptions } from '../../types/paginate';
 import { FertieService } from '../fertie/fertie.service';
 import { differenceInDays } from 'date-fns';
+import { PersonalizeJourney } from '../_personalizeJourney/personalizeJourney/personalizeJourney.model';
+import { User } from '../user/user.model';
 
 const model = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
@@ -33,6 +35,7 @@ const addNotification = async (
     if(!data){
       return;
     }
+
     console.log('data from predictAllDates 🟢in sendNotificationByChatGpt🟢 : ', data);
 
     //  const [year, month] = req.body.date.split('-');
@@ -59,14 +62,47 @@ const addNotification = async (
   
     const periodStartDate = periodEvent.predictedPeriodStart//.split('T')[0];
 
-
     /******************* // FIX me : issue in cycle day .. it must be fixed .. 
      * 
      *  issue found in cycle day calculation .. lets fix it ..
      * 
      * ****************** */
+    
+    /*********
+    
     let cycleDay = differenceInDays(currentDate, periodStartDate) + 1; // 🔰 req.body.date e hocche current date
-  
+    
+    ******** */
+
+    const user = await User.findById(userId).select(
+      'personalize_Journey_Id'
+    );
+    if (!user) {
+      console.error('User not found');
+      return;
+    }
+
+    const journey = await PersonalizeJourney.findById(
+            user?.personalize_Journey_Id
+    );
+
+    console.log('journey 🔥', journey);
+
+    if (!journey) return;
+
+
+    const { avgMenstrualCycleLength } =
+        journey;
+
+    const today = new Date();
+    const baseDate = new Date(periodStartDate);
+
+    let cycleDay = calculateCurrentCycleDay(
+        today,
+        baseDate,
+        Number(avgMenstrualCycleLength)
+    );
+    
     // 🔴🔴  Date.now() e shomossha thakte pare .. new Date()
     /**
      * now we have information like 
@@ -341,7 +377,7 @@ const addNotification = async (
         }
 
     //////////////////////////////////////////////////////       
-  }
+}
 
 
 
@@ -451,3 +487,25 @@ export const NotificationService = {
   // deleteNotification,
   // clearAllNotification,
 };
+
+
+// Helper function to calculate current cycle day
+function calculateCurrentCycleDay(
+  currentDate: Date,
+  baseDate: Date,
+  avgCycleLength: number
+): number {
+  const daysSinceBase = Math.floor(
+    (currentDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (daysSinceBase < 0) {
+    // Current date is before the base date
+    return 1;
+  }
+
+  // Calculate which cycle we're in and what day of that cycle
+  const cycleDay = (daysSinceBase % avgCycleLength) + 1;
+
+  return cycleDay;
+}
