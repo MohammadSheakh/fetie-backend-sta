@@ -795,7 +795,7 @@ export class SubscriptionController extends GenericController<
     switch (event.type) {
       case 'checkout.session.completed': // 🟢
         // Handle successful subscription creation here
-        // console.log('Subscription created successfully:', event.data.object);
+         console.log('Subscription created successfully:', event.data.object);
         await this.handleCheckoutSessionCompleted(event.data.object);
         break;
       case 'invoice.payment_succeeded':  // 🟢
