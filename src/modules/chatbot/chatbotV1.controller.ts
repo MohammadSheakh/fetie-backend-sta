@@ -331,6 +331,13 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
   res: Response
 ) => {
   try {
+
+    /***************
+     * 
+     * conversationId ta exist kore kina check korte hobe //TODO ::::::::::::: 
+     * 
+     * *************** */ 
+
     const userId = req?.user?.userId;
     const userMessage = req?.body?.message;
     const conversationId = req?.body?.conversationId;
@@ -917,7 +924,7 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
               console.log('Quota or billing issue. Trying fallback model...');
               try {
                 // Try a different model as fallback
-                stream = await model.chat.completions.create({
+                stream = await model.chat.completions.create({ 
                   model: 'gpt-3.5-turbo', // Using the same model as a placeholder, replace with actual fallback
                   messages: [
                     { role: 'system', content: systemPrompt },
@@ -928,7 +935,7 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
                 });
                 break; // If fallback succeeds, exit the retry loop
               } catch (fallbackError) {
-                console.error('Fallback model failed:', fallbackError);
+                console.error('Fallback model failed:', fallbackError); //> vofdmvldfbdifvifdnidfn
                 // Continue with retries
               }
             } else {
