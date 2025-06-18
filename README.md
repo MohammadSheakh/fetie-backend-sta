@@ -9,6 +9,7 @@ Template Used :  Typescript Backend Boilerplate  https://github.com/bdCalling-Sd
 I use Inheritance...and Generic Programming here .. Example:: All Service inherits from GenericService. And Controller inherits from Generic Controller ..  
 package manager is update to pnpm from npm .. 
 
+![alt text](./__Documentation/FertieV1.drawio.png)
 
 -------- Written By :  https://github.com/rakibislam2233
 
@@ -22,7 +23,7 @@ backend applications using **Node.js**, **Express**, **TypeScript**, **Mongoose*
 - **Logging**: Log API requests and errors with **Winston** and **daily log rotation**.
 - **Job Queues**: **Bull** for handling background jobs and task queuing.
 - **Email Integration**: Sending emails through **NodeMailer**.
-- **CSV Parsing**: Parse CSV files into JSON format using **csv-parser** and **convert-csv-to-json**.
+
 - **Data Validation**: Validate user input using **Zod** and Mongoose schemas.
 - **Security**: Use **helmet** for security headers and **xss-clean** for input sanitization.
 - **Environment Configuration**: Configure your app easily with environment variables using **dotenv**.
