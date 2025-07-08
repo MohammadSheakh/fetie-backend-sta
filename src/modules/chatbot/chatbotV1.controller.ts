@@ -43,9 +43,9 @@ interface OpenAIEmbeddingResponse {
 }  
 
 const openAiHeaders = {
-    "Content-Type": "application/json",
-    'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
-  }
+  "Content-Type": "application/json",
+  'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
+}
 
 /*
   const model = new ChatOpenAI({
@@ -61,7 +61,7 @@ const openAiHeaders = {
   });
 */
 
-const chatbotResponseLongPollingWithHistory = async (
+const XXXXXXXXXXXXXXchatbotResponseLongPollingWithHistoryXXXXXXXXXXXXXX = async (
   req: Request,
   res: Response
 ) => {
@@ -332,11 +332,11 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
 ) => {
   try {
 
-    /***************
+    /***********
      * 
      * conversationId ta exist kore kina check korte hobe //TODO ::::::::::::: 
      * 
-     * *************** */ 
+     * *********/ 
 
     const userId = req?.user?.userId;
     const userMessage = req?.body?.message;
@@ -347,12 +347,6 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
         `conversationId must be provided.`
       );
     }
-    if (!userId) {
-      throw new ApiError(
-        StatusCodes.BAD_REQUEST,
-        `User not authenticated. Please log in.`
-      );
-    }
     if (!userMessage) {
       console.error('No message provided in the request body.');
       return res.status(400).json({ error: 'Message is required' });
@@ -360,7 +354,7 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
     let messageService = new MessagerService();
 
 
-    /*****
+    /*********
      * 
      * before saving .. create embedding for user messsage .. 
      * 
@@ -381,15 +375,15 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
         `Failed to create embedding: ${embeddingResponse.statusText}`
       );
     }
+
     const embeddingData: OpenAIEmbeddingResponse = await embeddingResponse.json();
     const embedding = embeddingData.data[0].embedding;
     
-    // console.log("embedding : ⏳", embedding);
-
-    /**
+    /**********
      *
      * save message in the database ..
-     */
+     * 
+     *********/
 
     const saveMessageToDbRes: IMessage | null = await messageService.create({
       text: userMessage,
@@ -400,17 +394,19 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
       embedding: embedding // as OpenAIEmbeddingResponse
     });
 
-    // also update the last message of the conversation 
+    // also update the last message sender role of the conversation 
     await Conversation.findByIdAndUpdate(
       conversationId,
       { lastMessageSenderRole: RoleType.user},
       { new: true }
     );
 
-    /**
+    /**********
      *
-     * get all messages by conversationId
-     */
+     * get all messages by conversationId --- But as we are using embedding, 
+     * we don't need to fetch all messages
+     * 
+     *********/
     
     /******************
      
@@ -422,7 +418,6 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
     // console.log("previousMessageHistory 🟢🟢🟢", previousMessageHistory);
 
     ******************** */
-
 
     // Set up headers for streaming
     res.setHeader('Content-Type', 'text/event-stream');
@@ -646,11 +641,11 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
       res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`);
 
 
-      /*****
+      /***********
        * 
        * before saving .. create embedding for bot messsage .. 
        * 
-       * ******/
+       * *********/
 
       const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
         method: 'POST',
@@ -671,10 +666,11 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
       const embedding = embeddingData.data[0].embedding;
       
 
-      /**
+      /********
        *
        * save bots response in the database ..
-       */
+       * 
+       *********/
 
       const saveMessageToDbRes: IMessage | null = await messageService.create({
         text: responseText,
@@ -720,9 +716,6 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
     //res.end(); // 🟢🟢🟢 remove korte hobe
   }
 };
-
-
-
 
 
 // TODO : // 🤖🤖🤖 client er kotha moto change korte hobe ... 
@@ -1354,6 +1347,6 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
 export const ChatBotV1Controller = {
   getCycleInsightWithStreamTrue,
   getCycleInsightWithStramFalse,
-  chatbotResponseLongPollingWithHistory,
+  XXXXXXXXXXXXXXchatbotResponseLongPollingWithHistoryXXXXXXXXXXXXXX,
   chatbotResponseLongPollingWithEmbeddingHistory
 };
