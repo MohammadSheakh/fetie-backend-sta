@@ -871,6 +871,7 @@ const chatbotResponseLongPolling_V2_Claude = async (
       Message.aggregate(contextPipeline),
       // Message.aggregate(botContextPipeline)
     ]);
+    
 
     // FIXED: Build conversational context by pairing related messages
     const buildConversationalContext = (userMsgs:any /*, botMsgs:any*/) => {
