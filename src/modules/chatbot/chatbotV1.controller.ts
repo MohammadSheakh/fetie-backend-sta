@@ -17,6 +17,7 @@ import { Message } from '../_chatting/message/message.model';
 import { Conversation } from '../_chatting/conversation/conversation.model';
 import { FertieService } from '../fertie/fertie.service';
 import { RoleType } from '../_chatting/message/message.constant';
+import { PersonalizeJourney } from '../_personalizeJourney/personalizeJourney/personalizeJourney.model';
 
 let dailyCycleInsightService = new DailyCycleInsightsService();
 let personalizeJourneyService = new PersonalizedJourneyService();
@@ -866,15 +867,16 @@ const chatbotResponseLongPolling_V2_Claude = async (
       }
     ];
 
-    const [userContext, botContext] = await Promise.all([
+    const [userContext , botContext ] = await Promise.all([
       Message.aggregate(contextPipeline),
       Message.aggregate(botContextPipeline)
     ]);
 
     // FIXED: Build conversational context by pairing related messages
-    const buildConversationalContext = (userMsgs, botMsgs) => {
+    const buildConversationalContext = (userMsgs:any , botMsgs:any) => {
       const contextMessages = [];
       
+      /********************* */
       // Add high-relevance bot responses first (these contain the actual information)
       botMsgs.slice(0, 10).forEach(msg => {
         console.log("msg =====", msg)
@@ -899,7 +901,7 @@ const chatbotResponseLongPolling_V2_Claude = async (
       return contextMessages;
     };
 
-    const contextMessages = buildConversationalContext(userContext, botContext);
+    const contextMessages = buildConversationalContext(userContext /*, botContext */);
     
     // FIXED: Add context messages to formatted messages
     formattedMessages.push(...contextMessages);
@@ -1450,10 +1452,13 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
       UserService.getMyProfile(userId),
     ]);
 
+    console.log("personalizedJourney 🎯: ", personalizedJourney);
+    console.log("userProfileData : 🎯", userProfileData);
+
     // Get fertility data
     let data: any = await new FertieService().predictAllDates(req.user.userId);
 
-    // console.log("data :🌀🌀🌀🌀 ", data);
+    console.log("data :🌀🌀🌀🌀 ", data);
     
     const [year, month] = new Date().toISOString().split('T')[0].split('-');
     const targetYearMonth = `${year}-${month}`;
@@ -1481,7 +1486,39 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
   
     const periodStartDate = periodEvent.predictedPeriodStart;
 
-    let cycleDay = differenceInDays(currentDate, periodStartDate) + 1;
+    /******************* // FIX me : issue in cycle day .. it must be fixed .. 
+     * 
+     *  issue found in cycle day calculation .. lets fix it ..
+     * 
+     * ****************** */
+    
+    /*********
+    
+    let cycleDay = differenceInDays(currentDate, periodStartDate) + 1; // 🔰 req.body.date e hocche current date
+    
+    ******** */
+
+    const journey = await PersonalizeJourney.findById(
+                userProfileData?.personalize_Journey_Id
+        );
+    
+        // console.log('journey 🔥', journey);
+    
+        if (!journey) return;
+    
+    
+        const { avgMenstrualCycleLength } =
+            journey;
+    
+        const today = new Date();
+        const baseDate = new Date(periodStartDate);
+    
+        let cycleDay = calculateCurrentCycleDay(
+            today,
+            baseDate,
+            Number(avgMenstrualCycleLength)
+        );
+
 
     let phase = '';
     let fertilityLevel = '';
@@ -1692,3 +1729,25 @@ export const ChatBotV1Controller = {
   chatbotResponseLongPolling_V2_Claude,
   chatbotResponseLongPollingWithEmbeddingHistory
 };
+
+
+// Helper function to calculate current cycle day
+function calculateCurrentCycleDay(
+  currentDate: Date,
+  baseDate: Date,
+  avgCycleLength: number
+): number {
+  const daysSinceBase = Math.floor(
+    (currentDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (daysSinceBase < 0) {
+    // Current date is before the base date
+    return 1;
+  }
+
+  // Calculate which cycle we're in and what day of that cycle
+  const cycleDay = (daysSinceBase % avgCycleLength) + 1;
+
+  return cycleDay;
+}

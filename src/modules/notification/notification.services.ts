@@ -39,7 +39,7 @@ const addNotification = async (
     // console.log('data from predictAllDates 🟢in sendNotificationByChatGpt🟢 : ', data);
 
     //  const [year, month] = req.body.date.split('-');
-     const [year, month] = new Date().toISOString().split('T')[0].split('-');
+    const [year, month] = new Date().toISOString().split('T')[0].split('-');
     const targetYearMonth = `${year}-${month}`;
 
     // Find the month object that matches the target year-month
@@ -102,7 +102,7 @@ const addNotification = async (
         baseDate,
         Number(avgMenstrualCycleLength)
     );
-    
+
     // 🔴🔴  Date.now() e shomossha thakte pare .. new Date()
     /**
      * now we have information like 

@@ -85,6 +85,11 @@ const dateParse = async (userMessage: string, userId: string) => {
       UserService.getMyProfile(userId),
     ]);
 
+    console.log('insights 📊:', insights);
+    console.log('allInsights 📊:', allInsights);
+    console.log('personalizedJourney 📊:', personalizedJourney);
+    console.log('userProfileData 📊:', userProfileData);
+
     // Build system prompt
     const systemPrompt = `You are Fertie, a warm, intelligent fertility assistant who knows your users personally and supports them through every stage of their TTC (trying to conceive) journey.
 
