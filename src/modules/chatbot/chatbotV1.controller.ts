@@ -1439,11 +1439,7 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
   const getCycleInsightWithStramFalse = async (req: Request, res: Response) => {
   const userId = req?.user?.userId;
 
-  try {
-    const currentDate = new Date();
-    
-    const personalizedJourneyService = new PersonalizedJourneyService();
-
+  try { 
     // Fetch user data
     const [personalizedJourney, userProfileData] 
     : [IPersonalizeJourney, any]
@@ -1476,49 +1472,23 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
       });
     }
 
-    // Extract period start date for the found month
-    const periodEvent: {
-      predictedPeriodStart: Date;
-      predictedPeriodEnd: Date;
-      predictedOvulationDate: Date;
-      fertileWindow: [Date, Date];
-    } = monthData.events.find(event => event.predictedPeriodStart);
-  
-    const periodStartDate = periodEvent.predictedPeriodStart;
-
-    /******************* // FIX me : issue in cycle day .. it must be fixed .. 
-     * 
-     *  issue found in cycle day calculation .. lets fix it ..
-     * 
-     * ****************** */
-    
-    /*********
-    
-    let cycleDay = differenceInDays(currentDate, periodStartDate) + 1; // 🔰 req.body.date e hocche current date
-    
-    ******** */
-
     const journey = await PersonalizeJourney.findById(
-                userProfileData?.personalize_Journey_Id
-        );
-    
-        // console.log('journey 🔥', journey);
-    
-        if (!journey) return;
-    
-    
-        const { avgMenstrualCycleLength } =
-            journey;
-    
-        const today = new Date();
-        const baseDate = new Date(periodStartDate);
-    
-        let cycleDay = calculateCurrentCycleDay(
-            today,
-            baseDate,
-            Number(avgMenstrualCycleLength)
-        );
+            userProfileData?.personalize_Journey_Id
+    );
 
+    if (!journey) return;
+
+    const { periodStartDate, avgMenstrualCycleLength } =
+        journey;
+
+    const today = new Date();
+    const baseDate = new Date(periodStartDate);
+
+    let cycleDay = calculateCurrentCycleDay(
+        today,
+        baseDate,
+        Number(avgMenstrualCycleLength)
+    );
 
     let phase = '';
     let fertilityLevel = '';

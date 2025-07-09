@@ -58,22 +58,6 @@ const addNotification = async (
       fertileWindow: [Date, Date];
     } = monthData.events.find(event => event.predictedPeriodStart);
 
-    // console.log('periodEvent::::::: 🟢from notification.service.ts🟢sendNotificationByChatGpt🟢 : ', periodEvent);
-  
-    const periodStartDate = periodEvent.predictedPeriodStart//.split('T')[0];
-
-    /******************* // FIX me : issue in cycle day .. it must be fixed .. 
-     * 
-     *  issue found in cycle day calculation .. lets fix it ..
-     * 
-     * ****************** */
-    
-    /*********
-    
-    let cycleDay = differenceInDays(currentDate, periodStartDate) + 1; // 🔰 req.body.date e hocche current date
-    
-    ******** */
-
     const user = await User.findById(userId).select(
       'personalize_Journey_Id'
     );
@@ -91,7 +75,7 @@ const addNotification = async (
     if (!journey) return;
 
 
-    const { avgMenstrualCycleLength } =
+    const { periodStartDate, avgMenstrualCycleLength } =
         journey;
 
     const today = new Date();
