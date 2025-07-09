@@ -97,7 +97,7 @@ router.post('/access-pin/match',
  * 
  * ********************* */
 router.post('/delete/:collectionName',
-  auth('superAdmin'),
+  auth('common'), // TODO : Must superAdmin e change korte hobe .. 
   UserController.deleteAllDataFromCollection
 ) 
 

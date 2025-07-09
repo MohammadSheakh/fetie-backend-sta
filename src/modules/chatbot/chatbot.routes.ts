@@ -17,8 +17,9 @@ const router = express.Router();
 
 router
   .route('/bot/long-polling-with-history')
-  .post(auth('common'), ChatBotV1Controller.chatbotResponseLongPollingWithEmbeddingHistory); // working perfectly .. 
-  //  ChatBotV1Controller.chatbotResponseLongPollingWithHistory
+  // chatbotResponseLongPollingWithEmbeddingHistory
+  .post(auth('common'), ChatBotV1Controller.chatbotResponseLongPolling_V2_Claude); // working perfectly ..
+
 
 router
   .route('/bot/cycleInsight')

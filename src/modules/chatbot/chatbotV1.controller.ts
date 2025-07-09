@@ -326,6 +326,12 @@ const XXXXXXXXXXXXXXchatbotResponseLongPollingWithHistoryXXXXXXXXXXXXXX = async 
   }
 };
 
+/************
+ * 
+ *  This is Good Version .. But We Found New Best Version Which is given by claude ... 
+ * That Controller name is chatbotResponseLongPolling_V2_Claude
+ * 
+ * ******** */
 const chatbotResponseLongPollingWithEmbeddingHistory = async (
   req: Request,
   res: Response
@@ -491,7 +497,7 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
 
   if (similarMessagesHistory && similarMessagesHistory.length > 0) {
      
-      similarMessagesHistory.forEach(msg => {
+      similarMessagesHistory.forEach((msg, i) => {
         if(msg.senderRole == 'user'){
           // console.log("msg.text.toString() 🟢🟢🟢", msg.text.toString());
           const role = msg.senderRole === RoleType.user ? 'user' : 'assistant';
@@ -499,9 +505,13 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
             role: role,
             content: msg.text.toString(),
           });
+
+          console.log('role user 🎯 formattedMessages ',i," :: ", formattedMessages)
         }
       });
     }
+
+    
 
     // console.log("formattedMessages 🟢🟢🟢", formattedMessages);
     
@@ -516,6 +526,7 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
 
     // console.log("formattedMessages 🟢🟢🟢", formattedMessages);
     
+    console.log("userMessage.toString()---------", userMessage.toString());
     formattedMessages.push(
       {
         role: 'user',
@@ -717,9 +728,339 @@ const chatbotResponseLongPollingWithEmbeddingHistory = async (
   }
 };
 
+/************
+ * 
+ * New Best Version Which is given by claude ... 
+ * 
+ * ******** */
+const chatbotResponseLongPolling_V2_Claude = async (
+  req: Request,
+  res: Response
+) => {
+  try {
+    const userId = req?.user?.userId;
+    const userMessage = req?.body?.message;
+    const conversationId = req?.body?.conversationId;
+    
+    if (!conversationId) {
+      throw new ApiError(
+        StatusCodes.BAD_REQUEST,
+        `conversationId must be provided.`
+      );
+    }
+    if (!userMessage) {
+      console.error('No message provided in the request body.');
+      return res.status(400).json({ error: 'Message is required' });
+    }
+    
+    let messageService = new MessagerService();
+
+    // Create embedding for user message
+    const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
+      method: 'POST',
+      headers: openAiHeaders,
+      body: JSON.stringify({
+        model: "text-embedding-3-small",
+        input: userMessage
+      })
+    });
+
+    if (!embeddingResponse.ok) {
+      throw new ApiError(
+        StatusCodes.INTERNAL_SERVER_ERROR,
+        `Failed to create embedding: ${embeddingResponse.statusText}`
+      );
+    }
+
+    const embeddingData: OpenAIEmbeddingResponse = await embeddingResponse.json();
+    const embedding = embeddingData.data[0].embedding;
+    
+    // Save user message to database
+    const saveMessageToDbRes: IMessage | null = await messageService.create({
+      text: userMessage,
+      senderId: req.user.userId,
+      conversationId: conversationId,
+      senderRole: req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
+      embedding: embedding
+    });
+
+    // also update the last message sender role of the conversation
+    await Conversation.findByIdAndUpdate(
+      conversationId,
+      { lastMessageSenderRole: RoleType.user},
+      { new: true }
+    );
+
+    // Set up headers for streaming
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+
+    let systemPrompt = await ChatBotService.dateParse(userMessage, userId);
+
+    const formattedMessages = [
+      { role: 'system', content: systemPrompt }
+    ];
+
+    // FIXED: Search both user messages AND bot responses for context
+    const contextPipeline = [
+      {
+        $vectorSearch: {
+          index: "vector_index",
+          path: "embedding",
+          queryVector: embedding,
+          numCandidates: 100,
+          limit: 30 // Increased limit to get more context
+        }
+      },
+      {
+        $match: {
+          senderId: new mongoose.Types.ObjectId(userId), // User's messages
+          //conversationId: new mongoose.Types.ObjectId(conversationId) // Same conversation
+        }
+      },
+      {
+        $project: {
+          text: 1,
+          conversationId: 1,
+          senderId: 1,
+          senderRole: 1,
+          createdAt: 1,
+          score: { $meta: "vectorSearchScore" }
+        }
+      },
+      {
+        $sort: { score: -1 } // Sort by relevance score
+      }
+    ];
+
+    // FIXED: Also search bot responses for relevant information
+    const botContextPipeline = [
+      {
+        $vectorSearch: {
+          index: "vector_index",
+          path: "embedding",
+          queryVector: embedding,
+          numCandidates: 100,
+          limit: 30
+        }
+      },
+      {
+        $match: {
+          senderRole: 'bot',
+          conversationId: new mongoose.Types.ObjectId(conversationId)
+        }
+      },
+      {
+        $project: {
+          text: 1,
+          conversationId: 1,
+          senderId: 1,
+          senderRole: 1,
+          createdAt: 1,
+          score: { $meta: "vectorSearchScore" }
+        }
+      },
+      {
+        $sort: { score: -1 }
+      }
+    ];
+
+    const [userContext, botContext] = await Promise.all([
+      Message.aggregate(contextPipeline),
+      Message.aggregate(botContextPipeline)
+    ]);
+
+    // FIXED: Build conversational context by pairing related messages
+    const buildConversationalContext = (userMsgs, botMsgs) => {
+      const contextMessages = [];
+      
+      // Add high-relevance bot responses first (these contain the actual information)
+      botMsgs.slice(0, 10).forEach(msg => {
+        console.log("msg =====", msg)
+        if (msg.score > 0.7) { // Only high-relevance bot messages
+          contextMessages.push({
+            role: 'assistant',
+            content: msg.text.toString()
+          });
+        }
+      });
+
+      // Add relevant user messages for context
+      userMsgs.slice(0, 5).forEach(msg => {
+        if (msg.score > 0.75) { // Higher threshold for user messages
+          contextMessages.push({
+            role: 'user',
+            content: msg.text.toString()
+          });
+        }
+      });
+
+      return contextMessages;
+    };
+
+    const contextMessages = buildConversationalContext(userContext, botContext);
+    
+    // FIXED: Add context messages to formatted messages
+    formattedMessages.push(...contextMessages);
+
+    // Add current user message
+    formattedMessages.push({
+      role: 'user',
+      content: userMessage.toString(),
+    });
+
+    console.log("Context messages added:", contextMessages.length);
+
+    // Initialize response string
+    let responseText = '';
+
+    // Retry logic for API rate limits
+    const maxRetries = 3;
+    let retries = 0;
+    let delay = 1000;
+    let stream;
+
+    while (retries <= maxRetries) {
+      try {
+        stream = await model.chat.completions.create({
+          model: 'gpt-4o',
+          messages: formattedMessages,
+          temperature: 0.7,
+          stream: true,
+        });
+        break;
+      } catch (error) {
+        console.log("🌋🌋🌋🌋🌋");
+        if (error.status === 429) {
+          if (error.message && (error.message.includes('quota') || error.message.includes('billing'))) {
+            if (retries === 0) {
+              console.log('Quota or billing issue. Trying fallback model...');
+              try {
+                stream = await model.chat.completions.create({
+                  model: 'gpt-3.5-turbo',
+                  messages: [
+                    { role: 'system', content: systemPrompt },
+                    { role: 'user', content: userMessage },
+                  ],
+                  temperature: 0.7,
+                  stream: true,
+                });
+                break;
+              } catch (fallbackError) {
+                console.error('Fallback model failed:', fallbackError);
+              }
+            } else {
+              console.log('Quota or billing issue. No more fallbacks available.');
+              throw error;
+            }
+          }
+
+          retries++;
+          if (retries > maxRetries) {
+            res.write(`data: ${JSON.stringify({
+              error: 'Rate limit exceeded. Please try again later.',
+            })}\n\n`);
+            res.end();
+            throw error;
+          }
+
+          console.log(`Rate limited. Retrying in ${delay}ms... (Attempt ${retries}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          delay = delay * 2 * (0.5 + Math.random());
+        } else {
+          console.error('OpenAI API error:', error);
+          res.write(`data: ${JSON.stringify({
+            error: 'An error occurred while processing your request.',
+          })}\n\n`);
+          res.end();
+          return;
+        }
+      }
+    }
+
+    if (!stream) {
+      res.write(`data: ${JSON.stringify({
+        error: 'Failed to generate a response. Please try again.',
+      })}\n\n`);
+      res.end();
+      return;
+    }
+
+    // Process each chunk as it arrives
+    try {
+      for await (const chunk of stream) {
+        const content = chunk.choices[0]?.delta?.content || '';
+        if (content) {
+          responseText += content;
+          res.write(`data: ${JSON.stringify({ chunk: content })}\n\n`);
+          if (res.flush) {
+            res.flush();
+          }
+        }
+      }
+
+      res.write(`data: ${JSON.stringify({ done: true, fullResponse: responseText })}\n\n`);
+
+      // FIXED: Create embedding for bot response (not user message)
+      const botEmbeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
+        method: 'POST',
+        headers: openAiHeaders,
+        body: JSON.stringify({
+          model: "text-embedding-3-small",
+          input: responseText // FIXED: Use responseText instead of userMessage
+        })
+      });
+
+      if (!botEmbeddingResponse.ok) {
+        throw new ApiError(
+          StatusCodes.INTERNAL_SERVER_ERROR,
+          `Failed to create embedding: ${botEmbeddingResponse.statusText}`
+        );
+      }
+      
+      const botEmbeddingData: OpenAIEmbeddingResponse = await botEmbeddingResponse.json();
+      const botEmbedding = botEmbeddingData.data[0].embedding;
+
+      // Save bot response to database
+      const saveBotMessageToDbRes: IMessage | null = await messageService.create({
+        text: responseText,
+        senderId: new mongoose.Types.ObjectId('68206aa9e791351fc9fdbcde'),
+        conversationId: conversationId,
+        senderRole: RoleType.bot,
+        embedding: botEmbedding // FIXED: Use bot embedding
+      });
+
+      // Update conversation
+      await Conversation.findByIdAndUpdate(
+        conversationId,
+        { lastMessageSenderRole: RoleType.botReply},
+        { new: true }
+      );
+
+      res.end();
+    } catch (streamError) {
+      console.error('Error processing stream:', streamError);
+      res.write(`data: ${JSON.stringify({
+        error: 'Stream processing error. Please try again.',
+      })}\n\n`);
+      res.end();
+    }
+  } catch (error) {
+    console.error('Chatbot error:', error);
+    if (!res.headersSent) {
+      res.status(500).json({ error: `Something went wrong. ${error.message || error}` });
+    } else {
+      res.write(`data: ${JSON.stringify({
+        error: `Something went wrong. ${error.message || error}`,
+      })}\n\n`);
+      res.end();
+    }
+  }
+};
+
 
 // TODO : // 🤖🤖🤖 client er kotha moto change korte hobe ... 
-
 const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
   const userId = req?.user?.userId;
 
@@ -1348,5 +1689,6 @@ export const ChatBotV1Controller = {
   getCycleInsightWithStreamTrue,
   getCycleInsightWithStramFalse,
   XXXXXXXXXXXXXXchatbotResponseLongPollingWithHistoryXXXXXXXXXXXXXX,
+  chatbotResponseLongPolling_V2_Claude,
   chatbotResponseLongPollingWithEmbeddingHistory
 };
