@@ -869,14 +869,14 @@ const chatbotResponseLongPolling_V2_Claude = async (
 
     const [userContext , botContext ] = await Promise.all([
       Message.aggregate(contextPipeline),
-      Message.aggregate(botContextPipeline)
+      // Message.aggregate(botContextPipeline)
     ]);
 
     // FIXED: Build conversational context by pairing related messages
-    const buildConversationalContext = (userMsgs:any , botMsgs:any) => {
+    const buildConversationalContext = (userMsgs:any /*, botMsgs:any*/) => {
       const contextMessages = [];
       
-      /********************* */
+      /*************
       // Add high-relevance bot responses first (these contain the actual information)
       botMsgs.slice(0, 10).forEach(msg => {
         console.log("msg =====", msg)
@@ -887,14 +887,15 @@ const chatbotResponseLongPolling_V2_Claude = async (
           });
         }
       });
-
+      ******** */
       // Add relevant user messages for context
-      userMsgs.slice(0, 5).forEach(msg => {
+      userMsgs.slice(0, 5).forEach((msg,i) => {
         if (msg.score > 0.75) { // Higher threshold for user messages
           contextMessages.push({
             role: 'user',
             content: msg.text.toString()
           });
+          console.log("-----------",i, msg.text.toString());
         }
       });
 

@@ -2,6 +2,28 @@ import { isValid, parse } from "date-fns";
 import { DailyCycleInsightsService } from "../_dailyCycleInsights/dailyCycleInsights/dailyCycleInsights.service";
 import { PersonalizedJourneyService } from "../_personalizeJourney/personalizeJourney/personalizeJourney.service";
 import { UserService } from "../user/user.service";
+import { PersonalizeJourney } from "../_personalizeJourney/personalizeJourney/personalizeJourney.model";
+
+// Helper function to calculate current cycle day
+function calculateCurrentCycleDay(
+  currentDate: Date,
+  baseDate: Date,
+  avgCycleLength: number
+): number {
+  const daysSinceBase = Math.floor(
+    (currentDate.getTime() - baseDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (daysSinceBase < 0) {
+    // Current date is before the base date
+    return 1;
+  }
+
+  // Calculate which cycle we're in and what day of that cycle
+  const cycleDay = (daysSinceBase % avgCycleLength) + 1;
+
+  return cycleDay;
+}
 
 const dummyServiceToHitAnotherApi = async (message: string) => {
   const response = await fetch('https://url.com', {
@@ -30,10 +52,10 @@ const dateParse = async (userMessage: string, userId: string) => {
   let dailyCycleInsightService = new DailyCycleInsightsService();
   let personalizeJourneyService = new PersonalizedJourneyService();
 
-// Date parsing logic
-    let dateObj;
-    const dateRegex = /(\d{1,2})[-\/\s](\d{1,2})[-\/\s](\d{2,4})|(\d{1,2})\s([a-zA-Z]+)(\s(\d{4}))?/;
-    const match = userMessage.match(dateRegex);
+  // Date parsing logic
+  let dateObj;
+  const dateRegex = /(\d{1,2})[-\/\s](\d{1,2})[-\/\s](\d{2,4})|(\d{1,2})\s([a-zA-Z]+)(\s(\d{4}))?/;
+  const match = userMessage.match(dateRegex);
 
     if (match) {
       // Handle numeric format like 6-05-2025 or 5/6/2025
@@ -73,8 +95,6 @@ const dateParse = async (userMessage: string, userId: string) => {
       dateObj = new Date();
     }
 
-    // console.log('dateObj 📢', dateObj);
-
     // Fetch user data
     const [insights, allInsights, personalizedJourney, userProfileData] = await Promise.all([
      
@@ -88,7 +108,45 @@ const dateParse = async (userMessage: string, userId: string) => {
     console.log('insights 📊:', insights);
     console.log('allInsights 📊:', allInsights);
     console.log('personalizedJourney 📊:', personalizedJourney);
-    console.log('userProfileData 📊:', userProfileData);
+  
+    const journey = await PersonalizeJourney.findById(
+            userProfileData?.personalize_Journey_Id
+    );
+
+    if (!journey) return;
+
+    const { periodStartDate, avgMenstrualCycleLength } =
+        journey;
+          
+    const today = new Date();
+    const baseDate = new Date(periodStartDate);
+
+    let cycleDay = calculateCurrentCycleDay(
+        today,
+        baseDate,
+        Number(avgMenstrualCycleLength)
+    );
+
+    let phase = '';
+    let fertilityLevel = '';
+    if (cycleDay <= 5) {
+      phase = 'Menstrual';
+      fertilityLevel = 'Very Low';
+    } else if (cycleDay <= 13) {
+      phase = 'Follicular';
+      fertilityLevel = 'Low to Medium';
+    } else if (cycleDay === 14) {
+      phase = 'Ovulatory';
+      fertilityLevel = 'Very High';
+    } else if (
+      cycleDay <= Number(personalizedJourney?.avgMenstrualCycleLength)
+    ) {
+      phase = 'Luteal';
+      fertilityLevel = 'Low';
+    } else {
+      phase = 'Unknown';
+      fertilityLevel = 'Unknown';
+    }
 
     // Build system prompt
     const systemPrompt = `You are Fertie, a warm, intelligent fertility assistant who knows your users personally and supports them through every stage of their TTC (trying to conceive) journey.
@@ -136,7 +194,7 @@ Use persistent memory to:
 AVAILABLE USER DATA:
 - Basic Profile: ${userProfileData?.name || 'N/A'}, age ${personalizedJourney?.age || 'N/A'}
 - TTC Journey: trying to conceive ${personalizedJourney?.tryingToConceive || 'N/A'}, cycles regular ${personalizedJourney?.areCyclesRegular || 'N/A'}
-- Current Cycle: day ${insights?.cycleDay || 'N/A'}, phase ${insights?.phase || 'N/A'}, fertility level ${insights?.fertilityLevel || 'N/A'}
+- Current Cycle: day ${insights?.cycleDay || cycleDay}, phase ${insights?.phase || phase}, fertility level ${insights?.fertilityLevel || fertilityLevel}
 - Tracking: ${personalizedJourney?.trackOvulationBy || 'N/A'}, flow ${insights?.menstrualFlow || 'N/A'}, cervical mucus ${insights?.cervicalMucus || 'N/A'}
 - Patterns: avg cycle length ${personalizedJourney?.avgMenstrualCycleLength || 'N/A'}, predicted ovulation ${personalizedJourney?.predictedOvulationDate || 'N/A'}
 - Symptoms: ${insights?.symptoms || 'N/A'}, mood ${insights?.mood || 'N/A'}, pain ${personalizedJourney?.doYouHavePain || 'N/A'}
