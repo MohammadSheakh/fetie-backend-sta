@@ -87,11 +87,18 @@ export class FertieController extends GenericController<
 
     // phase , fertility , cycle day 🔥 egula niye chinta korte hobe ...
 
-   
-    let cycleDay =
-      differenceInDays(currentDate, personalizedJourney?.periodStartDate) + 1;
+   /***********
+    * 
+    * let cycleDay =
+    * differenceInDays(currentDate, personalizedJourney?.periodStartDate) + 1;
+    * 
+    * ********* */
 
-    //  dailyCycleInsights.cycleDay = cycleDay; // can not set cycle day .. because it might be happen that for some day we have not dailyCycleInsight
+   let cycleDay = calculateCurrentCycleDay(
+        new Date(date),//new Date(),
+        personalizedJourney.periodStartDate,
+        Number(personalizedJourney.avgMenstrualCycleLength)
+    );
 
     // based on avgMenstrualCycleLength and cycle day .. i have to calculate phase and fertility level
     // write a function to calculate phase and fertility level based on cycle day and avgMenstrualCycleLength
