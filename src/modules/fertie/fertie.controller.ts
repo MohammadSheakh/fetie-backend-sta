@@ -275,6 +275,7 @@ export class FertieController extends GenericController<
 
   //>  We This Function May Have Issue .. must have to test it properly
   //> cycle day calculattion has issue ..
+  /*
   getPredictionsByMonthV2 = catchAsync(
     async (req: Request, res: Response): Promise<any> => {
       const userId = req.user.userId;
@@ -444,37 +445,7 @@ export class FertieController extends GenericController<
 
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0); // Last day of month
-      /*
-      ///////////// 🟢🟢🟢🟢🟢🟢 
-      // Fetch DailyCycleInsights for this month
-      const insights = await DailyCycleInsights.find({
-        userId,
-        date: { $gte: startDate, $lte: endDate },
-      }).lean();
       
-      const formattedData = {};
-      
-      insights.forEach(entry => {
-        const dateKey = entry.date
-          .toISOString()
-          .slice(0, 10)
-          .split('-')
-          .reverse()
-          .join('-'); // DD-MM-YYYY
-        
-        const { menstrualFlow, phase } = entry;
-        
-        formattedData[dateKey] = {};
-        
-        if (menstrualFlow)
-          formattedData[dateKey].menstrualFlow = menstrualFlow;
-        if (phase) 
-          formattedData[dateKey].phase = phase;
-      });
-      
-      predictionsByMonth[monthKey].dailyLogs = formattedData;
-
-      */
       }
 
       // Convert the predictions map to an array sorted by month
@@ -490,6 +461,8 @@ export class FertieController extends GenericController<
       });
     }
   );
+  */
+
 
   getPredictionsByMonth_Claude_V3 = catchAsync(
     async (req: Request, res: Response): Promise<any> => {
@@ -680,7 +653,7 @@ export class FertieController extends GenericController<
       });
     }
   );
-
+/*
   getPredictionsByMonth_QWEN_V4 = catchAsync(
     async (req: Request, res: Response): Promise<any> => {
       const userId = req.user.userId;
@@ -868,6 +841,7 @@ export class FertieController extends GenericController<
       });
     }
   );
+  */
 
   getMonthlyDailyCycleInsightsByMonth = catchAsync(
     async (req: Request, res: Response) => {
@@ -1071,3 +1045,37 @@ function formatDailyLogKey(date: Date): string {
   const [year, month, day] = date.toISOString().split('T')[0].split('-');
   return `${day}-${month}-${year}`;
 }
+
+
+
+/*
+      ///////////// 🟢🟢🟢🟢🟢🟢 
+      // Fetch DailyCycleInsights for this month
+      const insights = await DailyCycleInsights.find({
+        userId,
+        date: { $gte: startDate, $lte: endDate },
+      }).lean();
+      
+      const formattedData = {};
+      
+      insights.forEach(entry => {
+        const dateKey = entry.date
+          .toISOString()
+          .slice(0, 10)
+          .split('-')
+          .reverse()
+          .join('-'); // DD-MM-YYYY
+        
+        const { menstrualFlow, phase } = entry;
+        
+        formattedData[dateKey] = {};
+        
+        if (menstrualFlow)
+          formattedData[dateKey].menstrualFlow = menstrualFlow;
+        if (phase) 
+          formattedData[dateKey].phase = phase;
+      });
+      
+      predictionsByMonth[monthKey].dailyLogs = formattedData;
+
+      */
