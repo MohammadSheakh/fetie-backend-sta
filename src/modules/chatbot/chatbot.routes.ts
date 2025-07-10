@@ -20,7 +20,6 @@ router
   // chatbotResponseLongPollingWithEmbeddingHistory
   .post(auth('common'), ChatBotV1Controller.chatbotResponseLongPolling_V2_Claude); // working perfectly ..
 
-
 router
   .route('/bot/cycleInsight')
   .get(auth('common'), ChatBotV1Controller.getCycleInsightWithStramFalse);

@@ -3,4 +3,5 @@ export enum TFertie {
   medium = 'medium', 
   heavy = 'heavy',
   spotting = 'spotting',
+  no = 'no',
 }

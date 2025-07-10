@@ -18,6 +18,7 @@ import { differenceInDays } from 'date-fns';
 import { TFertilityLevel, TPhase } from './dailyCycleInsights.constant';
 import { Fertie } from '../../fertie/fertie.model';
 import { FertieService } from '../../fertie/fertie.service';
+import { IPersonalizeJourney } from '../../_personalizeJourney/personalizeJourney/personalizeJourney.interface';
 
 const dailyCycleInsightsService = new DailyCycleInsightsService();
 
@@ -397,9 +398,12 @@ export class DailyCycleInsightsController extends GenericController<
 
     // Get PersonalizeJourney for ⚡periodStartDate  ⚡avgMenstrualCycleLength 
 
-    const personalizeJourney = await PersonalizeJourney.findById(user.personalize_Journey_Id).select(
+    const personalizeJourney :IPersonalizeJourney = await PersonalizeJourney.findById(user.personalize_Journey_Id).select(
       "periodStartDate periodLength periodEndDate avgMenstrualCycleLength"
     ).lean();
+
+    const { periodStartDate, avgMenstrualCycleLength } =
+        personalizeJourney;
 
     // console.log("personalizeJourney 🧪🧪🧪",personalizeJourney);
 
@@ -410,6 +414,7 @@ export class DailyCycleInsightsController extends GenericController<
       );
     }
 
+  /************* 10/7/2025 // we dont need this code for calculate cycle day .. 
     const currentDate = new Date(); // Current date and time
 
     // console.log("periodStartDate 🧪", personalizeJourney?.periodStartDate);
@@ -417,29 +422,34 @@ export class DailyCycleInsightsController extends GenericController<
 
     ///////// Predict Period Start Date based on 12 months of predicted Data ..  ///////////////// START
 
+    
     let data = await this.fertieService.predictAllDates(userId);
 
 
     // console.log("data 🧪🧪🧪🧪🧪🧪 predicAllDates", data);
 
     // Extract year and month from the target date
-  const [year, month] = req.body.date.split('-');
+  
+    const [year, month] = req.body.date.split('-');
+  
   const targetYearMonth = `${year}-${month}`;
   
   // Find the month object that matches the target year-month
+  
   const monthData = data.find(item => item.month === targetYearMonth);
 
   // console.log("monthData 🧪🧪🧪", monthData);
   
-  if (!monthData) {
-    return { error: `No data found for month: ${targetYearMonth}`};
-  }
+  // if (!monthData) {
+  //   return { error: `No data found for month: ${targetYearMonth}`};
+  // }
   
+
   // Extract period start date for the found month
   const periodEvent = monthData.events.find(event => event.predictedPeriodStart);
   
 
-  // console.log("periodEvent 🧪🧪🧪", periodEvent);
+  
   if (!periodEvent) {
     // return { error: `No period data found for month: ${targetYearMonth}` };
     throw new ApiError(
@@ -447,10 +457,15 @@ export class DailyCycleInsightsController extends GenericController<
         `No period data found for month: ${targetYearMonth}`
       );
   }
+  ********** */
   
   // Format the date to YYYY-MM-DD
-  const periodStartDate = periodEvent.predictedPeriodStart//.split('T')[0];
-
+  /*****
+   * 
+   * const periodStartDate = periodEvent.predictedPeriodStart//.split('T')[0]; 
+   * 
+   * **** */
+  
     ///////// Predict Period Start Date based on 12 months of predicted Data ..  ///////////////// END
 
 
@@ -461,11 +476,11 @@ export class DailyCycleInsightsController extends GenericController<
     ********************/
 
     let cycleDay =
-          calculateCurrentCycleDay(
-            new Date(req.body.date),
-            new Date(periodStartDate),
-            personalizeJourney?.avgMenstrualCycleLength
-          );
+      calculateCurrentCycleDay(
+        new Date(req.body.date),
+        new Date(periodStartDate),
+        Number(avgMenstrualCycleLength)
+      );
 
     // console.log("cycleDay 🧪", cycleDay);
 
