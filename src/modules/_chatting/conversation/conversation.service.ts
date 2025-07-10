@@ -23,8 +23,5 @@ export class ConversationService extends GenericService<typeof Conversation , IC
             { new: true }
         );
     }
-    // async create(data) {
-    //     // console.log('req.body from generic create 🧪🧪', data);
-    //     return await this.model.create(data);
-    //   }
+    
 }

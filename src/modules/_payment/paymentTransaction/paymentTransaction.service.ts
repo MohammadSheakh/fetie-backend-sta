@@ -14,10 +14,6 @@ export class PaymentTransactionService extends GenericService<typeof PaymentTran
         super(PaymentTransaction)
     }
 
-    // confirmPayment = async (subscriptionType: string) => {
-    //     return await this.model.findOne({ subscriptionType });
-    // }
-
     confirmPayment = async (data : IConfirmPayment) => {
       const {
         userId,
@@ -65,7 +61,6 @@ export class PaymentTransactionService extends GenericService<typeof PaymentTran
         // Store as a full ISO string (with time and timezone)
         const isoFormattedExpiryDate = expiryDate.toISOString();
         // console.log("ISO Formatted Expiry Date", isoFormattedExpiryDate);
-
 
         // // Check if the user already has a subscription in MySubscription
         const existingUserSubscription = await UserSubscription.findOne({ userId: userId , subscriptionPlanId : subscriptionPlanId });

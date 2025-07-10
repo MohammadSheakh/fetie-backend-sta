@@ -24,28 +24,8 @@ const conversationSchema = new Schema<IConversation>(
         ).join(', ')}`,
       ],
     },
-    /*
-      attachedToId: {
-        // 🔥 fix korte hobe ... eita 
-        type: String,
-        required: [false, 'attachedToId is not required'],
-      },
-      attachedToCategory : {
-        // 🔥 fix korte hobe ... eita 
-        type: String,
-        enum: [
-          'VirtualWorkoutClass', 
-        ],
-        required: [false, 'attachedToCategory is not required'],
-      },
-      // isGroup: {
-      //   type: Boolean,
-      //   required: [false, 'isGroup is not required'],
-      //   default: false,
-      // },
-    */
-
-      // Add month and year fields to organize conversations by month
+  
+    // Add month and year fields to organize conversations by month
     month: {
       type: String,
       required: [true, 'Month is required'],
@@ -78,7 +58,6 @@ const conversationSchema = new Schema<IConversation>(
             RoleType.botReply,
             RoleType.botAuto,
             RoleType.user,
-            
           ],
           required: [
             false,

@@ -22,7 +22,6 @@ export class MessageController extends GenericController<typeof Message, IMessag
     }
 
     create = catchAsync(async (req: Request, res: Response) => {
-        
         const {conversationId} = req.query;
 
         if (req.user.userId) {
@@ -65,12 +64,16 @@ export class MessageController extends GenericController<typeof Message, IMessag
             req.body.text = 'New Attachment Uploaded by ' + req.body.senderId
         }
 
-        // 🔥 message create houar pore conversation er last 
-        // message update korte hobe .. 
+        /***********
+         * 
+         *  message create houar pore conversation er last
+         *  message update korte hobe ..
+         * 
+        * ********** */
+         
 
         await conversationService.updateLastMessageOfAConversation(req.body.conversationId, req.body.text)
 
-    
         sendResponse(res, {
           code: StatusCodes.OK,
           data: result,
@@ -81,10 +84,10 @@ export class MessageController extends GenericController<typeof Message, IMessag
 
     getAllWithPagination = catchAsync(async (req: Request, res: Response) => {
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
-    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']);
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
     
-    let dontWantToInclude = '-embedding -attachments -isDeleted -updatedAt -__v'; // Specify fields to exclude from the result
+    let dontWantToInclude = '-embedding -attachments -isDeleted -updatedAt -__v'; 
     // -createdAt
 
     const result = await this.service.getAllWithPagination(filters, options, dontWantToInclude);
@@ -97,11 +100,12 @@ export class MessageController extends GenericController<typeof Message, IMessag
     });
   });
 
-   
-    
-    
-    // 🟢 i think we dont need this .. because we need pagination in this case .. and pagination 
-    // is already implemented ..  
+    /***********
+     * 
+     *  🟢 i think we dont need this .. because we need pagination in this case .. and pagination 
+     *  is already implemented .. 
+     * 
+     * ********** */
     getAllMessageByConversationId = catchAsync(
         async (req: Request, res: Response) => {
             const { conversationId } = req.query;
@@ -125,9 +129,6 @@ export class MessageController extends GenericController<typeof Message, IMessag
             });
         }
     );
-
-    
-
 
     // add more methods here if needed or override the existing ones    
 }

@@ -5,7 +5,7 @@ import { UserSubscriptionStatusType } from './userSubscription.constant';
 import { UserSubscription } from './userSubscription.model';
 
 export const initUserSubscriptionCron = ():void => {
-  /**
+  /*****************
    * schedule a cron job to run every day 
    * to check expired userSubscription and 
    * 
@@ -19,7 +19,7 @@ export const initUserSubscriptionCron = ():void => {
    * also change status to cancelled
    * also update Users subscriptionType to free ... 
    * 
-   */
+   ****************/
 
    console.log('⌛Scheduling expire userSubscription every day .. ⌛');
    cronService.schedule(

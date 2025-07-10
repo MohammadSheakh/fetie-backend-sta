@@ -4,7 +4,6 @@ import { NotificationController } from './notification.controllers';
 
 const router = Router();
 
-
 router
   .route('/')
   .get(auth('common'), NotificationController.getALLNotification);
@@ -13,20 +12,5 @@ router.route('/today-notification')
 .get(
   auth('common'),
   NotificationController.getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt);
-
-/*
-router
-  .route('/clear-all-notifications')
-  .delete(auth('common'), NotificationController.clearAllNotification);
-router
-  .route('/admin-notifications')
-  .get(auth('admin'), NotificationController.getAdminNotifications);
-
-router
-  .route('/:id')
-  .get(auth('common'), NotificationController.getSingleNotification)
-  .patch(auth('common'), NotificationController.viewNotification)
-  .delete(auth('common'), NotificationController.deleteNotification);
-*/
 
 export const NotificationRoutes = router;

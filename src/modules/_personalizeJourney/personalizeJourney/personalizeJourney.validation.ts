@@ -66,13 +66,7 @@ export const createPersonalizeJourneyValidationSchema = z.object({
       }),
 
 
-    periodStartDate :
-    //  z.date({
-    //   required_error: 'periodStartDate is required.',
-    //   invalid_type_error: 'periodStartDate must be a date.',
-    // }),
-
-    z.string({
+    periodStartDate : z.string({
       required_error: 'periodStartDate is required, dateOfBirth must be a date.',
       invalid_type_error: 'periodStartDate must be a date.',
     })

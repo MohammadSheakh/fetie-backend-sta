@@ -100,7 +100,7 @@ export class SubscriptionController extends GenericController<
       //subscriptionStatus,
     } = stripeData;
 
-    /**
+    /*****************
      * subscriptionId jehetu ase .. to amra etar upor base kore 
      * user er jonno subscriptionStartDate, currentPeriodStartDate, 
      * expirationDate, renewalDate, billingCycle, isAutoRenewed
@@ -112,7 +112,7 @@ export class SubscriptionController extends GenericController<
      * for this project we dont keep multiple UserSubscription for a user
      * so we will update the existing subscription and update billing cycle to track 
      * how many times user buy the subscription
-     */
+     *******************/
 
     /// find user subscription by userId
     const userSubscription = await UserSubscription.findOne({
@@ -173,9 +173,6 @@ export class SubscriptionController extends GenericController<
       );
     }
 
-    // console.log('newUserSubscription 🔥🔥🔥', newUserSubscription);
-    // console.log('updatedUserSubscription 🔥🔥🔥', updatedUserSubscription); 
-
     // Create payment transaction record
     const newPaymentTransaction = await PaymentTransaction.create([{
       userId,
@@ -221,7 +218,6 @@ export class SubscriptionController extends GenericController<
     await session.commitTransaction();
     session.endSession();
 
-
     sendResponse(res, {
       code: StatusCodes.CREATED,
       data: {
@@ -231,21 +227,6 @@ export class SubscriptionController extends GenericController<
       message: `${this.modelName} created successfully`,
       success: true,
     });
-
-
-  //   catch (error) {
-  //   await session.abortTransaction();
-  //   session.endSession();
-    
-  //   console.error('Error creating subscription:', error);
-    
-  //   return res.status(500).json({
-  //     success: false,
-  //     message: 'Failed to create subscription',
-  //     error: error.message
-  //   });
-  // }
-
   })
 
   subscribeFromFrontEndV2 = catchAsync(async (req: Request, res: Response) => {
@@ -445,10 +426,6 @@ export class SubscriptionController extends GenericController<
     const { subscriptionPlanId } = req.query;
     const { userId } = req.user;
 
-    // console.log('userId 🔥🔥', userId);
-    // console.log('subscriptionPlanId 🔥🔥', subscriptionPlanId);
-
-    
     if (!userId) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
@@ -459,9 +436,6 @@ export class SubscriptionController extends GenericController<
     if (!subscriptionPlanId) {
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
-        // `plan is not provided in query, it should be ${Object.values(
-        //   SubscriptionType
-        // ).join(', ')}`
         'subscriptionPlanId is not provided in req.query'
       );
     }
@@ -568,7 +542,7 @@ export class SubscriptionController extends GenericController<
     });
   });
 
-  /*
+  /********************************
   line_items: [
         {
           
@@ -630,9 +604,7 @@ export class SubscriptionController extends GenericController<
     // check out session ..
 
 
-
-
-  */
+  ******************************/
 
   paymentSuccess = catchAsync(async (req: Request, res: Response) => {
     
@@ -665,8 +637,6 @@ export class SubscriptionController extends GenericController<
 
     const paymentResult = await paymentTransactionService.confirmPayment(data);
 
-    // console.log('paymentResult 🔥🔥', paymentResult);
-
     if (paymentResult) {
     const subscription = await SubscriptionPlan.findOne({
       _id: paymentResult.subscriptionPlanId,
@@ -678,8 +648,6 @@ export class SubscriptionController extends GenericController<
         `Subscription plan not found`
       );
     }
-
-    // console.log('subscription 🔥🔥🔥🔥🔥🔥🔥🔥', subscription);
 
     if (deviceType !== "Mobile") {
       /*
@@ -695,7 +663,6 @@ export class SubscriptionController extends GenericController<
         // &noOfDispatches=${subscription.noOfDispatches} 🟢🟢 kono feature provide korte chaile .. korte parbo .. 
       // 🟢🟢🟢🟢 ekhane front-end er URL jabe i think .. 
         res.redirect(`${'http://127.0.0.1:3000'}/api/v1/subscription/payment-success?amount=${paymentResult.amount}&duration=${subscription?.initialDuration}&subcriptionName=${subscription?.subscriptionName}&subcriptionId=${subscription._id}`)
-   
     }
   }
 
@@ -786,11 +753,6 @@ export class SubscriptionController extends GenericController<
       );
     }
 
-    // catch (err) {
-    //   console.log('Error constructing webhook event:', err);
-    //   return res.status(400).send(`Webhook Error: ${err.message}`);
-    // }
-
     // Handle the event
     switch (event.type) {
       case 'checkout.session.completed': // 🟢
@@ -871,14 +833,7 @@ export class SubscriptionController extends GenericController<
     data.renewalFrequncy = RenewalFrequncyType.monthly;
     data.currency = CurrencyType.USD;
     data.features = req.body.features;
-    // zod diye validation kora ase .. 
-    // if(!data.amount){
-    //   throw new ApiError(
-    //     StatusCodes.BAD_REQUEST,
-    //     `amount is required`
-    //   );
-    // }
-
+  
     // now we have to create stripe product and price 
     // and then we have to save the productId and priceId in our database
     const product = await this.stripe.products.create({

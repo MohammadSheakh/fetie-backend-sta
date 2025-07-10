@@ -58,7 +58,6 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
       ],
     },
 
-    // --------------------------
     tryingToConceive: {
       type: Boolean,
       required: [true, 'tryingToConceive is required'],

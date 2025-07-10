@@ -25,9 +25,9 @@ export const initConversationCronJobs = (): void => {
   // Add any other conversation-related cron jobs here
 }
 
-/**
+/*************
  * Sends a message to all conversations
- */
+ *************/
 export const sendDailyMessageToAllConversations = async (): Promise<void> => {
   try {
     console.log('Running cron job: sendDailyMessageToAllConversations');
@@ -59,10 +59,6 @@ export const sendDailyMessageToAllConversations = async (): Promise<void> => {
         
         let lastMessageSenderRoleOfAConversation = await Conversation.findById(conversation._id).select('lastMessageSenderRole');
 
-        // console.log("lastMessageSenderRoleOfAConversation :: ", lastMessageSenderRoleOfAConversation, "type of ", typeof lastMessageSenderRoleOfAConversation);
-
-        // if(lastMessageSenderRoleOfAConversation !== RoleType.bot  ) 
-        
         if(lastMessageSenderRoleOfAConversation?.lastMessageSenderRole !== RoleType.botAuto) {
           await messageService.create({
             text: randomMessage,
@@ -77,10 +73,8 @@ export const sendDailyMessageToAllConversations = async (): Promise<void> => {
             { new: true }
           );
         }
-        // console.log(`Message sent to conversation: ${conversation._id}`);
       } catch (error) {
         console.error(`Failed to send message to conversation ${conversation._id}:`, error);
-        // Continue with other conversations even if one fails
       }
     }
     

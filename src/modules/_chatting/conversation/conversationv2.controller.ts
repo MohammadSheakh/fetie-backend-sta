@@ -34,14 +34,11 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
   create = catchAsync(async (req: Request, res: Response) => {
     let type;
     let result: IConversation;
-    // creatorId ta req.user theke ashbe
-    //req.body.creatorId = req.user.userId;
+    
     let { participants, message } = req.body; // type, attachedToId, attachedToCategory
 
-    // type is based on participants count .. if count is greater than 2 then group else direct
-
     if (!participants) {
-      // 🔥 test korte hobe logic ..
+      
       throw new ApiError(
         StatusCodes.BAD_REQUEST,
         'Without participants you can not create a conversation'
@@ -62,8 +59,6 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
         type,
         month: format(new Date(), 'LLLL'), // format(new Date(), 'LLLL')
         year: new Date().getFullYear() //2026 , // new Date().getFullYear()
-        // attachedToId,
-        // attachedToCategory,
       };
 
       // check if the conversation already exists
@@ -86,17 +81,11 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
         }
 
         for (const participant of participants) {
-          // try {
-          // console.log('🔥🔥participants🔥', participants);
+          
 
           // as participants is just an id .. 
 
           let user = await User.findById(participant).select('role');
-
-          // console.log(
-          //   '🔥🔥user role  🔥',
-          //   user,
-          //   user?.role,)
 
           const res1 = await conversationParticipantsService.create({
             userId: participant,
@@ -110,11 +99,6 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
               'Unable to create conversation participant'
             );
           }
-
-          // console.log('🔥🔥res1🔥', res1);
-          // } catch (error) {
-          // console.error("Error creating conversation participant:", error);
-          // }
         }
 
         if (message && result?._id) {

@@ -3,8 +3,7 @@ import { TActivity, TCervicalMucus, TFertilityLevel, TMenstrualFlow, TMood, TPha
 
 export const createDailyCycleInsightsValidationSchema = z.object({
   body: z.object({
-    // userId: z
-    //   .string(),
+    
     menstrualFlow: z
       .string({
         required_error: 'menstrualFlow is not required.',
@@ -71,13 +70,7 @@ export const createDailyCycleInsightsValidationSchema = z.object({
       message: `cervicalMucus must be one of the following: ${Object.keys(TCervicalMucus).join(', ')}`,
     }),
 
-    date :
-    //  z.date({
-    //   required_error: 'periodStartDate is required.',
-    //   invalid_type_error: 'periodStartDate must be a date.',
-    // }),
-
-    z.string({
+    date : z.string({
       required_error: 'date is required',
       invalid_type_error: 'date must be a date.',
     })

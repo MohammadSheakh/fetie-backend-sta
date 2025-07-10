@@ -20,11 +20,12 @@ export class PersonalizedJourneyService extends GenericService<
   }
 
   async saveOptionalInformation(data: any, userId: string) {
-    /**
-     * * ekhane data gula ke group group korte hobe ..
+    /*******************
+     * 
+     * ekhane data gula ke group group korte hobe ..
      * and shegula ke alada alada collection e save korte hobe ..
      *
-     */
+     ******************/
 
     const {
       trackOvulationBy,
@@ -129,10 +130,7 @@ export class PersonalizedJourneyService extends GenericService<
         // create pregnancy history
         const pregHistory = await PregnancyHistory.create(pregnancyHistoryData);
         if (pregHistory) {
-          // console.log(
-          //   'personalizedJourneyData 🧪test🧪',
-          //   personalizedJourneyData
-          // );
+          
           await PersonalizeJourney.findByIdAndUpdate(
             existingJourney?._id,
             { pregnancy_History_Id: pregHistory._id },

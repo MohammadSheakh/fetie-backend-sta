@@ -24,7 +24,6 @@ export class SubscriptionPlanService extends GenericService<typeof SubscriptionP
     // 4.1 Handle Checkout Session Completed
     handleCheckoutSessionCompleted = async (session: any) => {
         // Implement your logic here
-        // console.log("Checkout session completed:", session);
         const { userId, subscriptionPlanId } = session.metadata;
   
         if (!userId || !subscriptionPlanId) {

@@ -48,13 +48,13 @@ export class HelpMessageController extends GenericController<
 
     await sendSupportMessageEmail(
       user.email,
-      user.name, 
+      user.name,
       subject,
       message
     );
 
-    
     const helpMessage = await this.helpMessageService.create(req.body);
+
     res.status(StatusCodes.CREATED).json({
       status: StatusCodes.CREATED,
       message: 'Help Message created successfully',
@@ -62,7 +62,5 @@ export class HelpMessageController extends GenericController<
     });
   });
   
-
   // add more methods here if needed or override the existing ones
-  
 }

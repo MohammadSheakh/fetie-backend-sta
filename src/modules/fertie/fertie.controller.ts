@@ -64,9 +64,6 @@ export class FertieController extends GenericController<
     const dailyCycleInsights =
       await dailyCycleInsightsService.getByDateAndUserId(date, userId);
 
-    // console.log('personalizedJourney 🔥', personalizedJourney);
-    // console.log('dailyCycleInsights 🔥', dailyCycleInsights);
-
     // Step 1: Current Date
     const currentDate = new Date(); // Current date and time
 
@@ -90,8 +87,7 @@ export class FertieController extends GenericController<
 
     // phase , fertility , cycle day 🔥 egula niye chinta korte hobe ...
 
-    // console.log("cycle day 🔥", )
-
+   
     let cycleDay =
       differenceInDays(currentDate, personalizedJourney?.periodStartDate) + 1;
 
@@ -181,6 +177,7 @@ export class FertieController extends GenericController<
         monthDate.getMonth(),
         1
       );
+
       const endDate = new Date(
         monthDate.getFullYear(),
         monthDate.getMonth() + 1,
@@ -284,7 +281,7 @@ export class FertieController extends GenericController<
         user?.personalize_Journey_Id
       );
 
-      // console.log('journey 🔥', journey);
+      
       if (!journey) return res.status(404).json({ error: 'Journey not found' });
 
       const { periodStartDate, periodLength, avgMenstrualCycleLength } =
@@ -425,7 +422,7 @@ export class FertieController extends GenericController<
       // 🟢🟢🟢🟢
 
       // now we got the cycle day .. we have to generate response from chatgpt based on cycle day
-      // console.log('cycle day 🔥', cycleDay);
+      
       const gptResponseForCycleDay =
         await this.fertieService.getChatBotsFeedbackAboutCurrentDailyCycle(
           cycleDay ? cycleDay : 0
@@ -440,7 +437,7 @@ export class FertieController extends GenericController<
 
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0); // Last day of month
-        /*
+      /*
       ///////////// 🟢🟢🟢🟢🟢🟢 
       // Fetch DailyCycleInsights for this month
       const insights = await DailyCycleInsights.find({
@@ -469,7 +466,6 @@ export class FertieController extends GenericController<
       });
       
       predictionsByMonth[monthKey].dailyLogs = formattedData;
-
 
       */
       }
@@ -500,7 +496,6 @@ export class FertieController extends GenericController<
         user?.personalize_Journey_Id
       );
 
-      // console.log('journey 🔥', journey);
       if (!journey) return res.status(404).json({ error: 'Journey not found' });
 
       const { periodStartDate, periodLength, avgMenstrualCycleLength } =
@@ -514,8 +509,7 @@ export class FertieController extends GenericController<
         baseDate,
         Number(avgMenstrualCycleLength)
       );
-      // console.log('calculated cycle day 🔥', cycleDay);
-
+      
       // The month we want to start showing predictions from
       const startMonth = monthQuery ? new Date(`${monthQuery}-01`) : today;
       const startYear = startMonth.getFullYear();
@@ -627,9 +621,6 @@ export class FertieController extends GenericController<
           currentMonthFound = true;
         }
       }
-
-      // Generate GPT response based on cycle day
-      // console.log('final cycle day for GPT 🔥', cycleDay);
 
       if (cycleDay <= 0 || cycleDay > Number(avgMenstrualCycleLength)) {
         console.warn(`Invalid cycle day: ${cycleDay}, using day 1 as fallback`);
@@ -781,8 +772,7 @@ export class FertieController extends GenericController<
 
         if (isCurrentMonth) {
           cycleDay = differenceInDays(today, predictedStart) + 1;
-          // console.log('Cycle Day:', cycleDay);
-
+          
           currentMonthData = {
             predictedPeriodStart: formatDate(predictedStart),
             predictedPeriodEnd: formatDate(predictedEnd),
@@ -809,7 +799,6 @@ export class FertieController extends GenericController<
             ],
           });
         }
-
         i++;
       }
 
@@ -893,8 +882,6 @@ export class FertieController extends GenericController<
         .lean()
         .populate('labTestLogId');
 
-      // console.log('insights', insights);
-
       const formattedData: any = {};
 
       insights.forEach(entry => {
@@ -954,8 +941,6 @@ export class FertieController extends GenericController<
 
       let dateObj = new Date(date); // .toISOString()
 
-      // console.log('dateObj 📅📅', dateObj);
-
       // Set start of the day (00:00:00.000)
       const startOfDay = new Date(dateObj.setHours(0, 0, 0, 0));
 
@@ -968,8 +953,6 @@ export class FertieController extends GenericController<
       })
         .lean()
         .populate('labTestLogId');
-
-      // console.log('insights', insights);
 
       const formattedData: any = {};
 
@@ -991,9 +974,7 @@ export class FertieController extends GenericController<
           fertilityLevel,
           cycleDay,
           cervicalMucus,
-          date,
-          // 🤖 client remove this
-          //  labTestLogId
+          date
         } = entry;
 
         formattedData[dateKey] = {};
@@ -1009,9 +990,6 @@ export class FertieController extends GenericController<
         if (cycleDay) formattedData[dateKey].cycleDay = cycleDay;
         if (cervicalMucus) formattedData[dateKey].cervicalMucus = cervicalMucus;
         if (date) formattedData[dateKey].date = date;
-
-        // 🤖 client remove this
-        // if (labTestLogId) formattedData[dateKey].labTestLogId = labTestLogId;
       });
 
       res.status(StatusCodes.OK).json({
@@ -1025,6 +1003,7 @@ export class FertieController extends GenericController<
 
   // add more methods here if needed or override the existing ones
 }
+
 // Helper function to calculate current cycle day
 function calculateCurrentCycleDay(
   currentDate: Date,
@@ -1085,200 +1064,3 @@ function formatDailyLogKey(date: Date): string {
   const [year, month, day] = date.toISOString().split('T')[0].split('-');
   return `${day}-${month}-${year}`;
 }
-
-/*
-  
-  updateFertilityScore = catchAsync(
-    async (req: Request, res: Response) => {
-      const userId = req.user.userId;
-
-      const fertilityScoreData = await this.fertieService.calculateFertilityScore(userId);
-
-      // update todays entry with the new score 
-
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      
-        // await DailyCycleInsights.findOrCreate({
-        //   where: {
-        //     user_id: userId,
-        //     date: today
-        //   },
-        //   defaults: {
-        //     dailyFertilityScore: fertilityScoreData.fertilityScore,
-        //     // Set other default values as needed
-        //   }
-        // });
-
-        // await DailyCycleInsights.update(
-        //   { dailyFertilityScore: fertilityScoreData.fertilityScore },
-        //   { 
-        //     where: { 
-        //       user_id: userId,
-        //       date: today
-        //     }
-        //   }
-        // );
-      
-    
-    res.status(StatusCodes.OK).json({
-        success: true,
-        code: StatusCodes.OK,
-        data: fertilityScoreData,
-        message: 'Fertility score ',
-      });
-
-  })
-
-  */
-
-/*
-
-getPredictionsByMonth = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.user.userId;
-    const month = req.query.month; // optional
-
-    const user = await User.findById(userId);
-
-    const journey = await PersonalizeJourney.findById(
-      user?.personalize_Journey_Id
-    );
-    if (!journey) return res.status(404).json({ error: 'Journey not found' });
-
-    const { periodStartDate, periodLength, avgMenstrualCycleLength } = journey;
-    const today = new Date();
-    const startMonth = month ? new Date(`${month}-01`) : today;
-
-    const predictions = [];
-
-    for (let i = 0; i < 12; i++) {
-      const predictedStart = new Date(periodStartDate);
-      predictedStart.setDate(
-        predictedStart.getDate() + i * Number(avgMenstrualCycleLength)
-      );
-
-      const predictedEnd = new Date(predictedStart);
-      predictedEnd.setDate(predictedEnd.getDate() + Number(periodLength) - 1);
-
-      const ovulation = new Date(predictedStart);
-      ovulation.setDate(
-        ovulation.getDate() + Math.floor(Number(avgMenstrualCycleLength) / 2)
-      );
-
-      const fertileStart = new Date(ovulation);
-      fertileStart.setDate(fertileStart.getDate() - 3);
-
-      const fertileEnd = new Date(ovulation);
-      fertileEnd.setDate(fertileEnd.getDate() + 1);
-
-      predictions.push({
-        month: predictedStart.toISOString().slice(0, 7),
-        predictedPeriodStart: predictedStart,
-        predictedPeriodEnd: predictedEnd,
-        predictedOvulationDate: ovulation,
-        fertileWindow: [fertileStart, fertileEnd],
-      });
-    }
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      code: StatusCodes.OK,
-      data: predictions,
-      message: 'Fertie Ok successfully',
-    });
-  });
-
-  getPredictionsByMonthV2 = catchAsync(async (req: Request, res: Response) => {
-    const userId = req.user.userId;
-    const month: any = req.query.month; // optional
-
-    const user = await User.findById(userId);
-
-    const journey = await PersonalizeJourney.findById(
-      user?.personalize_Journey_Id
-    );
-    if (!journey) return res.status(404).json({ error: 'Journey not found' });
-
-    const { periodStartDate, periodLength, avgMenstrualCycleLength } = journey;
-    const today = new Date();
-    const startMonth = month ? new Date(`${month}-01`) : today;
-
-    const predictions = [];
-
-    for (let i = 0; i < 12; i++) {
-      //------------------------------------
-      if (!month) {
-        return res.status(400).json({ error: 'Month is required' });
-      }
-
-      const [year, mon] = month.split('-').map(Number);
-
-      const startDate = new Date(year, mon - 1, 1);
-      const endDate = new Date(year, mon, 1); // first day of next month
-
-      const insights = await DailyCycleInsights.find({
-        userId,
-        date: { $gte: startDate, $lt: endDate },
-      }).lean();
-
-      const formattedData: any = {};
-
-      insights.forEach(entry => {
-        const dateKey = entry.date
-          .toISOString()
-          .slice(0, 10)
-          .split('-')
-          .reverse()
-          .join('-'); // DD-MM-YYYY
-
-        // Pick only non-null/undefined fields you care to show
-        const { menstrualFlow, phase } = entry;
-
-        formattedData[dateKey] = {};
-
-        if (menstrualFlow) formattedData[dateKey].menstrualFlow = menstrualFlow;
-        if (phase) formattedData[dateKey].phase = phase;
-      });
-
-      // ----------------------------------
-
-      const predictedStart = new Date(periodStartDate);
-      predictedStart.setDate(
-        predictedStart.getDate() + i * Number(avgMenstrualCycleLength)
-      );
-
-      const predictedEnd = new Date(predictedStart);
-      predictedEnd.setDate(predictedEnd.getDate() + Number(periodLength) - 1);
-
-      const ovulation = new Date(predictedStart);
-      ovulation.setDate(
-        ovulation.getDate() + Math.floor(Number(avgMenstrualCycleLength) / 2)
-      );
-
-      const fertileStart = new Date(ovulation);
-      fertileStart.setDate(fertileStart.getDate() - 3);
-
-      const fertileEnd = new Date(ovulation);
-      fertileEnd.setDate(fertileEnd.getDate() + 1);
-
-      predictions.push({
-        month: predictedStart.toISOString().slice(0, 7),
-        predictedPeriodStart: predictedStart,
-        predictedPeriodEnd: predictedEnd,
-        predictedOvulationDate: ovulation,
-        fertileWindow: [fertileStart, fertileEnd],
-        formattedData,
-      });
-    }
-
-    res.status(StatusCodes.OK).json({
-      success: true,
-      code: StatusCodes.OK,
-      data: predictions,
-      message: 'Fertie Ok successfully',
-    });
-  });
-
-
-*/

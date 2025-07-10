@@ -9,9 +9,6 @@ import { PersonalizeJourney } from './personalizeJourney.model';
 import { IPersonalizeJourney } from './personalizeJourney.interface';
 import { User } from '../../user/user.model';
 
-// let conversationParticipantsService = new ConversationParticipentsService();
-// let messageService = new MessagerService();
-
 function calculatePeriodEndDate(periodStartDate: Date, periodLength: number) {
   // Convert periodStartDate to a Date object
   const startDate = new Date(periodStartDate);
@@ -56,8 +53,6 @@ export class PersonalizedJourneyController extends GenericController<
 
   // Create
   create = catchAsync(async (req: Request, res: Response) => {
-
-    // console.log('create method hit of personalized Journey Controller 🧪🧪 ', req.user);
     const data: IPersonalizeJourney = req.body;
     const user = await User.findById(req.user.userId);
 
@@ -109,7 +104,7 @@ export class PersonalizedJourneyController extends GenericController<
       }
 
       if (user) {
-        user.personalize_Journey_Id = result._id;
+        user.personalize_Journey_Id = result?._id;
         await user?.save();
       }
       sendResponse(res, {
@@ -135,11 +130,7 @@ export class PersonalizedJourneyController extends GenericController<
         data,
         userId
       );
-    //  const result =
-    //  if (!result) {
-    //   throw new ApiError(StatusCodes.BAD_REQUEST, 'Can not save optional information');
-    // }
-
+    
     sendResponse(res, {
       code: StatusCodes.OK,
       data: result, // result

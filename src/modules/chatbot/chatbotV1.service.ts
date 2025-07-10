@@ -70,7 +70,7 @@ const dateParse = async (userMessage: string, userId: string) => {
           day < 10 ? '0' + day : day
         }`;
 
-        // console.log('dateString 📅:', dateString);
+        
         dateObj = new Date(dateString);
       }
       // Handle natural language dates like "5 March 2025"
@@ -84,14 +84,13 @@ const dateParse = async (userMessage: string, userId: string) => {
 
         if (isValid(parsedDate)) {
           dateObj = parsedDate;
-          // console.log('✅ Parsed Date (Natural Language):', dateObj.toLocaleString());
+          
         } else {
           console.warn('❌ Invalid natural language date');
           dateObj = new Date();
         }
       }
     } else {
-      // console.log('📅 No date detected, using current date');
       dateObj = new Date();
     }
 

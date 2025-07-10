@@ -6,7 +6,6 @@ export enum UserSubscriptionStatusType {
     incomplete = 'incomplete',
     incomplete_expired = 'incomplete_expired',
     trialing = 'trialing',
- //////////
     freeTrial = 'freeTrial',
     expired = 'expired', 
 }
