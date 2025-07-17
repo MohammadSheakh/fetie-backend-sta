@@ -5,7 +5,7 @@ import pick from '../../shared/pick';
 import { AttachmentService } from './attachment.service';
 import ApiError from '../../errors/ApiError';
 
-import { NotificationService } from '../notification/notification.services';
+// import { NotificationService } from '../notification/notification.services';
 
 const attachmentService = new AttachmentService();
 

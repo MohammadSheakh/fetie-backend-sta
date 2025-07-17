@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 import { Server } from 'socket.io';
 import app from './app';
 import { errorLogger, logger } from './shared/logger';
-import { socketHelper } from './helpers/socket';
+import { socketHelper } from './helpers/socketForNotification';
 import { config } from './config';
 import os from 'os';
 import cluster from 'cluster';
@@ -78,7 +78,7 @@ process.on('uncaughtException', error => {
       // io.adapter(socketIORedis({ pubClient, subClient }));
 
       // Setup socket helper
-      socketHelper.socket(io);
+      socketHelper.socketForNotification(io);
       // @ts-ignore
       global.io = io;
     } catch (error) {
