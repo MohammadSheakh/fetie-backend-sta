@@ -30,6 +30,12 @@ const conversationSchema = new Schema<IConversation>(
       type: String,
       required: [true, 'Month is required'],
     },
+    monthIndex: {
+      type: Number,
+      required: [true, 'Month index is required'],
+      min: 1, // January is 1, December is 12
+      max: 12, // Ensure it is within the range of months
+    },
     year: {
       type: Number,
       required: [true, 'Year is required'],

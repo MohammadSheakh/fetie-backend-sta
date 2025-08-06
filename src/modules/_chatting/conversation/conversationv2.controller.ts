@@ -58,7 +58,8 @@ export class ConversationV2Controller extends GenericController<typeof Conversat
         creatorId: req.user.userId,
         type,
         month: format(new Date(), 'LLLL'), // format(new Date(), 'LLLL')
-        year: new Date().getFullYear() //2026 , // new Date().getFullYear()
+        year: new Date().getFullYear(), //2026 , // new Date().getFullYear()
+        monthIndex: new Date().getMonth() + 1, // January is 0, December is 11
       };
 
       // check if the conversation already exists
