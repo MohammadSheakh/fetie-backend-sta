@@ -30,10 +30,10 @@ export const initConversationCronJobs = (): void => {
  *************/
 export const sendDailyMessageToAllConversations = async (): Promise<void> => {
   try {
-    console.log('Running cron job: sendDailyMessageToAllConversations');
+    console.log('Running cron job: sendDailyMessageToAllConversations :: process.env.BOT_USER_ID >', process.env.BOT_USER_ID);
     
     // Get bot ID from environment variable or config
-    const botId = process.env.BOT_USER_ID || '68206aa9e791351fc9fdbcde';
+    const botId = process.env.BOT_USER_ID;
     
     // Fetch all active conversations (you may want to add filters)
     const conversations = await Conversation.find({

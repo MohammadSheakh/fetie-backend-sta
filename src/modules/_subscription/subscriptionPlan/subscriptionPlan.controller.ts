@@ -19,6 +19,7 @@ import { TPaymentStatus } from '../../_payment/paymentTransaction/paymentTransac
 import { UserSubscriptionStatusType } from '../userSubscription/userSubscription.constant';
 import { addMonths } from 'date-fns';
 import { IUserSubscription } from '../userSubscription/userSubscription.interface';
+import { Notification } from '../../notification/notification.model';
 
 const subscriptionPlanService = new SubscriptionPlanService();
 const userCustomService = new UserCustomService();
@@ -321,6 +322,13 @@ export class SubscriptionController extends GenericController<
               if (!newUserSubscription || newUserSubscription.length === 0) {
                 throw new Error('Failed to create user subscription');
               }
+
+              await Notification.create({
+                        title: `${userId} purchased a new subscription `,
+                        // subTitle: jsonResponse.subTitle,
+                        //receiverId: process.env.ADMIN_USER_ID, // as we can have multiple admin...
+                        role: 'admin',
+                      })
             } else {
               // Update the existing user subscription
               updatedUserSubscription = await UserSubscription.findByIdAndUpdate(
@@ -343,6 +351,8 @@ export class SubscriptionController extends GenericController<
                 throw new Error('Failed to update user subscription');
               }
             }
+
+
 
             // Get the ID of the subscription document (either new or updated)
             const userSubscriptionId = newUserSubscription?.[0]?._id || updatedUserSubscription?._id;

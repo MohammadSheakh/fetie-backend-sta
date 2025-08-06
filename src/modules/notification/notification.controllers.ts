@@ -90,8 +90,11 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
       return;
     }
 
-    
-    // Generate notification from chatgpt ... 
+    /************
+     * 
+     * No notification found for today, so we will generate it using chatgpt
+     * 
+     * ************** */
 
     // first we need to get the users current months all information .. 
     // like ⚡predictedPeriodStart ⚡ predictedPeriodEnd

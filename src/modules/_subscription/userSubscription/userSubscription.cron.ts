@@ -1,4 +1,5 @@
 import { cronService } from '../../cron/cron.service';
+import { Notification } from '../../notification/notification.model';
 import { TStatusType, TSubscriptionType } from '../../user/user.constant';
 import { User } from '../../user/user.model';
 import { UserSubscriptionStatusType } from './userSubscription.constant';
@@ -59,8 +60,21 @@ export const checkAndExpireUserSubscription = async (): Promise<void> => {
         
         // Update the user's subscription type to free
         await User.findByIdAndUpdate(subscription.userId, { subscriptionType: 'free' });
-        
-        console.log(`Updated subscription for user ${subscription.userId}`);
+
+        await Notification.create({
+          title: `Your subscription has been cancelled`,
+          // subTitle: jsonResponse.subTitle,
+          receiverId: subscription?.userId,
+        })
+
+        await Notification.create({
+          title: `Subscription Expired for ${subscription?.userId}`,
+          // subTitle: jsonResponse.subTitle,
+          //receiverId: process.env.ADMIN_USER_ID, // as we can have multiple admin...
+          role: 'admin',
+        })
+
+        console.log(`Updated subscription for user ${subscription.userId} And Send Notification to user and admin process.env.ADMIN_USER_ID > ${process.env.ADMIN_USER_ID}`);
       } catch (error) {
         console.error(`Error processing subscription ${subscription._id}:`, error);
       }
