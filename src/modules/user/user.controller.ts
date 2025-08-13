@@ -164,6 +164,12 @@ const getAllUserForAdminDashboard = catchAsync(async (req, res) => {
       query[key] = { $regex: mainFilter[key], $options: 'i' }; // Case-insensitive regex search for name
     // } else {
      } else if (mainFilter[key] !== '' && mainFilter[key] !== null && mainFilter[key] !== undefined){
+      
+      /*********
+       * 
+       * In pagination in filters when we pass empty string  it retuns all data
+       * 
+       * ********* */
       query[key] = mainFilter[key];
     }
   }
