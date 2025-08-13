@@ -209,6 +209,7 @@ const getAllAdminForAdminDashboard = catchAsync(async (req, res) => {
 //[🚧][🧑‍💻][🧪] // ✅ 🆗 // 🧪🧪🧪🧪🧪🧪🧪🧪🧪 need test
 // send Invitation Link for a admin
 const sendInvitationLinkToAdminEmail = catchAsync(async (req, res) => {
+
   const user = await UserService.getUserByEmail(req.body.email);
 
   /**
@@ -249,11 +250,15 @@ const sendInvitationLinkToAdminEmail = catchAsync(async (req, res) => {
   } else {
     // create new user
     if (req.body.role == 'admin') {
+
+      console.log("⚡ Hit because req.body.role = admin");
+
       const newUser = await AuthService.createUser({
         email: req.body.email,
         password: req.body.password,
         role: req.body.role,
         isEmailVerified: true,
+        name: req.body.name,
       });
 
       return sendResponse(res, {

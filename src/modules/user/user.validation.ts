@@ -146,10 +146,10 @@ const sendInvitationToBeAdminValidationSchema = z.object({
         invalid_type_error: 'password must be a string.',
       }),
       
-      fullName: z.string({
-        required_error: 'fullName is required.',
-        invalid_type_error: 'fullName must be a string.',
-      }),
+    name: z.string({
+      required_error: 'name is required.',
+      invalid_type_error: 'name must be a string.',
+    }),
   
     role :  z.string({
         required_error: 'role is required.',

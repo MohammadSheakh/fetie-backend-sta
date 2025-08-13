@@ -53,6 +53,7 @@ export class PersonalizedJourneyController extends GenericController<
 
   // Create
   create = catchAsync(async (req: Request, res: Response) => {
+    
     const data: IPersonalizeJourney = req.body;
     const user = await User.findById(req.user.userId);
 
@@ -60,6 +61,10 @@ export class PersonalizedJourneyController extends GenericController<
       throw new ApiError(StatusCodes.UNAUTHORIZED, 'User not found');
     }
 
+    if(req.body.describeFlow) {
+      data.describeFlow = req.body.describeFlow.toLower();
+    }
+    
     if (user.personalize_Journey_Id) {
       // update the personalize journey id
       const existingJourney = await PersonalizeJourney.findById(

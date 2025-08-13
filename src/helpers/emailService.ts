@@ -86,6 +86,9 @@ const sendAdminOrSuperAdminCreationEmail = async (
   password: string,
   message?: string // Optional custom message
 ) => {
+
+  console.log("⚡ Hit 2");
+
   const subject = `Congratulations! You are now an ${role}`;
   const html = `
     <div style="width: 45%; margin: 0 auto; font-family: Arial, sans-serif; padding: 20px; color: #333; border: 1px solid #ccc; border-radius: 20px;">

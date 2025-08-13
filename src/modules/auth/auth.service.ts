@@ -9,7 +9,8 @@ import { config } from '../../config';
 import { TokenService } from '../token/token.service';
 import { TokenType } from '../token/token.interface';
 import { OtpType } from '../otp/otp.interface';
-import { TAuthProvider } from '../user/user.constant';
+import { TAuthProvider, TSubscriptionType } from '../user/user.constant';
+import { sendAdminOrSuperAdminCreationEmail } from '../../helpers/emailService';
 
 const validateUserStatus = (user: TUser) => {
   if (user.isDeleted) {
@@ -67,6 +68,15 @@ const createUser = async (userData: Partial<TUser>) => {
 
   userData.authProvider = TAuthProvider.local;
 
+  if(userData.role !== 'admin'){
+    /*********
+     * 
+     * as for admin we dont want to send verificationToken and otp
+     * 
+     * ******* */
+
+    userData.subscriptionType = TSubscriptionType.premium
+
   const user = await User.create(userData);
   // cantunderstand :  
   //create verification email token
@@ -74,7 +84,21 @@ const createUser = async (userData: Partial<TUser>) => {
   //create verification email otp
   const {otp} = await OtpService.createVerificationEmailOtp(user.email);
   return { user, verificationToken }; // FIXME  : otp remove korte hobe ekhan theke .. 
-};
+
+
+  }else{
+    const user = await User.create(userData);
+
+    await sendAdminOrSuperAdminCreationEmail(
+      userData.email,
+      userData.role,
+      userData.password,
+      userData.message ?? 'welcome to the team'
+    );
+
+    return { user };
+  }
+ };
 
 const handleSocialLogin = async (user, fcmToken) => {
   const tokens = await TokenService.accessAndRefreshToken(user);

@@ -109,13 +109,13 @@ router.post('/delete/:collectionName',
 ) 
 
 //[🚧][🧑‍💻✅][🧪🆗] // query :: userId
-router.get('/status/change',
+router.post('/status/change',
   auth('commonAdmin'),
   UserController.changeUserStatus
 )
 
 //[🚧][🧑‍💻✅][🧪🆗] // query :: userId
-router.get('/subscriptionType/change',
+router.post('/subscriptionType/change',
   auth('commonAdmin'),
   UserController.changeUserSubscriptionType
 )
