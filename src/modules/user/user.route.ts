@@ -12,7 +12,14 @@ const upload = fileUploadHandler(UPLOADS_FOLDER);
 
 const router = express.Router();
 
-export const optionValidationChecking = <T extends keyof IUser>(
+const paginationOptions: Array<'sortBy' | 'page' | 'limit' | 'populate'> = [
+  'sortBy',
+  'page',
+  'limit',
+  'populate',
+];
+
+export const optionValidationChecking = <T extends keyof IUser  | 'sortBy' | 'page' | 'limit' | 'populate'>(
   filters: T[]
 ) => {
   return filters;
@@ -27,7 +34,7 @@ export const optionValidationChecking = <T extends keyof IUser>(
 */
 router.route('/paginate').get(
   auth('commonAdmin'),
- validateFiltersForQuery(optionValidationChecking(['_id', 'name', 'email', 'subscriptionType', 'status', 'role'])),
+ validateFiltersForQuery(optionValidationChecking(['_id', 'name', 'email', 'subscriptionType', 'status', 'role', ...paginationOptions])),
   UserController.getAllUserForAdminDashboard
 );
 

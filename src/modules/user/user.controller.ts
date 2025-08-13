@@ -11,6 +11,7 @@ import { sendAdminOrSuperAdminCreationEmail } from '../../helpers/emailService';
 import { AuthService } from '../auth/auth.service';
 import { Request, Response } from 'express';
 import { TStatusType, TSubscriptionType } from './user.constant';
+import omit from '../../shared/omit';
 
 const userCustomService = new UserCustomService();
 
@@ -147,7 +148,9 @@ const deleteMyProfile = catchAsync(async (req, res) => {
 
 //[🚧][🧑‍💻][🧪] // ✅ 🆗
 const getAllUserForAdminDashboard = catchAsync(async (req, res) => {
-  const filters = req.query;
+  // const filters = req.query;
+  const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
+    
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
 
   const query = {};
@@ -159,7 +162,8 @@ const getAllUserForAdminDashboard = catchAsync(async (req, res) => {
   for (const key of Object.keys(mainFilter)) {
     if (key === 'name' && mainFilter[key] !== '') {
       query[key] = { $regex: mainFilter[key], $options: 'i' }; // Case-insensitive regex search for name
-    } else {
+    // } else {
+     } else if (mainFilter[key] !== '' && mainFilter[key] !== null && mainFilter[key] !== undefined){
       query[key] = mainFilter[key];
     }
   }
