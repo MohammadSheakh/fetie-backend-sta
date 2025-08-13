@@ -90,6 +90,8 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
       return;
     }
 
+    console.log("🔊 Generate notification for today .. as no notification found for today")
+
     /************
      * 
      * No notification found for today, so we will generate it using chatgpt
@@ -101,6 +103,8 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
     // ⚡ predictedOvulationDate ⚡ fertileWindow
 
     let data:any = await new FertieService().predictAllDates(req.user.userId);
+
+    console.log("data 🔊", data);
 
     //  const [year, month] = req.body.date.split('-');
      const [year, month] = new Date().toISOString().split('T')[0].split('-');

@@ -742,6 +742,7 @@ const chatbotResponseLongPolling_V2_Claude = async (
     const userId = req?.user?.userId;
     const userMessage = req?.body?.message;
     const conversationId = req?.body?.conversationId;
+    const now = new Date();
     
     if (!conversationId) {
       throw new ApiError(
@@ -782,7 +783,9 @@ const chatbotResponseLongPolling_V2_Claude = async (
       senderId: req.user.userId,
       conversationId: conversationId,
       senderRole: req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
-      embedding: embedding
+      embedding: embedding,
+      createdAt: now, // Explicitly set the same timestamp
+      updatedAt: now
     });
 
     // also update the last message sender role of the conversation
@@ -1032,7 +1035,9 @@ const chatbotResponseLongPolling_V2_Claude = async (
         senderId: new mongoose.Types.ObjectId('68206aa9e791351fc9fdbcde'),
         conversationId: conversationId,
         senderRole: RoleType.bot,
-        embedding: botEmbedding // FIXED: Use bot embedding
+        embedding: botEmbedding, // FIXED: Use bot embedding
+        createdAt: now, // Explicitly set the same timestamp
+        updatedAt: now
       });
 
       // Update conversation

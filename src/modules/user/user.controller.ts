@@ -15,6 +15,7 @@ import omit from '../../shared/omit';
 
 const userCustomService = new UserCustomService();
 
+
 const createAdminOrSuperAdmin = catchAsync(async (req, res) => {
   const payload = req.body;
   const result = await UserService.createAdminOrSuperAdmin(payload);
@@ -234,19 +235,7 @@ const sendInvitationLinkToAdminEmail = catchAsync(async (req, res) => {
     user.isEmailVerified = true;
     await user.save();
     const token = await TokenService.createVerifyEmailToken(user);
-    await sendAdminOrSuperAdminCreationEmail(
-      req?.body?.email,
-      req.body.role,
-      req?.body?.password,
-      req.body.message ?? 'welcome to the team'
-    );
-
-    return sendResponse(res, {
-      code: StatusCodes.OK,
-      data: null,
-      message:
-        'User already found and Invitation link sent successfully for admin',
-    });
+    
   } else {
     // create new user
     if (req.body.role == 'admin') {
