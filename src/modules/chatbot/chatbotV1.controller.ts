@@ -1029,16 +1029,20 @@ const chatbotResponseLongPolling_V2_Claude = async (
       const botEmbeddingData: OpenAIEmbeddingResponse = await botEmbeddingResponse.json();
       const botEmbedding = botEmbeddingData.data[0].embedding;
 
-      // Save bot response to database
-      const saveBotMessageToDbRes: IMessage | null = await messageService.create({
-        text: responseText,
-        senderId: new mongoose.Types.ObjectId('68206aa9e791351fc9fdbcde'),
-        conversationId: conversationId,
-        senderRole: RoleType.bot,
-        embedding: botEmbedding, // FIXED: Use bot embedding
-        createdAt: now, // Explicitly set the same timestamp
-        updatedAt: now
-      });
+
+      const now2 = new Date();
+      
+          // Save bot response to database
+          const saveBotMessageToDbRes: IMessage | null = await messageService.create({
+            text: responseText,
+            senderId: new mongoose.Types.ObjectId('68206aa9e791351fc9fdbcde'),
+            conversationId: conversationId,
+            senderRole: RoleType.bot,
+            embedding: botEmbedding, // FIXED: Use bot embedding
+            createdAt: now2, //set the current time stamp
+            updatedAt: now2
+          });
+      
 
       // Update conversation
       await Conversation.findByIdAndUpdate(
