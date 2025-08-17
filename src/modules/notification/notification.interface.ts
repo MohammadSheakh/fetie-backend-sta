@@ -9,6 +9,7 @@ export interface INotification {
   // message?: string;
   // image?: string; // age object chilo .. 
   linkId?: Types.ObjectId | string;
+  fromAi: boolean; 
   //role: UploaderRole.projectManager | UploaderRole.projectSupervisor;
   viewStatus?: boolean;
   createdAt?: Date;

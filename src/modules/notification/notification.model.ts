@@ -27,6 +27,10 @@ const notificationModel = new Schema<INotification>(
       enum: ['admin', 'user'],
       required: false,
     },
+    fromAi:{
+      type: Boolean,
+      required: false,
+    },
     // image: {
     //   type: String,
     // },

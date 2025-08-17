@@ -128,6 +128,9 @@ const addNotification = async (
         "title" : "Hey! Don’t forget to check your cycle insights today!",
         "subTitle" : "Remainder"
       }
+
+      Do not include \`\`\`json or \`\`\` or any other formatting. Return only the raw JSON object.
+    
     `;
     ////////////////////////////////////////////////////
 
@@ -271,6 +274,7 @@ const addNotification = async (
               title: jsonResponse.title,
               subTitle: jsonResponse.subTitle,
               receiverId: userId,
+              fromAi: true,
             })
 
             allNotificaiton = await Notification.find({

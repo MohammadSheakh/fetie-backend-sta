@@ -1116,6 +1116,8 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
       // ⚡ predictedOvulationDate ⚡ fertileWindow
   
       let data:any = await new FertieService().predictAllDates(req.user.userId);
+
+      console.log("🟢Fahim Vai test🟢", data)
   
       //  const [year, month] = req.body.date.split('-');
        const [year, month] = new Date().toISOString().split('T')[0].split('-');
@@ -1123,6 +1125,8 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
   
       // Find the month object that matches the target year-month
       const monthData = data.find(item => item.month === targetYearMonth);
+
+      console.log("🟢Fahim Vai test monthData🟢", monthData)
   
       if (!monthData) {
         console.error(`No data found for month: ${targetYearMonth}`);
