@@ -29,6 +29,7 @@ export interface IPersonalizeJourney {
 
   // ----------- optional 
 
+  howLongHaveYouBeenTrying : String;
   trackOvulationBy : TTrackOvulationBy[];
 
   doYouHavePain : TPainType.mild |

@@ -103,6 +103,11 @@ const personalizeJourneySchema = new Schema<IPersonalizeJourney>(
 
     // --------------------------  optional
 
+    howLongHaveYouBeenTrying:{
+      type: String,
+      required: [false, 'howLongHaveYouBeenTrying is not required'],
+    },
+
     trackOvulationBy: {
       type: [String],
       enum: [

@@ -32,6 +32,7 @@ export class PersonalizedJourneyService extends GenericService<
       doYouHavePain,
       expectedPeriodStartDate,
       predictedOvulationDate,
+      howLongHaveYouBeenTrying /******  We need to make sure howLongHaveYouBeenTrying is saved correctly ********* */
     }: IPersonalizeJourney = data;
     const {
       haveYouEverBeenPregnant,
@@ -53,6 +54,7 @@ export class PersonalizedJourneyService extends GenericService<
       doYouHavePain,
       expectedPeriodStartDate,
       predictedOvulationDate,
+      howLongHaveYouBeenTrying
     };
     const pregnancyHistoryData = {
       haveYouEverBeenPregnant,
