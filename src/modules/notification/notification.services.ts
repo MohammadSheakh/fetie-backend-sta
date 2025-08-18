@@ -277,6 +277,15 @@ const addNotification = async (
               fromAi: true,
             })
 
+            //@ts-ignore
+            // Emit to participant's personal room  .to(participantId) 🔊🔊🔊🔊🔊🔊🔊
+            io.emit(`notification::${userId}`, {
+              title: jsonResponse.title,
+              subTitle: jsonResponse.subTitle,
+              receiverId: userId,
+              fromAi: true, 
+            });
+
             allNotificaiton = await Notification.find({
               receiverId: userId,
             });
@@ -308,7 +317,17 @@ const addNotification = async (
                   title: jsonResponse.title,
                   subTitle: jsonResponse.subTitle,
                   receiverId: userId,
+                  fromAi: true,
                 })
+
+                //@ts-ignore
+                // Emit to participant's personal room  .to(participantId) 🔊🔊🔊🔊🔊🔊🔊
+                io.emit(`notification::${userId}`, {
+                  title: jsonResponse.title,
+                  subTitle: jsonResponse.subTitle,
+                  receiverId: userId,
+                  fromAi: true, 
+                });
 
                 allNotificaiton = await Notification.find({
                   receiverId: userId,
