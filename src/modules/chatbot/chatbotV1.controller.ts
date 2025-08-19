@@ -784,8 +784,8 @@ const chatbotResponseLongPolling_V2_Claude = async (
       conversationId: conversationId,
       senderRole: req.user.role === RoleType.user ? RoleType.user : RoleType.bot,
       embedding: embedding,
-      createdAt: now, // Explicitly set the same timestamp
-      updatedAt: now
+      // createdAt: now, // Explicitly set the same timestamp
+      // updatedAt: now
     });
 
     // also update the last message sender role of the conversation
@@ -1030,7 +1030,7 @@ const chatbotResponseLongPolling_V2_Claude = async (
       const botEmbedding = botEmbeddingData.data[0].embedding;
 
 
-      const now2 = new Date();
+      // const now2 = new Date();
       
           // Save bot response to database
           const saveBotMessageToDbRes: IMessage | null = await messageService.create({
@@ -1039,8 +1039,8 @@ const chatbotResponseLongPolling_V2_Claude = async (
             conversationId: conversationId,
             senderRole: RoleType.bot,
             embedding: botEmbedding, // FIXED: Use bot embedding
-            createdAt: now2, //set the current time stamp
-            updatedAt: now2
+            // createdAt: now2, //set the current time stamp
+            // updatedAt: now2
           });
       
 

@@ -238,7 +238,7 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
       -------------------------
       if no date matched give me response like {
         "title" : "Hey! Don’t forget to check your cycle insights today!",
-        "subTitle" : "Remainder",
+        "subTitle" : "Reminder",
       }
 
       Do not include \`\`\`json or \`\`\` or any other formatting. Return only the raw JSON object.
