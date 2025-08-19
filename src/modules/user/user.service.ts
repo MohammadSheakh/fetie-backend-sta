@@ -137,7 +137,7 @@ const getMyProfile = async (userId: string): Promise<TUser | null> => {
 //[🚧][🧑‍💻✅][🧪🆗]
 const getMyProfileOnlyRequiredField = async (userId: string): Promise<TUser | null> => {
   const result = await User.findById(userId)
-   .select('name subscriptionType profileImage userId personalize_Journey_Id')
+   .select('name subscriptionType profileImage userId email personalize_Journey_Id')
    .populate({
      path: 'personalize_Journey_Id',
      select: 'age'

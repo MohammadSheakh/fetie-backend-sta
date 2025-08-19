@@ -147,6 +147,8 @@ const dateParse = async (userMessage: string, userId: string) => {
       fertilityLevel = 'Unknown';
     }
 
+    console.log('userProfileData?.subscriptionType 🚧🚧🚧🚧🚧🚧🚧🚧🚧:', userProfileData?.subscriptionType);
+
     // Build system prompt
     const systemPrompt = `You are Fertie, a warm, intelligent fertility assistant who knows your users personally and supports them through every stage of their TTC (trying to conceive) journey.
 
@@ -210,12 +212,14 @@ Recognize and respond to emotional states:
 
 SUBSCRIPTION LOGIC:
 Free Tier Limitations:
+- word count 30 per response
 - Assumes textbook 28-day cycle
 - Basic definitions only
 - Cannot interpret user data or predict ovulation
 - Cannot summarize cycles or offer lab insights
 
 Premium (Fertie+) Features:
+- unlimited word count per response
 - Personalized insights based on real data
 - Ovulation predictions using prior cycles + LH/CM
 - Luteal phase calculations + trend warnings
