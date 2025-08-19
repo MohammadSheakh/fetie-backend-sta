@@ -136,7 +136,13 @@ const getMyProfile = async (userId: string): Promise<TUser | null> => {
 
 //[🚧][🧑‍💻✅][🧪🆗]
 const getMyProfileOnlyRequiredField = async (userId: string): Promise<TUser | null> => {
-  const result = await User.findById(userId).select('name subscriptionType profileImage userId');
+  const result = await User.findById(userId)
+   .select('name subscriptionType profileImage userId personalize_Journey_Id')
+   .populate({
+     path: 'personalize_Journey_Id',
+     select: 'age'
+   });
+  console.log('User profile data:', result);
   if (!result) {
     throw new ApiError(StatusCodes.NOT_FOUND, 'User not found');
   }
