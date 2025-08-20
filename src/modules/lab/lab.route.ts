@@ -41,7 +41,7 @@ router.route('/update/:id').put(
 
 //[🚧][🧑‍💻✅][🧪] // 🆗
 router.route('/').get(
-  auth('commonAdmin'),
+  auth('common'),
   controller.getAll
 );
 
