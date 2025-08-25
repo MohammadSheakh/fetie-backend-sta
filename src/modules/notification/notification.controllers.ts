@@ -11,6 +11,7 @@ import { Notification } from './notification.model';
 import sendPushNotification from '../../utils/sendPushNotification'
 import { PersonalizeJourney } from '../_personalizeJourney/personalizeJourney/personalizeJourney.model';
 import { User } from '../user/user.model';
+import ApiError from '../../errors/ApiError';
 const model = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY, //OPENAI_API_KEY // OPENROUTER_API_KEY
   // baseURL: 'https://openrouter.ai/api/v1',
@@ -18,7 +19,9 @@ const model = new OpenAI({
 });
 
 const getALLNotification = catchAsync(async (req, res) => {
+
   const filters = pick(req.query, notificationFilters);
+  filters.role='admin';
   const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
   const userId = req.user.userId;
   const result = await NotificationService.getALLNotification(
@@ -141,6 +144,11 @@ const getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt = catchAsy
     // ⚡ predictedOvulationDate ⚡ fertileWindow
 
     let data:any = await new FertieService().predictAllDates(req.user.userId);
+
+    if(!data){
+      throw new ApiError(StatusCodes.NOT_FOUND, "Cant Predict Uses All Date .. So, Can't generate Notification");
+    }
+    
 
     console.log("data 🔊", data);
 

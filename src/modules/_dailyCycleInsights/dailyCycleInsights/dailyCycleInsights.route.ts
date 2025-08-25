@@ -27,6 +27,10 @@ router.route('/paginate').get(
   controller.getAllWithPagination
 );
 
+// 🔴🔴 not working ..  
+router.route('/get-by-date').get(auth('common'),
+ controller.getByDateAndUserId);
+
 router.route('/:id').get(
   // auth('common'),
   controller.getById
@@ -75,7 +79,6 @@ router
     controller.updateByDate
   );
 
-// 🔴🔴 not working ..  
-// router.route('/get-by-date').get(auth('common'), controller.getByDateAndUserId);
+
 
 export const DailyCycleInsightsRoute = router;

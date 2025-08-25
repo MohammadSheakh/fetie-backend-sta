@@ -49,12 +49,17 @@ export class DailyCycleInsightsService extends GenericService<
   getByDateAndUserId = async (date: Date, userId: string) => {
 
     const dateObj = new Date(date);
+
+    console.log("userId", userId);
     
     // Set start of the day (00:00:00.000)
     const startOfDay = new Date(dateObj.setHours(0, 0, 0, 0));
+    console.log("startOfDay", startOfDay);
 
     // Set end of the day (23:59:59.999)
     const endOfDay = new Date(dateObj.setHours(23, 59, 59, 999));
+
+    console.log("endOfDay", endOfDay);
 
     const res = await this.model.findOne({ date: { $gte: startOfDay, $lte: endOfDay }, userId }).populate('labTestLogId');
     

@@ -394,9 +394,9 @@ const getALLNotification = async (
   options: PaginateOptions,
   userId: string
 ) => {
-  filters.receiverId = userId;
   const unViewNotificationCount = await Notification.countDocuments({
-    receiverId: userId,
+    // receiverId: userId,
+    role:'admin',
     viewStatus: false,
   });
 

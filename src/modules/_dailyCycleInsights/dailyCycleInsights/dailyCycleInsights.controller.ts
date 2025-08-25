@@ -33,8 +33,6 @@ export class DailyCycleInsightsController extends GenericController<
     // this.stripe = new Stripe('your_stripe_secret_key');
   }
 
-  
-
   //[🚧][🧑‍💻✅][🧪] // 🆗
   /********
    *  //> This create method has issue like calculating cycle day ... 
@@ -336,6 +334,31 @@ export class DailyCycleInsightsController extends GenericController<
         'Failed to update Daily Cycle Insights'
       );
     }
+    res.status(StatusCodes.OK).json({
+      success: true,
+      code: StatusCodes.OK,
+      data: result,
+      message: 'Daily Cycle Insights updated successfully',
+    });
+  });
+
+  /********
+   * 
+   * As per fahim vai's request 
+   * 
+   * ******** */
+  getByDateAndUserId = catchAsync(async (req: Request, res: Response) => {
+    const { date } = req.query;
+    const userId = req.user.userId;
+    
+    req.body.userId = userId;
+
+    const result = await this.dailyCycleInsightsService.getByDateAndUserId(
+      date,
+      userId
+    );
+
+    
     res.status(StatusCodes.OK).json({
       success: true,
       code: StatusCodes.OK,

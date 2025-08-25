@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import httpStatus from 'http-status';
+import { StatusCodes } from 'http-status-codes';
 import { config } from '../config';
 import ApiError from '../errors/ApiError';
 import { User } from '../modules/user/user.model';
@@ -7,7 +7,7 @@ import { User } from '../modules/user/user.model';
 const getUserDetailsFromToken = async (token: string) => {
   // console.log("token from getUserDetails -> ", token)
   if (!token) {
-    throw new ApiError(httpStatus.UNAUTHORIZED, 'you are not authorized!');
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'you are not authorized!');
   }
 
   let decode: any;
@@ -36,7 +36,7 @@ const getUserDetailsFromToken = async (token: string) => {
 
   } catch (error) {
     throw new ApiError(
-      httpStatus.UNAUTHORIZED,'Invalid or expired token...!'+error,
+      StatusCodes.UNAUTHORIZED,'Invalid or expired token...!'+error,
     );
   }
 

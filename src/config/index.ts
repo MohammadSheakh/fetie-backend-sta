@@ -66,6 +66,7 @@ export const config = {
   backend: {
     ip: process.env.BACKEND_IP || '10.0.60.220',
     baseUrl: `http://${process.env.BACKEND_IP}:${process.env.PORT}`,
+    shobhoyUrl : process.env.SHOBHOY_URL,
   },
 
   stripe: {

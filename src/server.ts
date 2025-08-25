@@ -56,6 +56,11 @@ process.on('uncaughtException', error => {
             `♻️  Application listening on port ${config.backend.baseUrl}/v1`,
           ),
         );
+        logger.info(
+          colors.yellow(
+            `♻️  Shobhoy port ${config.backend.shobhoyUrl}`,
+          ),
+        );
       });
 
       // // Create Redis client for Pub/Sub
