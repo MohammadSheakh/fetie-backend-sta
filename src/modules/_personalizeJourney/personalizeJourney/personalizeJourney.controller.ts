@@ -62,7 +62,7 @@ export class PersonalizedJourneyController extends GenericController<
     }
 
     if(req.body.describeFlow) {
-      data.describeFlow = req.body.describeFlow.toLower();
+      data.describeFlow = req.body.describeFlow.toLowerCase();
     }
     
     if (user.personalize_Journey_Id) {
