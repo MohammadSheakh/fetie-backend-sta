@@ -16,7 +16,7 @@ import omit from '../../shared/omit';
 const userCustomService = new UserCustomService();
 
 
-const createAdminOrSuperAdmin = catchAsync(async (req, res) => {
+const createAdminOrSuperAdmin = catchAsync(async (req:Request, res:Response) => {
   const payload = req.body;
   const result = await UserService.createAdminOrSuperAdmin(payload);
   sendResponse(res, {
@@ -29,7 +29,7 @@ const createAdminOrSuperAdmin = catchAsync(async (req, res) => {
 });
 
 //get single user from database
-const getSingleUser = catchAsync(async (req, res) => {
+const getSingleUser = catchAsync(async (req:Request, res:Response) => {
   const { userId } = req.params;
   const result = await UserService.getSingleUser(userId);
   sendResponse(res, {
@@ -40,7 +40,7 @@ const getSingleUser = catchAsync(async (req, res) => {
 });
 
 //update profile image
-const updateProfileImage = catchAsync(async (req, res) => {
+const updateProfileImage = catchAsync(async (req:Request, res:Response) => {
   const userId = req.user.userId;
   if (!userId) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
@@ -60,7 +60,7 @@ const updateProfileImage = catchAsync(async (req, res) => {
 });
 
 //update user from database
-const updateMyProfile = catchAsync(async (req, res) => {
+const updateMyProfile = catchAsync(async (req:Request, res:Response) => {
   const userId = req.user.userId;
   if (!userId) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
@@ -80,7 +80,7 @@ const updateMyProfile = catchAsync(async (req, res) => {
 });
 
 //update user status from database
-const updateUserStatus = catchAsync(async (req, res) => {
+const updateUserStatus = catchAsync(async (req:Request, res:Response) => {
   const { userId } = req.params;
   const payload = req.body;
   const result = await UserService.updateUserStatus(userId, payload);
@@ -92,7 +92,7 @@ const updateUserStatus = catchAsync(async (req, res) => {
 });
 
 //update user
-const updateUserProfile = catchAsync(async (req, res) => {
+const updateUserProfile = catchAsync(async (req:Request, res:Response) => {
   const { userId } = req.params;
   const payload = req.body;
   const result = await UserService.updateUserProfile(userId, payload);
@@ -104,7 +104,7 @@ const updateUserProfile = catchAsync(async (req, res) => {
 });
 
 //get my profile //[🚧][🧑‍💻✅][🧪🆗]
-const getMyProfile = catchAsync(async (req, res) => {
+const getMyProfile = catchAsync(async (req:Request, res:Response) => {
   const userId = req.user.userId;
   if (!userId) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
@@ -118,7 +118,7 @@ const getMyProfile = catchAsync(async (req, res) => {
 });
 
 //get my profile //[🚧][🧑‍💻✅][🧪🆗]
-const getMyProfileOnlyRequiredField = catchAsync(async (req, res) => {
+const getMyProfileOnlyRequiredField = catchAsync(async (req:Request, res:Response) => {
   const userId = req.user.userId;
   if (!userId) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
@@ -132,7 +132,7 @@ const getMyProfileOnlyRequiredField = catchAsync(async (req, res) => {
 });
 
 //delete user from database
-const deleteMyProfile = catchAsync(async (req, res) => {
+const deleteMyProfile = catchAsync(async (req:Request, res:Response) => {
   const userId = req.user.userId;
   if (!userId) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
@@ -148,7 +148,7 @@ const deleteMyProfile = catchAsync(async (req, res) => {
 //////////////////////////////////////////////////////////
 
 //[🚧][🧑‍💻][🧪] // ✅ 🆗
-const getAllUserForAdminDashboard = catchAsync(async (req, res) => {
+const getAllUserForAdminDashboard = catchAsync(async (req:Request, res:Response) => {
   // const filters = req.query;
   const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']); ;
     
@@ -186,7 +186,7 @@ const getAllUserForAdminDashboard = catchAsync(async (req, res) => {
 });
 
 //[🚧][🧑‍💻][🧪] // ✅ 🆗
-const getAllAdminForAdminDashboard = catchAsync(async (req, res) => {
+const getAllAdminForAdminDashboard = catchAsync(async (req:Request, res:Response) => {
   // const filters = req.query;
 
   const filters = { ...req.query };
@@ -209,7 +209,7 @@ const getAllAdminForAdminDashboard = catchAsync(async (req, res) => {
 
 //[🚧][🧑‍💻][🧪] // ✅ 🆗 // 🧪🧪🧪🧪🧪🧪🧪🧪🧪 need test
 // send Invitation Link for a admin
-const sendInvitationLinkToAdminEmail = catchAsync(async (req, res) => {
+const sendInvitationLinkToAdminEmail = catchAsync(async (req:Request, res:Response) => {
 
   const user = await UserService.getUserByEmail(req.body.email);
 
@@ -259,9 +259,34 @@ const sendInvitationLinkToAdminEmail = catchAsync(async (req, res) => {
   }
 });
 
+
+/**************
+ * 
+ * From AIM Construction -> Sikring -> Fertie
+ * 
+ * Update Profile Basic Info
+ * 
+ * *********** */
+
+//update profile 
+const updateProfile = catchAsync(async (req:Request, res:Response) => {
+  const userId = req.user.userId;
+  if (!userId) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
+  }
+  const result = await UserService.updateUserProfile(userId, req.body);
+  sendResponse(res, {
+    code: StatusCodes.OK,
+    data: result,
+    message: 'Profile updated successfully',
+  });
+});
+
+
+
 //////////////  Access Pin related controller ///////////
 
-const setNewAccessPin = catchAsync(async (req, res) => {
+const setNewAccessPin = catchAsync(async (req:Request, res:Response) => {
   const userId = req.user.userId;
   if (!userId) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
@@ -286,7 +311,7 @@ const setNewAccessPin = catchAsync(async (req, res) => {
   });
 });
 
-const removeAccessPin = catchAsync(async (req, res) => {
+const removeAccessPin = catchAsync(async (req:Request, res:Response) => {
   const userId = req.user.userId;
   if (!userId) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
@@ -310,7 +335,7 @@ const removeAccessPin = catchAsync(async (req, res) => {
   });
 });
 
-const givePermissionToChangeCurrentPin = catchAsync(async (req, res) => {
+const givePermissionToChangeCurrentPin = catchAsync(async (req:Request, res:Response) => {
   const userId = req.user.userId;
   if (!userId) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
@@ -337,7 +362,7 @@ const givePermissionToChangeCurrentPin = catchAsync(async (req, res) => {
   });
 });
 
-const matchAccessPin = catchAsync(async (req, res) => {
+const matchAccessPin = catchAsync(async (req:Request, res:Response) => {
   const userId = req.user.userId;
   if (!userId) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
@@ -546,6 +571,8 @@ export const UserController = {
   deleteAllDataFromCollection,
 
   ///////////////////////////////////////////
-
+  updateProfile, // From Sikring Camera
+  
+  
   getMyProfileOnlyRequiredField,
 };

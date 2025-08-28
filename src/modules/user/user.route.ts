@@ -122,17 +122,6 @@ router.post('/subscriptionType/change',
 
 ////////////////////////////////////////////////
 
-//[🚧][🧑‍💻✅][🧪🆗] //  
-
-router
-  .route('/profile-image')
-  .post(
-    auth('common'),
-    upload.single('profile_image'),
-    convertHeicToPngMiddleware(UPLOADS_FOLDER),
-    UserController.updateProfileImage
-  );
-
 // sub routes must be added after the main routes
 //[🚧][🧑‍💻✅][🧪🆗]
 router
@@ -162,6 +151,34 @@ router
     validateRequest(UserValidation.changeUserStatusValidationSchema),
     UserController.updateUserStatus
   );
+
+
+  /*************************
+ * // Working Perfectly .. 
+ * // (App) | Customer , User | Upload profile image ... 
+ * 
+ * ********************* */
+router
+.route('/profile-image')
+.put(
+  auth('common'),
+  [upload.single('profileImage')],
+  UserController.updateProfileImage
+);
+
+
+/**
+ * App: Under Profile Section User Module Related End Points 
+ *
+ */
+
+router
+.route('/profile')
+.put(
+  auth('common'),
+  UserController.updateProfile
+);
+
 
   ///////////////////////////////////////////////
   
