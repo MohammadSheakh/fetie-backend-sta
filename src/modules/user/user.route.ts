@@ -38,6 +38,13 @@ router.route('/paginate').get(
   UserController.getAllUserForAdminDashboard
 );
 
+// sub routes must be added after the main routes
+//[🚧][🧑‍💻✅][🧪🆗]
+router
+  .route('/profile')
+  .get(auth('common'), UserController.getMyProfile) // 🟢
+  .delete(auth('common'), UserController.deleteMyProfile);
+
 //[🚧][🧑‍💻][🧪] // ✅ 🆗
 router.route('/paginate/admin').get(
   auth('commonAdmin'),
@@ -52,6 +59,21 @@ router.post(
   validateRequest(UserValidation.sendInvitationToBeAdminValidationSchema),
   UserController.sendInvitationLinkToAdminEmail
 );
+
+
+  /*************************
+ * // Working Perfectly .. 
+ * // (App) | Customer , User | Upload profile image ... 
+ * 
+ * ********************* */
+router
+.route('/profile-image')
+.put(
+  auth('common'),
+  [upload.single('profileImage')],
+  UserController.updateProfileImage
+);
+
 
 /**
  * 
@@ -122,19 +144,7 @@ router.post('/subscriptionType/change',
 
 ////////////////////////////////////////////////
 
-// sub routes must be added after the main routes
-//[🚧][🧑‍💻✅][🧪🆗]
-router
-  .route('/profile')
-  .get(auth('common'), UserController.getMyProfile) // 🟢
-  .patch(
-    auth('common'),
-    validateRequest(UserValidation.updateUserValidationSchema),
-    upload.single('profile_image'),
-    convertHeicToPngMiddleware(UPLOADS_FOLDER),
-    UserController.updateMyProfile
-  )
-  .delete(auth('common'), UserController.deleteMyProfile);
+
 
 router.route('/profile/requiredField').get(auth('common'), UserController.getMyProfileOnlyRequiredField);
 
@@ -153,18 +163,6 @@ router
   );
 
 
-  /*************************
- * // Working Perfectly .. 
- * // (App) | Customer , User | Upload profile image ... 
- * 
- * ********************* */
-router
-.route('/profile-image')
-.put(
-  auth('common'),
-  [upload.single('profileImage')],
-  UserController.updateProfileImage
-);
 
 
 /**

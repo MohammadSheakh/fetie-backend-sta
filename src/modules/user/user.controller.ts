@@ -12,6 +12,7 @@ import { AuthService } from '../auth/auth.service';
 import { Request, Response } from 'express';
 import { TStatusType, TSubscriptionType } from './user.constant';
 import omit from '../../shared/omit';
+import { PersonalizeJourney } from '../_personalizeJourney/personalizeJourney/personalizeJourney.model';
 
 const userCustomService = new UserCustomService();
 
@@ -38,19 +39,40 @@ const getSingleUser = catchAsync(async (req:Request, res:Response) => {
     message: 'User fetched successfully',
   });
 });
-
+/********
+ * 
+ *  Updated .. Working Perfectly
+ * 
+ * ******** */
 //update profile image
 const updateProfileImage = catchAsync(async (req:Request, res:Response) => {
+  console.log("🟢🟢");
   const userId = req.user.userId;
   if (!userId) {
     throw new ApiError(StatusCodes.UNAUTHORIZED, 'You are unauthenticated.');
   }
   if (req.file) {
-    req.body.profile_image = {
+    req.body.profileImage = {
       imageUrl: '/uploads/users/' + req.file.filename,
       file: req.file,
     };
   }
+
+  if(req.body.age && req.body.dateOfBirth){
+    const userPersonalizedJourney = await User.findById(userId).select('personalize_Journey_Id');
+    // .populate({
+    //   path: 'personalize_Journey_Id',
+    //   select: 'age dateOfBirth'
+    // });
+
+    await PersonalizeJourney.findByIdAndUpdate(userPersonalizedJourney.personalize_Journey_Id, {
+      age: req.body.age,
+      dateOfBirth: req.body.dateOfBirth
+    });
+
+    console.log("User's personalized journey:", userPersonalizedJourney);
+  }
+
   const result = await UserService.updateMyProfile(userId, req.body);
   sendResponse(res, {
     code: StatusCodes.OK,
