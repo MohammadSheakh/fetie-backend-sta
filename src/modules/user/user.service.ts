@@ -190,7 +190,7 @@ const removeAccessPin = async (userId: string, accessPinCode : string) => {
   }
 
   if(result.accessPinCode){
-    result.accessPinCode = "";
+    result.accessPinCode = null;
     await result.save();
   }
 
@@ -208,7 +208,7 @@ const givePermissionToChangeCurrentPin = async (userId: string, accessPinCode : 
   if(result.accessPinCode !== accessPinCode){
     throw new ApiError(StatusCodes.NOT_FOUND, 'Access pin is not matched, You can not change access pin code ');
   }
-  result.accessPinCode = "";
+  result.accessPinCode = null;
   await result.save();
   return result;
 }

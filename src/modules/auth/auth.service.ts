@@ -67,8 +67,13 @@ const createUser = async (userData: Partial<TUser>) => {
   }
 
   userData.authProvider = TAuthProvider.local;
+  
+  /**
+   * This is important for App .. 
+   * * */
+  userData.accessPinCode = null; 
 
-  if(userData.role !== 'admin'){
+  if(userData.role === 'admin'){
     /*********
      * 
      * as for admin we dont want to send verificationToken and otp

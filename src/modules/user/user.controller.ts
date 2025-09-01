@@ -441,6 +441,8 @@ const deleteAllDataFromCollection = async (req: Request, res: Response) => {
       'Message',
       'Notification',
       'LabTestLog',
+      'Conversation',
+      'ConversationParticipents'
     ]; // example allowed list
     if (!allowedCollections.includes(collectionName)) {
       sendResponse(res, {
