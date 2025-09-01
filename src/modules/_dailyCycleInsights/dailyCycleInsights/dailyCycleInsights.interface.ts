@@ -22,7 +22,7 @@ export interface IDailyCycleInsights {
     | TMenstrualFlow.medium
     | TMenstrualFlow.heavy
     | TMenstrualFlow.spotting
-    | TMenstrualFlow.no;
+    | TMenstrualFlow.none;
     
   mood:
     | TMood.great
@@ -30,8 +30,9 @@ export interface IDailyCycleInsights {
     | TMood.relaxed
     | TMood.happy
     | TMood.irritable
-    | TMood.indifferent;
-  activity: TActivity.intercourse | TActivity.insemination;
+    | TMood.indifferent
+    | TMood.none;
+  activity: TActivity.intercourse | TActivity.insemination | TActivity.none;
 
   symptoms: TSymptoms[];
   //   TSymptoms.cramps |
@@ -56,7 +57,7 @@ export interface IDailyCycleInsights {
     | TFertilityLevel.Unknown;
   cycleDay: Number;
 
-  cervicalMucus: TCervicalMucus.eggWhite | TCervicalMucus.creamy;
+  cervicalMucus: TCervicalMucus.eggWhite | TCervicalMucus.creamy | TCervicalMucus.none;
 
   date: Date;
 
@@ -82,15 +83,16 @@ export type TDailyCycleInsights = {
     | TMenstrualFlow.medium
     | TMenstrualFlow.heavy
     | TMenstrualFlow.spotting
-    | TMenstrualFlow.no;
+    | TMenstrualFlow.none;
   mood:
     | TMood.great
     | TMood.good
     | TMood.relaxed
     | TMood.happy
     | TMood.irritable
-    | TMood.indifferent;
-  activity: TActivity.intercourse | TActivity.insemination;
+    | TMood.indifferent
+    | TMood.none;
+  activity: TActivity.intercourse | TActivity.insemination | TActivity.none;
 
   symptoms: TSymptoms[];
   //  TSymptoms.cramps |
@@ -113,7 +115,7 @@ export type TDailyCycleInsights = {
     | TFertilityLevel.veryLow;
   cycleDay: Number;
 
-  cervicalMucus: TCervicalMucus.eggWhite | TCervicalMucus.creamy;
+  cervicalMucus: TCervicalMucus.eggWhite | TCervicalMucus.creamy | TCervicalMucus.none;
 
   date: Date;
 

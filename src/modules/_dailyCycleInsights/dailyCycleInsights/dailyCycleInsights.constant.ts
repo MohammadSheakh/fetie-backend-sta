@@ -3,7 +3,7 @@ export enum TMenstrualFlow {
     medium = 'medium', 
     heavy = 'heavy',
     spotting = 'spotting',
-    no = 'no',
+    none = 'none',
 }
 export enum TMood {
     great = 'great',
@@ -12,10 +12,12 @@ export enum TMood {
     happy = 'happy', 
     irritable = 'irritable',
     indifferent = 'indifferent',
+    none = 'none',
 }
 export enum TActivity {
     intercourse = 'intercourse',
     insemination = 'insemination',
+    none = 'none',
 }
 export enum TSymptoms {
     cramps = 'cramps',
@@ -26,6 +28,7 @@ export enum TSymptoms {
     pain = 'pain',
     bloating = 'bloating',
     others = 'others',
+    none = 'none',
 }
 export enum TPhase {
     menstrual = 'menstrual',
@@ -45,4 +48,5 @@ export enum TFertilityLevel {
 export enum TCervicalMucus {
     eggWhite = 'eggWhite',
     creamy = 'creamy',
+    none = 'none',
 }

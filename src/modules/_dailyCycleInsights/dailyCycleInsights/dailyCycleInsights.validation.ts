@@ -41,10 +41,11 @@ export const createDailyCycleInsightsValidationSchema = z.object({
     .string({
       required_error: 'phase is not required.',
       invalid_type_error: 'phase must be a string.',
-    })
-    .refine(phase => Object.keys(TPhase).includes(phase as keyof typeof TPhase), {
-      message: `phase must be one of the following: ${Object.keys(TPhase).join(', ')}`,
-    }),
+    }).optional()
+    // .refine(phase => Object.keys(TPhase).includes(phase as keyof typeof TPhase), {
+    //   message: `phase must be one of the following: ${Object.keys(TPhase).join(', ')}`,
+    // })
+    ,
 
     fertilityLevel: z
     .string({

@@ -39,7 +39,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TMenstrualFlow.medium,
         TMenstrualFlow.heavy,
         TMenstrualFlow.spotting,
-        TMenstrualFlow.no,
+        TMenstrualFlow.none,
       ],
       required: [
         false,
@@ -57,6 +57,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TMood.happy,
         TMood.irritable,
         TMood.indifferent,
+        TMood.none,
       ],
       required: [
         false,
@@ -65,7 +66,9 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
     },
     activity: {
       type: String,
-      enum: [TActivity.intercourse, TActivity.insemination],
+      enum: [TActivity.intercourse, TActivity.insemination
+        , TActivity.none
+      ],
       required: [
         false,
         `activity is not required it can be ${Object.values(TActivity).join(
@@ -84,6 +87,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
         TSymptoms.pain,
         TSymptoms.bloating,
         TSymptoms.others,
+        TSymptoms.none
       ],
       required: [
         false,
@@ -129,7 +133,7 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
     },
     cervicalMucus: {
       type: String,
-      enum: [TCervicalMucus.eggWhite, TCervicalMucus.creamy],
+      enum: [TCervicalMucus.eggWhite, TCervicalMucus.creamy, TCervicalMucus.none],
       required: [
         false,
         `cervicalMucus is not required it can be ${Object.values(
