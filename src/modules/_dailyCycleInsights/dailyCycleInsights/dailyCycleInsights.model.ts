@@ -51,13 +51,23 @@ const dailyCycleInsightsSchema = new Schema<IDailyCycleInsights>(
     mood: {
       type: String,
       enum: [
-        TMood.great,
-        TMood.good,
-        TMood.relaxed,
-        TMood.happy,
-        TMood.irritable,
-        TMood.indifferent,
         TMood.none,
+        TMood.happy,
+        TMood.crying,
+        TMood.indifferent,
+        TMood.sad,
+        TMood.angry,
+        TMood.questioning,
+        TMood.inPain,
+        TMood.cramping,
+        TMood.content,
+        TMood.embarrassed,
+
+        // TMood.great,
+        // TMood.good,
+        // TMood.relaxed,
+        // TMood.irritable,
+        
       ],
       required: [
         false,

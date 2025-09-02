@@ -6,13 +6,22 @@ export enum TMenstrualFlow {
     none = 'none',
 }
 export enum TMood {
-    great = 'great',
-    good = 'good',
-    relaxed = 'relaxed',
-    happy = 'happy', 
-    irritable = 'irritable',
+    // great = 'great',
+    // good = 'good',
+    // relaxed = 'relaxed',
+    // irritable = 'irritable',
+
     indifferent = 'indifferent',
     none = 'none',
+    embarrassed = 'embarrassed',
+    angry = 'angry',
+    happy = 'happy',
+    content='content',
+    cramping='cramping',
+    inPain='in pain',
+    questioning='questioning',
+    sad='sad',
+    crying = 'crying',
 }
 export enum TActivity {
     intercourse = 'intercourse',
@@ -23,8 +32,8 @@ export enum TSymptoms {
     cramps = 'cramps',
     headache = 'headache',
     backache = 'backache',
-    breastTenderness = 'breastTenderness',
-    cervicalMucous = 'cervicalMucous',
+    breastTenderness = 'breast tenderness',
+    cervicalMucous = 'cervical mucous',
     pain = 'pain',
     bloating = 'bloating',
     others = 'others',
@@ -46,7 +55,7 @@ export enum TFertilityLevel {
 }
 
 export enum TCervicalMucus {
-    eggWhite = 'eggWhite',
+    eggWhite = 'egg white',
     creamy = 'creamy',
     none = 'none',
 }
