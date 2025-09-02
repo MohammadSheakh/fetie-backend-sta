@@ -73,7 +73,19 @@ const createUser = async (userData: Partial<TUser>) => {
    * * */
   userData.accessPinCode = null; 
 
-  if(userData.role === 'admin'){
+  if(userData.role !== 'admin'){
+
+    userData.subscriptionType = TSubscriptionType.free
+    
+    const user = await User.create(userData);
+    // cantunderstand :  
+    //create verification email token
+    const verificationToken = await TokenService.createVerifyEmailToken(user);
+    //create verification email otp
+    const {otp} = await OtpService.createVerificationEmailOtp(user.email);
+    return { user, verificationToken }; // FIXME  : otp remove korte hobe ekhan theke .. 
+
+  }else{
     /*********
      * 
      * as for admin we dont want to send verificationToken and otp
@@ -81,17 +93,6 @@ const createUser = async (userData: Partial<TUser>) => {
      * ******* */
 
     userData.subscriptionType = TSubscriptionType.premium
-
-  const user = await User.create(userData);
-  // cantunderstand :  
-  //create verification email token
-  const verificationToken = await TokenService.createVerifyEmailToken(user);
-  //create verification email otp
-  const {otp} = await OtpService.createVerificationEmailOtp(user.email);
-  return { user, verificationToken }; // FIXME  : otp remove korte hobe ekhan theke .. 
-
-
-  }else{
     const user = await User.create(userData);
 
     await sendAdminOrSuperAdminCreationEmail(
