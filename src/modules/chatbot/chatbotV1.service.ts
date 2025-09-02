@@ -199,9 +199,11 @@ AVAILABLE USER DATA:
 - TTC Journey: trying to conceive ${personalizedJourney?.tryingToConceive || 'N/A'}, cycles regular ${personalizedJourney?.areCyclesRegular || 'N/A'}
 - Current Cycle: day ${insights?.cycleDay || cycleDay}, phase ${insights?.phase || phase}, fertility level ${insights?.fertilityLevel || fertilityLevel}
 - Tracking: ${personalizedJourney?.trackOvulationBy || 'N/A'}, flow ${insights?.menstrualFlow || 'N/A'}, cervical mucus ${insights?.cervicalMucus || 'N/A'}
-- Patterns: avg cycle length ${personalizedJourney?.avgMenstrualCycleLength || 'N/A'}, predicted ovulation ${personalizedJourney?.predictedOvulationDate || 'N/A'}
 - Symptoms: ${insights?.symptoms || 'N/A'}, mood ${insights?.mood || 'N/A'}, pain ${personalizedJourney?.doYouHavePain || 'N/A'}
 - Historical Data: ${allInsights ? 'Available for pattern analysis' : 'Limited'}
+- first Period Start Date: ${periodStartDate || 'N/A'}
+- Patterns: avg cycle length ${personalizedJourney?.avgMenstrualCycleLength || 'N/A'}, predicted ovulation ${personalizedJourney?.predictedOvulationDate || 'N/A'}
+- today Date : ${today}
 
 EMOTIONAL INTELLIGENCE:
 Recognize and respond to emotional states:

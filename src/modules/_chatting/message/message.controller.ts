@@ -86,7 +86,9 @@ export class MessageController extends GenericController<typeof Message, IMessag
     //const filters = pick(req.query, ['_id', 'title']); // now this comes from middleware in router
     const filters =  omit(req.query, ['sortBy', 'limit', 'page', 'populate']);
     const options = pick(req.query, ['sortBy', 'limit', 'page', 'populate']);
-    
+
+    options.limit = parseInt(req.query.limit) || 10;
+
     let dontWantToInclude = '-embedding -attachments -isDeleted -updatedAt -__v'; 
     // -createdAt
 
