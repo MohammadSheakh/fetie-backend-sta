@@ -870,11 +870,39 @@ const chatbotResponseLongPolling_V2_Claude = async (
       }
     ];
 
-    const [userContext , botContext ] = await Promise.all([
+    const recentMessagesPipeline = [
+  {
+    $match: {
+      conversationId: new mongoose.Types.ObjectId(conversationId),
+      // Optionally exclude very old messages
+      createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } // last 7 days
+    }
+  },
+  {
+    $sort: { createdAt: -1 } // newest first
+  },
+  {
+    $limit: 4 // get last 4 messages (2 user + 2 bot)
+  },
+  {
+    $sort: { createdAt: 1 } // now sort chronologically (important!)
+  },
+  {
+    $project: {
+      text: 1,
+      senderRole: 1,
+      createdAt: 1
+    }
+  }
+];
+
+    const [userContext , recentMessages, /* botContext*/ ] = await Promise.all([
       Message.aggregate(contextPipeline),
       // Message.aggregate(botContextPipeline)
+      Message.aggregate(recentMessagesPipeline)
     ]);
-    
+
+    console.log("🖼️🖼️🖼️🖼️ Recent messages:", recentMessages);
 
     // FIXED: Build conversational context by pairing related messages
     const buildConversationalContext = (userMsgs:any /*, botMsgs:any*/) => {
@@ -910,6 +938,15 @@ const chatbotResponseLongPolling_V2_Claude = async (
     
     // FIXED: Add context messages to formatted messages
     formattedMessages.push(...contextMessages);
+
+    
+
+    // 🟢🟢🟢🟢🟢 here we need to pass recent conversation context
+    const recentContextMessages = recentMessages.map(msg => ({
+      role: msg.senderRole === 'user' ? 'user' : 'assistant',
+      content: msg.text.toString()
+    }));
+    formattedMessages.push(...recentContextMessages);
 
     // Add current user message
     formattedMessages.push({
