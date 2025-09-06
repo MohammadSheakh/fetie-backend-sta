@@ -324,11 +324,11 @@ export class SubscriptionController extends GenericController<
               }
 
               await Notification.create({
-                        title: `${userId} purchased a new subscription `,
-                        // subTitle: jsonResponse.subTitle,
-                        //receiverId: process.env.ADMIN_USER_ID, // as we can have multiple admin...
-                        role: 'admin',
-                      })
+                title: `${userId} | ${req.user.userName} purchased a new subscription `,
+                // subTitle: jsonResponse.subTitle,
+                //receiverId: process.env.ADMIN_USER_ID, // as we can have multiple admin...
+                role: 'admin',
+              });
             } else {
               // Update the existing user subscription
               updatedUserSubscription = await UserSubscription.findByIdAndUpdate(

@@ -18,6 +18,7 @@ import { Conversation } from '../_chatting/conversation/conversation.model';
 import { FertieService } from '../fertie/fertie.service';
 import { RoleType } from '../_chatting/message/message.constant';
 import { PersonalizeJourney } from '../_personalizeJourney/personalizeJourney/personalizeJourney.model';
+import { User } from '../user/user.model';
 
 let dailyCycleInsightService = new DailyCycleInsightsService();
 let personalizeJourneyService = new PersonalizedJourneyService();
@@ -1492,6 +1493,13 @@ const getCycleInsightWithStreamTrue = async (req: Request, res: Response) => {
   const userId = req?.user?.userId;
 
   try { 
+
+    const updateUserlastProvideAccessPinCode = await User.findByIdAndUpdate(
+        userId,
+        { lastProvideAccessPinCode: new Date() },
+        { new: true }
+      );
+
     // Fetch user data
     const [personalizedJourney, userProfileData] 
     : [IPersonalizeJourney, any]
