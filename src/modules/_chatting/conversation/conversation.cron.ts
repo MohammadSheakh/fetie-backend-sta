@@ -57,9 +57,9 @@ export const sendDailyMessageToAllConversations = async (): Promise<void> => {
         // Select a random message from the array
         const randomMessage = messages[Math.floor(Math.random() * messages.length)];
         
-        let lastMessageSenderRoleOfAConversation = await Conversation.findById(conversation._id).select('lastMessageSenderRole');
+        let lastMessageSenderRoleOfAConversation = await Conversation.findById(conversation._id).select('lastMessageSenderRole monthIndex');
 
-        if(lastMessageSenderRoleOfAConversation?.lastMessageSenderRole !== RoleType.botAuto) {
+        if(lastMessageSenderRoleOfAConversation?.lastMessageSenderRole !== RoleType.botAuto && lastMessageSenderRoleOfAConversation?.monthIndex === (new Date()).getMonth() + 1) {
           await messageService.create({
             text: randomMessage,
             senderId: new mongoose.Types.ObjectId(botId),
