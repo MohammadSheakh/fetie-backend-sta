@@ -36,7 +36,7 @@ const verifyToken = async (
   if (!storedToken) {
     throw new ApiError(
       StatusCodes.BAD_REQUEST,
-      'Token is invalid or already used'
+      'Session expired, please logout and login to your account again'
     );
   }
   if (storedToken.expiresAt < new Date()) {
