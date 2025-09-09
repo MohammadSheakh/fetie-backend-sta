@@ -13,4 +13,10 @@ router.route('/today-notification')
   auth('common'),
   NotificationController.getAllNotificationAlongWithTodaysNotificationGeneratedByChatGpt);
 
+router.route('/mark-all-read')
+.get(
+  auth('common'),
+  NotificationController.markAllNotificationAsRead
+)
+
 export const NotificationRoutes = router;
